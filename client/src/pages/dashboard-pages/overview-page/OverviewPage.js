@@ -47,7 +47,6 @@ const UserImage = styled.img`
   border-radius: 20px;
 `;
 
-
 const BlockWrapper = styled.div`
   display: flex;
   justify-content: space-between;
@@ -80,6 +79,7 @@ const BlockTitle = styled.div`
   font-weight: bold;
   color: #9fa2b4;
 `;
+
 const BlockContent = styled.span`
   font-size: 40px;
   font-weight: bold;

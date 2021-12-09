@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useRef } from "react";
+import { connect } from "react-redux";
 import styled from "styled-components";
-import { Table, Input } from "antd";
+import { Table, Input, InputNumber, Spin, message, BackTop } from "antd";
 import "antd/dist/antd.css";
 import Sidebar from "../static/Sidebar";
 import userImage from "../../../image/tuan-logo.jpeg";
+import { actionCreators } from "./store";
 
 const Container = styled.div`
   display: flex;
@@ -55,10 +57,13 @@ const OrderContainer = styled.div`
   flex-direction: column;
   justify-content: center;
 `;
+
 const SearchContainer = styled.div`
   display: flex;
   justify-content: center;
+  margin-bottom: 20px;
 `;
+
 const SearchInput = styled.input`
   width: 60%;
   line-height: 30px;
@@ -74,6 +79,7 @@ const SearchInput = styled.input`
     font-weight: normal;
   }
 `;
+
 const SearchBtn = styled.div`
   width: 10%;
   padding: 12px;
@@ -85,72 +91,13 @@ const SearchBtn = styled.div`
   cursor: pointer;
   color: white;
 `;
-const ResultWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-`;
-const ReviewContainer = styled.div`
-  width: 70%;
-  display: flex;
-  flex-direction: column;
-  //justify-content: center;
-  //align-items: center;
-  padding: 20px;
-  background-color: white;
-  overflow: auto;
-  -webkit-box-shadow: 0px 0px 20px -6px #000000;
-  box-shadow: 0px 0px 20px -6px #000000;
-`;
-
-const ReceiverContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-  align-items: flex-start;
-  border-bottom: 1px solid #9fa2b4;
-`;
-const RowWrapper = styled.div`
-  display: flex;
-  padding-top: 5px;
-  align-items: baseline;
-`;
-
-const Attribute = styled.span`
-  font-weight: bold;
-  color: #3751ff;
-`;
-const Value = styled.span`
-  font-weight: bold;
-  margin-left: 5px;
-  margin-right: 20px;
-`;
-const PackageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const ItemInput = styled.input`
-  width: 350px;
-  padding-left: 5px;
-  border: none;
-  outline: none;
-  border-bottom: 1px solid grey;
-  margin-right: 10px;
-`;
-const CostInput = styled.input`
-  width: 35px;
-  padding-left: 5px;
-  border: none;
-  outline: none;
-  border-bottom: 1px solid grey;
-`;
 
 const SubmitWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 20px;
 `;
+
 const SubmitBtn = styled.div`
   width: 10%;
   padding: 12px;
@@ -168,6 +115,7 @@ const TableWrapper = styled.div`
   justify-content: center;
 `;
 
+// set table columns
 const receiverColumns = [
   {
     title: "Receiver Information",
@@ -188,15 +136,6 @@ const receiverColumns = [
         key: "address",
       },
     ],
-  },
-];
-
-const receiverData = [
-  {
-    key: "1",
-    receiver: "张亚楠",
-    phone: "18561510937",
-    address: "山东青岛胶州绿城朗月苑南区9号楼1单元401",
   },
 ];
 
@@ -228,16 +167,6 @@ const packageColumns = [
   },
 ];
 
-const packageData = [
-  {
-    key: "1",
-    id: "PE6114416CL",
-    type: "非奶粉",
-    weight: "3.80",
-    count: "12",
-  },
-];
-
 const itemColumns = [
   {
     title: "Item Information",
@@ -264,50 +193,79 @@ const itemColumns = [
       },
       {
         title: "Add to stock",
-        dataIndex: "cost",
-        key: "cost",
+        dataIndex: "stock",
+        key: "stock",
       },
       {
         title: "Emplyee purchase",
-        dataIndex: "cost",
-        key: "cost",
+        dataIndex: "employee",
+        key: "employee",
+      },
+      {
+        title: "Note",
+        dataIndex: "note",
+        key: "note",
       },
     ],
   },
 ];
 
-const itemData = [
-  {
-    key: "1",
-    item: "Rafferty's Garden 混合果泥 120g 6+",
-    qty: "7",
-    weight: <Input type="number" />,
-    cost: <Input type="number" />,
-  },
-  {
-    key: "1",
-    item: "Plenty 核桃油 375ml ",
-    qty: "1",
-    weight: <Input type="number" />,
-    cost: <Input type="number" />,
-  },
-  {
-    key: "1",
-    item: "HIMALAYAN 粉盐 370g",
-    qty: "1",
-    weight: <Input type="number" />,
-    cost: <Input type="number" />,
-  },
-  {
-    key: "1",
-    item: "Total",
-    qty: 9,
-    weight: <Input type="number" />,
-    cost: <Input type="number" />,
-  },
-];
+const OrderPage = (props) => {
+  const { originalOrder, handleSearch, spinning } = props;
 
-const OrderPage = () => {
+  const searchInputEl = useRef(null);
+
+  // fetch receiver data from store
+  const receiverData = [
+    {
+      key: "1",
+      receiver: originalOrder.get("receiver_name"),
+      phone: originalOrder.get("receiver_phone"),
+      address: originalOrder.get("receiver_address"),
+    },
+  ];
+
+  // fetch package data from store
+  const packageData = [
+    {
+      key: "1",
+      id: originalOrder.get("package_id"),
+      type: originalOrder.get("item_type"),
+      weight: originalOrder.get("package_weight"),
+      count: originalOrder.get("item_count"),
+    },
+  ];
+
+  // fetch item data from store
+  const { TextArea } = Input;
+  var itemData = [];
+  originalOrder.get("items").map((item, index) => {
+    itemData.push({
+      key: index,
+      item: <TextArea defaultValue={item.split("*")[0].trim()} autoSize />,
+      qty: parseInt(item.split("*")[1].trim()),
+      weight: <InputNumber type="number" controls={false} />,
+      cost: <InputNumber type="number" controls={false} />,
+      stock: (
+        <InputNumber
+          type="number"
+          defaultValue={0}
+          min={0}
+          max={parseInt(item.split("*")[1].trim())}
+        />
+      ),
+      employee: (
+        <InputNumber
+          type="number"
+          defaultValue={0}
+          min={0}
+          max={parseInt(item.split("*")[1].trim())}
+        />
+      ),
+      note: <TextArea autoSize />,
+    });
+  });
+
   return (
     <Container>
       <Left>
@@ -321,46 +279,70 @@ const OrderPage = () => {
             <UserImage src={userImage}></UserImage>
           </UserWrapper>
         </Header>
-
         <OrderContainer>
           <SearchContainer>
-            <SearchInput placeholder="Please enter the package ID" />
-            <SearchBtn>Search</SearchBtn>
+            <SearchInput
+              placeholder="Please enter the package ID"
+              ref={searchInputEl}
+            />
+            <SearchBtn
+              onClick={() => handleSearch(searchInputEl.current.value)}
+            >
+              Search
+            </SearchBtn>
           </SearchContainer>
-          <TableWrapper>
-            <Table
-              style={{ width: "70%" }}
-              columns={receiverColumns}
-              dataSource={receiverData}
-              pagination={{ position: ["none", "none"] }}
-              bordered
-            />
-          </TableWrapper>
-          <TableWrapper>
-            <Table
-              style={{ width: "70%" }}
-              columns={packageColumns}
-              dataSource={packageData}
-              pagination={{ position: ["none", "none"] }}
-              bordered
-            />
-          </TableWrapper>
-          <TableWrapper>
-            <Table
-              style={{ width: "70%" }}
-              columns={itemColumns}
-              dataSource={itemData}
-              pagination={{ position: ["none", "none"] }}
-              bordered
-            />
-          </TableWrapper>
-          <SubmitWrapper>
-            <SubmitBtn>Submit</SubmitBtn>
-          </SubmitWrapper>          
+          <Spin spinning={spinning} tip="Loading">
+            <TableWrapper>
+              <Table
+                style={{ width: "70%" }}
+                columns={receiverColumns}
+                dataSource={receiverData}
+                pagination={{ position: ["none", "none"] }}
+                bordered
+              />
+            </TableWrapper>
+            <TableWrapper>
+              <Table
+                style={{ width: "70%" }}
+                columns={packageColumns}
+                dataSource={packageData}
+                pagination={{ position: ["none", "none"] }}
+                bordered
+              />
+            </TableWrapper>
+            <TableWrapper>
+              <Table
+                style={{ width: "70%" }}
+                columns={itemColumns}
+                dataSource={itemData}
+                pagination={{ position: ["none", "none"] }}
+                bordered
+              />
+            </TableWrapper>
+            <SubmitWrapper>
+              <SubmitBtn>Submit</SubmitBtn>
+            </SubmitWrapper>
+          </Spin>
         </OrderContainer>
       </Right>
+      <BackTop />
     </Container>
   );
 };
 
-export default OrderPage;
+const mapState = (state) => ({
+  originalOrder: state.getIn(["order", "originalOrder"]),
+  spinning: state.getIn(["order", "spinning"]),
+});
+
+const mapDispatch = (dispatch) => ({
+  handleSearch(pk_id) {
+    if (pk_id.trim().length === 0) {
+      message.warning("Input must not be null!");
+    } else {
+      dispatch(actionCreators.searchAction(pk_id));
+    }
+  },
+});
+
+export default connect(mapState, mapDispatch)(OrderPage);
