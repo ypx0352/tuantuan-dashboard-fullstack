@@ -37,6 +37,7 @@ const login = async () => {
 
 // search for a specific package
 const getOnePackage = async (pk_id) => {
+  console.log("check package.");
   var packageSearchData = new FormData();
   packageSearchData.append("msearch_text", "idnum");
   packageSearchData.append("sm_search", "1");
@@ -51,7 +52,6 @@ const getOnePackage = async (pk_id) => {
     });
     // check response contain package information
     const $ = cheerio.load(response.data);
-    console.log("1");
     if ($(".wid20").children().text().trim() === pk_id.trim()) {
       return parseHtml(response.data);
     } else {
@@ -127,7 +127,7 @@ const parseHtml = (data) => {
     .replace("：", "")
     .split("/");
   package_msg.receiver_name = nameAndPhone[0].trim();
-  package_msg.receiver_phone = nameAndPhone[1];
+  package_msg.receiver_phone = nameAndPhone[1].trim();
 
   // reveiver address
   package_msg.receiver_address = $("tbody")
@@ -160,13 +160,11 @@ const parseHtml = (data) => {
 
   // items
   var items = [];
-  $(".cp_title")
-    .siblings()
-    .each((index, element) => {
-      items[index] = $(element).text();
-    });
+  $(".cp_title").each((index, element) => {
+    items[index] = $(element).text().replace(";",'');
+  });
   package_msg.items = items;
   return package_msg;
 };
 
-//parseHtml(data);
+//console.log(parseHtml(data));

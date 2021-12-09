@@ -108,7 +108,6 @@ const OverviewPage = () => {
             <BlockTitle>Unresolved Order</BlockTitle>
             <BlockContent>60</BlockContent>
           </Block>
-
           <Block>
             <BlockTitle>Unresolved Checkout</BlockTitle>
             <BlockContent>60</BlockContent>
@@ -122,7 +121,7 @@ const OverviewPage = () => {
             <BlockContent>60</BlockContent>
           </Block>
         </BlockWrapper>
-        <Diagram></Diagram>
+        <Diagram>Diagram here</Diagram>
       </Right>
     </Container>
   );
