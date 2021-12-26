@@ -13,6 +13,7 @@ const defaultState = fromJS({
     items: [],
   },
   spinning: false,
+  
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -26,6 +27,7 @@ const returnNewStateToStore = (state = defaultState, action) => {
     case actionTypes.RESET_ORDER:
       return state.set("originalOrder", defaultState.get("originalOrder"));
 
+      
     default:
       return state;
   }

@@ -1,7 +1,16 @@
-import React, { useRef } from "react";
+import React, { createRef, useRef, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { Table, Input, InputNumber, Spin, message, BackTop } from "antd";
+import {
+  Table,
+  Input,
+  InputNumber,
+  Spin,
+  message,
+  BackTop,
+  Button,
+  Form,
+} from "antd";
 import "antd/dist/antd.css";
 import Sidebar from "../static/Sidebar";
 import userImage from "../../../image/tuan-logo.jpeg";
@@ -142,6 +151,7 @@ const receiverColumns = [
 const packageColumns = [
   {
     title: "Package Information",
+
     children: [
       {
         title: "ID",
@@ -167,58 +177,73 @@ const packageColumns = [
   },
 ];
 
-const itemColumns = [
-  {
-    title: "Item Information",
-    children: [
-      {
-        title: "Item",
-        dataIndex: "item",
-        key: "item",
-      },
-      {
-        title: "Qty",
-        dataIndex: "qty",
-        key: "qty",
-      },
-      {
-        title: "Price / each(AUD)",
-        dataIndex: "cost",
-        key: "cost",
-      },
-      {
-        title: "Weight / each(Kg)",
-        dataIndex: "weight",
-        key: "weight",
-      },
-      {
-        title: "Add to stock",
-        dataIndex: "stock",
-        key: "stock",
-      },
-      {
-        title: "Emplyee purchase",
-        dataIndex: "employee",
-        key: "employee",
-      },
-      {
-        title: "Note",
-        dataIndex: "note",
-        key: "note",
-      },
-    ],
-  },
-];
+// const itemColumns = [
+//   {
+//     title: "Item Information",
+//     children: [
+//       {
+//         title: "Item",
+//         dataIndex: "item",
+//         key: "item",
+//       },
+//       {
+//         title: "Qty",
+//         dataIndex: "qty",
+//         key: "qty",
+//         editable: true,
+//       },
+//       {
+//         title: "Price / each(AUD)",
+//         dataIndex: "price",
+//         key: "price",
+//       },
+//       {
+//         title: "Weight / each(Kg)",
+//         dataIndex: "weight",
+//         key: "weight",
+//       },
+//       {
+//         title: "Add to stock",
+//         dataIndex: "stock",
+//         key: "stock",
+//       },
+//       {
+//         title: "Emplyee purchase",
+//         dataIndex: "employee",
+//         key: "employee",
+//       },
+//       {
+//         title: "Note",
+//         dataIndex: "note",
+//         key: "note",
+//       },
+//       {
+//         title: "Action",
+//         dataIndex: "action",
+//         key: "action",
+//         render: (text, record, index) => {
+//           const handleRowConfirm = () => {
+//             console.log(record);
+//           };
+
+//           return <Button onClick={handleRowConfirm}>Confirm</Button>;
+//         },
+//       },
+//     ],
+//   },
+// ];
 
 const OrderPage = (props) => {
-  const { originalOrder, handleSearch, spinning } = props;
+  const { originalOrder, handleSearch, spinning } =
+    props;
 
   const searchInputEl = useRef(null);
 
+  
   // fetch receiver data from store
   const receiverData = [
     {
-      key: "1",
+      key: "receiverData",
       receiver: originalOrder.get("receiver_name"),
       phone: originalOrder.get("receiver_phone"),
       address: originalOrder.get("receiver_address"),
@@ -228,7 +253,7 @@ const OrderPage = (props) => {
   // fetch package data from store
   const packageData = [
     {
-      key: "1",
+      key: "packageData",
       id: originalOrder.get("package_id"),
       type: originalOrder.get("item_type"),
       weight: originalOrder.get("package_weight"),
@@ -236,35 +261,266 @@ const OrderPage = (props) => {
     },
   ];
 
-  // fetch item data from store
-  const { TextArea } = Input;
-  var itemData = [];
-  originalOrder.get("items").map((item, index) => {
-    itemData.push({
-      key: index,
-      item: <TextArea defaultValue={item.split("*")[0].trim()} autoSize />,
+  // fetch item data from store  
+  // const itemData = originalOrder.get("items").map((item) => ({
+  //   item: item.split("*")[0].trim(),
+  //   qty: parseInt(item.split("*")[1].trim()),
+  //   price: 0.0,
+  //   weight: 0.0,
+  //   stock: 0,
+  //   employee: 0,
+  //   note: "",
+  //   subtotalWeight: 0,
+  // }));
+
+  const itemData2 = [];
+  originalOrder.get('items').map((item)=>{
+    
+    itemData2.push({
+      item: item.split("*")[0].trim(),
       qty: parseInt(item.split("*")[1].trim()),
-      weight: <InputNumber type="number" controls={false} />,
-      cost: <InputNumber type="number" controls={false} />,
-      stock: (
-        <InputNumber
-          type="number"
-          defaultValue={0}
-          min={0}
-          max={parseInt(item.split("*")[1].trim())}
-        />
-      ),
-      employee: (
-        <InputNumber
-          type="number"
-          defaultValue={0}
-          min={0}
-          max={parseInt(item.split("*")[1].trim())}
-        />
-      ),
-      note: <TextArea autoSize />,
+      price: 0,
+      weight: 0,
+      stock: 0,
+      employee: 0,
+      note: "",
+      subtotalWeight: 0,
     });
-  });
+  })
+  console.log(itemData2);
+
+  const itemData = [
+    {
+      item: "1",
+      qty: 5,
+      price: 0,
+      weight: 0,
+      stock: 0,
+      employee: 0,
+      note: "something important",
+      subtotalWeight: 0,
+    },
+    {
+      item: "1",
+      qty: 2,
+      price: 0,
+      weight: 0,
+      stock: 1,
+      employee: 1,
+      note: "something important",
+      subtotalWeight: 0,
+    },
+    {
+      item: "1",
+      qty: 2,
+      price: 0,
+      weight: 0,
+      stock: 1,
+      employee: 1,
+      note: "something important",
+      subtotalWeight: 0,
+    },
+  ];
+
+  
+
+  // get input value from refs
+  const handleSubmit = () => {
+    try {
+      //console.log(rowRefs);
+      console.log();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const packageWeight = Number(originalOrder.get("package_weight"));
+
+  
+
+  const [itemTableData, setItemTableData] = useState(itemData2);
+  const [totalWeight, setTotalWeight] = useState(0);
+console.log(itemTableData);
+  const setEachWeight = (data, index) => {
+    data[index]["weight"] = data[index]["subtotalWeight"] / data[index]["qty"];
+  };
+
+  const addWeight = (data) => {
+    var newTotalWeight = 0;
+    data.map((item) => {
+      newTotalWeight += item["subtotalWeight"];
+    });
+    setTotalWeight(newTotalWeight);
+  };
+
+  const onInputChange = (key, index) => (e) => {
+    const newData = [...itemTableData];
+    if (key === "item" || key === "note") {
+      newData[index][key] = e.target.value;
+    } else {
+      newData[index][key] = Number(e.target.value);
+    }
+    setEachWeight(newData, index);
+    addWeight(newData);
+    setItemTableData(newData);
+  };
+
+  const itemColumns = [
+    {
+      title: "Item Information",
+      children: [
+        {
+          title: "Item",
+          dataIndex: "item",
+          key: "item",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="text"
+                value={text}
+                bordered={false}
+                onChange={onInputChange("item", index)}
+              />
+            );
+          },
+        },
+        {
+          title: "Qty",
+          dataIndex: "qty",
+          key: "qty",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="number"
+                bordered={false}
+                value={text}
+                onChange={onInputChange("qty", index)}
+              />
+            );
+          },
+        },
+        {
+          title: "Price / each",
+          dataIndex: "price",
+          key: "price",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="number"
+                prefix="$"
+                value={text}
+                bordered={false}
+                onChange={onInputChange("price", index)}
+              />
+            );
+          },
+        },
+        {
+          title: "Weight / each",
+          dataIndex: "weight",
+          key: "weight",
+        },
+        {
+          title: "Add to stock",
+          dataIndex: "stock",
+          key: "stock",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="number"
+                min={0}
+                max={
+                  itemTableData[index]["qty"] - itemTableData[index]["employee"]
+                }
+                value={text}
+                bordered={false}
+                onChange={onInputChange("stock", index)}
+              />
+            );
+          },
+        },
+        {
+          title: "Emplyee purchase",
+          dataIndex: "employee",
+          key: "employee",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="number"
+                min={0}
+                max={
+                  itemTableData[index]["qty"] - itemTableData[index]["stock"]
+                }
+                bordered={false}
+                value={text}
+                onChange={onInputChange("employee", index)}
+              />
+            );
+          },
+        },
+        {
+          title: "Note",
+          dataIndex: "note",
+          key: "note",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="text"
+                value={text}
+                bordered={false}
+                onChange={onInputChange("note", index)}
+              />
+            );
+          },
+        },
+        {
+          title: "Subtotal weight",
+          dataIndex: "subtotalWeight",
+          key: "subtotalWeight",
+          render: (text, record, index) => {
+            const handleAutoFill = (index) => {
+              const newData = [...itemTableData];
+              newData[index]["subtotalWeight"] =
+                packageWeight - totalWeight - newData[index]["subtotalWeight"] <
+                0
+                  ? 0
+                  : packageWeight -
+                    totalWeight -
+                    newData[index]["subtotalWeight"];
+              setEachWeight(newData, index);
+              addWeight(newData);
+              setItemTableData(newData);
+              console.log(totalWeight);
+            };
+            return (
+              <>
+                <Input
+                  type="number"
+                  min={0}
+                  max={packageWeight}
+                  value={text}
+                  bordered={false}
+                  onChange={onInputChange("subtotalWeight", index)}
+                />
+                <Button onClick={() => handleAutoFill(index)}>Auto Fill</Button>
+              </>
+            );
+          },
+        },
+        {
+          title: "Action",
+          dataIndex: "action",
+          key: "action",
+          render: (text, record, index) => {
+            const handleRowConfirm = () => {
+              console.log(itemTableData);
+            };
+            return <Button onClick={handleRowConfirm}>Confirm</Button>;
+          },
+        },
+      ],
+    },
+  ];
 
   return (
     <Container>
@@ -314,15 +570,15 @@ const OrderPage = (props) => {
               <Table
                 style={{ width: "70%" }}
                 columns={itemColumns}
-                dataSource={itemData}
+                dataSource={itemTableData}
                 pagination={{ position: ["none", "none"] }}
                 bordered
               />
             </TableWrapper>
             <SubmitWrapper>
-              <SubmitBtn>Submit</SubmitBtn>
+              <SubmitBtn onClick={handleSubmit}>Submit</SubmitBtn>
             </SubmitWrapper>
-          </Spin>
+          </Spin>          
         </OrderContainer>
       </Right>
       <BackTop />
@@ -333,6 +589,7 @@ const OrderPage = (props) => {
 const mapState = (state) => ({
   originalOrder: state.getIn(["order", "originalOrder"]),
   spinning: state.getIn(["order", "spinning"]),
+  
 });
 
 const mapDispatch = (dispatch) => ({
@@ -343,6 +600,8 @@ const mapDispatch = (dispatch) => ({
       dispatch(actionCreators.searchAction(pk_id));
     }
   },
+
+  
 });
 
 export default connect(mapState, mapDispatch)(OrderPage);

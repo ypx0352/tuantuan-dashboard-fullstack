@@ -16,19 +16,22 @@ export const searchAction = (pk_id) => {
       const response = await axios.get(
         `http://localhost:1100/api/order/${pk_id.trim()}`
       );
-      console.log(response.data);
       const { result } = response.data;
       dispatch({
         type: actionTypes.INITIAL_ORDER,
         value: fromJS(result),
       });
+      
+
+
       dispatch({
         type: actionTypes.SPINNING,
         value: fromJS(false),
       });
     } catch (error) {
-      const { msg } = error.response.data;
-      message.warning(msg);
+       const { msg } = error.response.data;
+       message.warning(msg);
+      console.log(error);
       dispatch({
         type: actionTypes.SPINNING,
         value: fromJS(false),
@@ -36,3 +39,5 @@ export const searchAction = (pk_id) => {
     }
   };
 };
+
+
