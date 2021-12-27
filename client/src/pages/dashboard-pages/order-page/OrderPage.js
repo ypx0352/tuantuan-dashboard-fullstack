@@ -1,20 +1,13 @@
-import React, { createRef, useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import {
-  Table,
-  Input,
-  InputNumber,
-  Spin,
-  message,
-  BackTop,
-  Button,
-  Form,
-} from "antd";
+import { Table, Input, Spin, message, BackTop, Button } from "antd";
 import "antd/dist/antd.css";
 import Sidebar from "../static/Sidebar";
 import userImage from "../../../image/tuan-logo.jpeg";
 import { actionCreators } from "./store";
+
+const { TextArea } = Input;
 
 const Container = styled.div`
   display: flex;
@@ -70,23 +63,7 @@ const OrderContainer = styled.div`
 const SearchContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
-`;
-
-const SearchInput = styled.input`
-  width: 60%;
-  line-height: 30px;
-  padding: 5px;
-  border: 1px solid #9fa2b4;
-  border-radius: 5px;
-  background-color: #fcfdfe;
-  outline: none;
-  margin-top: 5px;
-  font-weight: bold;
-  ::placeholder {
-    color: #9fa2b4;
-    font-weight: normal;
-  }
+  margin-bottom: 60px;
 `;
 
 const SearchBtn = styled.div`
@@ -103,7 +80,7 @@ const SearchBtn = styled.div`
 
 const SubmitWrapper = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   margin-top: 20px;
 `;
 
@@ -177,69 +154,11 @@ const packageColumns = [
   },
 ];
 
-// const itemColumns = [
-//   {
-//     title: "Item Information",
-//     children: [
-//       {
-//         title: "Item",
-//         dataIndex: "item",
-//         key: "item",
-//       },
-//       {
-//         title: "Qty",
-//         dataIndex: "qty",
-//         key: "qty",
-//         editable: true,
-//       },
-//       {
-//         title: "Price / each(AUD)",
-//         dataIndex: "price",
-//         key: "price",
-//       },
-//       {
-//         title: "Weight / each(Kg)",
-//         dataIndex: "weight",
-//         key: "weight",
-//       },
-//       {
-//         title: "Add to stock",
-//         dataIndex: "stock",
-//         key: "stock",
-//       },
-//       {
-//         title: "Emplyee purchase",
-//         dataIndex: "employee",
-//         key: "employee",
-//       },
-//       {
-//         title: "Note",
-//         dataIndex: "note",
-//         key: "note",
-//       },
-//       {
-//         title: "Action",
-//         dataIndex: "action",
-//         key: "action",
-//         render: (text, record, index) => {
-//           const handleRowConfirm = () => {
-//             console.log(record);
-//           };
-
-//           return <Button onClick={handleRowConfirm}>Confirm</Button>;
-//         },
-//       },
-//     ],
-//   },
-// ];
-
 const OrderPage = (props) => {
-  const { originalOrder, handleSearch, spinning } =
-    props;
+  const { originalOrder, handleSearch, spinning } = props;
 
   const searchInputEl = useRef(null);
 
-  
   // fetch receiver data from store
   const receiverData = [
     {
@@ -261,86 +180,32 @@ const OrderPage = (props) => {
     },
   ];
 
-  // fetch item data from store  
-  // const itemData = originalOrder.get("items").map((item) => ({
-  //   item: item.split("*")[0].trim(),
-  //   qty: parseInt(item.split("*")[1].trim()),
-  //   price: 0.0,
-  //   weight: 0.0,
-  //   stock: 0,
-  //   employee: 0,
-  //   note: "",
-  //   subtotalWeight: 0,
-  // }));
+  // fetch item data from store
+  const packageWeight = Number(originalOrder.get("package_weight"));
 
-  const itemData2 = [];
-  originalOrder.get('items').map((item)=>{
-    
-    itemData2.push({
+  const itemData = originalOrder
+    .get("items")
+    .map((item) => ({
+      key: item.split("*")[0].trim(),
       item: item.split("*")[0].trim(),
       qty: parseInt(item.split("*")[1].trim()),
-      price: 0,
-      weight: 0,
+      price: null,
+      weight: null,
       stock: 0,
       employee: 0,
       note: "",
-      subtotalWeight: 0,
-    });
-  })
-  console.log(itemData2);
+      subtotalWeight: null,
+    }))
+    .toJS();
 
-  const itemData = [
-    {
-      item: "1",
-      qty: 5,
-      price: 0,
-      weight: 0,
-      stock: 0,
-      employee: 0,
-      note: "something important",
-      subtotalWeight: 0,
-    },
-    {
-      item: "1",
-      qty: 2,
-      price: 0,
-      weight: 0,
-      stock: 1,
-      employee: 1,
-      note: "something important",
-      subtotalWeight: 0,
-    },
-    {
-      item: "1",
-      qty: 2,
-      price: 0,
-      weight: 0,
-      stock: 1,
-      employee: 1,
-      note: "something important",
-      subtotalWeight: 0,
-    },
-  ];
+  const [itemTableData, setItemTableData] = useState([]);
 
-  
+  useEffect(() => {
+    setItemTableData(itemData);
+  }, [originalOrder]);
 
-  // get input value from refs
-  const handleSubmit = () => {
-    try {
-      //console.log(rowRefs);
-      console.log();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const packageWeight = Number(originalOrder.get("package_weight"));
-
-  
-
-  const [itemTableData, setItemTableData] = useState(itemData2);
   const [totalWeight, setTotalWeight] = useState(0);
-console.log(itemTableData);
+
   const setEachWeight = (data, index) => {
     data[index]["weight"] = data[index]["subtotalWeight"] / data[index]["qty"];
   };
@@ -373,12 +238,13 @@ console.log(itemTableData);
           title: "Item",
           dataIndex: "item",
           key: "item",
+          width: "20%",
           render: (text, record, index) => {
             return (
-              <Input
-                type="text"
-                value={text}
+              <TextArea
                 bordered={false}
+                autoSize
+                value={text}
                 onChange={onInputChange("item", index)}
               />
             );
@@ -408,8 +274,9 @@ console.log(itemTableData);
               <Input
                 type="number"
                 prefix="$"
-                value={text}
                 bordered={false}
+                controls={false}
+                value={text}
                 onChange={onInputChange("price", index)}
               />
             );
@@ -458,21 +325,7 @@ console.log(itemTableData);
             );
           },
         },
-        {
-          title: "Note",
-          dataIndex: "note",
-          key: "note",
-          render: (text, record, index) => {
-            return (
-              <Input
-                type="text"
-                value={text}
-                bordered={false}
-                onChange={onInputChange("note", index)}
-              />
-            );
-          },
-        },
+
         {
           title: "Subtotal weight",
           dataIndex: "subtotalWeight",
@@ -490,7 +343,6 @@ console.log(itemTableData);
               setEachWeight(newData, index);
               addWeight(newData);
               setItemTableData(newData);
-              console.log(totalWeight);
             };
             return (
               <>
@@ -502,8 +354,25 @@ console.log(itemTableData);
                   bordered={false}
                   onChange={onInputChange("subtotalWeight", index)}
                 />
-                <Button onClick={() => handleAutoFill(index)}>Auto Fill</Button>
+                <Button size="small" onClick={() => handleAutoFill(index)}>
+                  Auto Fill
+                </Button>
               </>
+            );
+          },
+        },
+        {
+          title: "Note",
+          dataIndex: "note",
+          key: "note",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="text"
+                value={text}
+                bordered={false}
+                onChange={onInputChange("note", index)}
+              />
             );
           },
         },
@@ -512,15 +381,44 @@ console.log(itemTableData);
           dataIndex: "action",
           key: "action",
           render: (text, record, index) => {
-            const handleRowConfirm = () => {
-              console.log(itemTableData);
+            const handleDelete = () => {
+              var newData = [...itemTableData];
+              newData = newData.filter(
+                (item, itemIndex) => itemIndex !== index
+              );
+              setItemTableData(newData);
             };
-            return <Button onClick={handleRowConfirm}>Confirm</Button>;
+            return (
+              <Button size="small" onClick={handleDelete}>
+                Delete
+              </Button>
+            );
           },
         },
       ],
     },
   ];
+
+  const handleSubmit = () => {
+    console.log(itemTableData, packageData[0]);
+  };
+
+  const handleAdd = () => {
+    setItemTableData([
+      ...itemTableData,
+      {
+        key: new Date().toLocaleString(),
+        item: null,
+        qty: null,
+        price: null,
+        weight: null,
+        stock: 0,
+        employee: 0,
+        note: "",
+        subtotalWeight: null,
+      },
+    ]);
+  };
 
   return (
     <Container>
@@ -537,12 +435,17 @@ console.log(itemTableData);
         </Header>
         <OrderContainer>
           <SearchContainer>
-            <SearchInput
+            <Input
               placeholder="Please enter the package ID"
+              defaultValue="PE6247631CL"
               ref={searchInputEl}
+              style={{ width: "50%" }}
+              onPressEnter={() =>
+                handleSearch(searchInputEl.current.state.value)
+              }
             />
             <SearchBtn
-              onClick={() => handleSearch(searchInputEl.current.value)}
+              onClick={() => handleSearch(searchInputEl.current.state.value)}
             >
               Search
             </SearchBtn>
@@ -550,7 +453,14 @@ console.log(itemTableData);
           <Spin spinning={spinning} tip="Loading">
             <TableWrapper>
               <Table
-                style={{ width: "70%" }}
+                style={{ width: "50%" }}
+                columns={packageColumns}
+                dataSource={packageData}
+                pagination={{ position: ["none", "none"] }}
+                bordered
+              />
+              <Table
+                style={{ width: "50%" }}
                 columns={receiverColumns}
                 dataSource={receiverData}
                 pagination={{ position: ["none", "none"] }}
@@ -559,16 +469,7 @@ console.log(itemTableData);
             </TableWrapper>
             <TableWrapper>
               <Table
-                style={{ width: "70%" }}
-                columns={packageColumns}
-                dataSource={packageData}
-                pagination={{ position: ["none", "none"] }}
-                bordered
-              />
-            </TableWrapper>
-            <TableWrapper>
-              <Table
-                style={{ width: "70%" }}
+                style={{ width: "100%" }}
                 columns={itemColumns}
                 dataSource={itemTableData}
                 pagination={{ position: ["none", "none"] }}
@@ -576,9 +477,10 @@ console.log(itemTableData);
               />
             </TableWrapper>
             <SubmitWrapper>
+              <SubmitBtn onClick={handleAdd}>Add</SubmitBtn>
               <SubmitBtn onClick={handleSubmit}>Submit</SubmitBtn>
             </SubmitWrapper>
-          </Spin>          
+          </Spin>
         </OrderContainer>
       </Right>
       <BackTop />
@@ -589,7 +491,6 @@ console.log(itemTableData);
 const mapState = (state) => ({
   originalOrder: state.getIn(["order", "originalOrder"]),
   spinning: state.getIn(["order", "spinning"]),
-  
 });
 
 const mapDispatch = (dispatch) => ({
@@ -600,8 +501,6 @@ const mapDispatch = (dispatch) => ({
       dispatch(actionCreators.searchAction(pk_id));
     }
   },
-
-  
 });
 
 export default connect(mapState, mapDispatch)(OrderPage);
