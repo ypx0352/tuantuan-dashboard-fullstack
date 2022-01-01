@@ -4,4 +4,6 @@ export const SPINNING = "SPINNING";
 
 export const RESET_ORDER = "RESET_ORDER";
 
+export const EXCHANGE_RATE = "EXCHANGE_RATE";
 
+export const EXCHANGE_RATE_SPINNING = "EXCHANGE_RATE_SPINNING";

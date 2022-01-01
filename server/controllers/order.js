@@ -140,4 +140,19 @@ const getOrder = async (req, res) => {
   }
 };
 
-module.exports = getOrder;
+const getExchangeRate = async (req, res) => {
+  try {
+    // request html from the bank
+    const response = await axios.get("https://www.boc.cn/sourcedb/whpj/");
+
+    // parse html
+    const $ = cheerio.load(response.data);
+    const exchangeRate = $("tr").eq(3).children().eq(3).text();
+    res.status(200).json({ result: exchangeRate });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Can not get the exchange rate!" });
+  }
+};
+
+module.exports = { getOrder, getExchangeRate };

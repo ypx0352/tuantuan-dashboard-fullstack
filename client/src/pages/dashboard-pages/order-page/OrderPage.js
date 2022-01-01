@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { Table, Input, Spin, message, BackTop, Button } from "antd";
 import "antd/dist/antd.css";
+import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
 import userImage from "../../../image/tuan-logo.jpeg";
 import { actionCreators } from "./store";
@@ -96,6 +97,13 @@ const SubmitBtn = styled.div`
   color: white;
 `;
 
+const ExchangeRateWrapper = styled.a.attrs({ target: "_blank" })`
+  text-align: right;
+  color: #3751ff;
+  padding: 0 10px;
+  font-weight: bold;
+`;
+
 const TableWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -155,9 +163,18 @@ const packageColumns = [
 ];
 
 const OrderPage = (props) => {
-  const { originalOrder, handleSearch, spinning } = props;
+  const {
+    originalOrder,
+    handleSearch,
+    spinning,
+    exchangeRate,
+    initializeExchangeRate,
+    exchangeRateSpinning,
+  } = props;
 
   const searchInputEl = useRef(null);
+
+  useEffect(() => initializeExchangeRate(), []);
 
   // fetch receiver data from store
   const receiverData = [
@@ -337,9 +354,9 @@ const OrderPage = (props) => {
                 packageWeight - totalWeight - newData[index]["subtotalWeight"] <
                 0
                   ? 0
-                  : packageWeight -
+                  : Number((packageWeight -
                     totalWeight -
-                    newData[index]["subtotalWeight"];
+                    newData[index]["subtotalWeight"]).toFixed(2));
               setEachWeight(newData, index);
               addWeight(newData);
               setItemTableData(newData);
@@ -420,6 +437,10 @@ const OrderPage = (props) => {
     ]);
   };
 
+  const antIcon = (
+    <LoadingOutlined style={{ fontSize: 24, color: "#3751ff" }} spin />
+  );
+
   return (
     <Container>
       <Left>
@@ -450,6 +471,13 @@ const OrderPage = (props) => {
               Search
             </SearchBtn>
           </SearchContainer>
+
+          <ExchangeRateWrapper href="https://www.boc.cn/sourcedb/whpj/enindex_1619.html">
+            Current exchange rate:{" "}
+            <Spin spinning={exchangeRateSpinning} indicator={antIcon} />
+            {exchangeRate}
+          </ExchangeRateWrapper>
+
           <Spin spinning={spinning} tip="Loading">
             <TableWrapper>
               <Table
@@ -491,6 +519,8 @@ const OrderPage = (props) => {
 const mapState = (state) => ({
   originalOrder: state.getIn(["order", "originalOrder"]),
   spinning: state.getIn(["order", "spinning"]),
+  exchangeRate: state.getIn(["order", "exchangeRate"]),
+  exchangeRateSpinning: state.getIn(["order", "exchangeRateSpinning"]),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -500,6 +530,10 @@ const mapDispatch = (dispatch) => ({
     } else {
       dispatch(actionCreators.searchAction(pk_id));
     }
+  },
+
+  initializeExchangeRate() {    
+    dispatch(actionCreators.initializeExchangeRateAction);
   },
 });
 

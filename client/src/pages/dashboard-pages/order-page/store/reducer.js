@@ -13,7 +13,8 @@ const defaultState = fromJS({
     items: [],
   },
   spinning: false,
-  
+  exchangeRate: "",
+  exchangeRateSpinning: false
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -27,7 +28,12 @@ const returnNewStateToStore = (state = defaultState, action) => {
     case actionTypes.RESET_ORDER:
       return state.set("originalOrder", defaultState.get("originalOrder"));
 
-      
+    case actionTypes.EXCHANGE_RATE:
+      return state.set("exchangeRate", action.value);
+
+    case actionTypes.EXCHANGE_RATE_SPINNING:
+      return state.set("exchangeRateSpinning", action.value);
+
     default:
       return state;
   }
