@@ -109,58 +109,9 @@ const TableWrapper = styled.div`
   justify-content: center;
 `;
 
-// set table columns
-const receiverColumns = [
-  {
-    title: "Receiver Information",
-    children: [
-      {
-        title: "Receiver",
-        dataIndex: "receiver",
-        key: "receiver",
-      },
-      {
-        title: "Phone",
-        dataIndex: "phone",
-        key: "phone",
-      },
-      {
-        title: "Address",
-        dataIndex: "address",
-        key: "address",
-      },
-    ],
-  },
-];
-
-const packageColumns = [
-  {
-    title: "Package Information",
-
-    children: [
-      {
-        title: "ID",
-        dataIndex: "id",
-        key: "id",
-      },
-      {
-        title: "Type",
-        dataIndex: "type",
-        key: "type",
-      },
-      {
-        title: "Weight(Kg)",
-        dataIndex: "weight",
-        key: "weight",
-      },
-      {
-        title: "Count",
-        dataIndex: "count",
-        key: "count",
-      },
-    ],
-  },
-];
+const antIcon = (
+  <LoadingOutlined style={{ fontSize: 24, color: "#3751ff" }} spin />
+);
 
 const OrderPage = (props) => {
   const {
@@ -174,6 +125,7 @@ const OrderPage = (props) => {
 
   const searchInputEl = useRef(null);
 
+  // get current exchange rate
   useEffect(() => initializeExchangeRate(), []);
 
   // fetch receiver data from store
@@ -186,7 +138,34 @@ const OrderPage = (props) => {
     },
   ];
 
+  // set receiver columns
+  const receiverColumns = [
+    {
+      title: "Receiver Information",
+      children: [
+        {
+          title: "Receiver",
+          dataIndex: "receiver",
+          key: "receiver",
+        },
+        {
+          title: "Phone",
+          dataIndex: "phone",
+          key: "phone",
+        },
+        {
+          title: "Address",
+          dataIndex: "address",
+          key: "address",
+        },
+      ],
+    },
+  ];
+
   // fetch package data from store
+  const [postage, setPostage] = useState(null);
+  const [exchangeRateState, setExchangeRatState] = useState(null);
+
   const packageData = [
     {
       key: "packageData",
@@ -194,6 +173,72 @@ const OrderPage = (props) => {
       type: originalOrder.get("item_type"),
       weight: originalOrder.get("package_weight"),
       count: originalOrder.get("item_count"),
+      postage: postage,
+      exchangeRate: exchangeRateState,
+    },
+  ];
+
+  // set package columns
+  const packageColumns = [
+    {
+      title: "Package Information",
+
+      children: [
+        {
+          title: "ID",
+          dataIndex: "id",
+          key: "id",
+        },
+        {
+          title: "Type",
+          dataIndex: "type",
+          key: "type",
+          width: "15%",
+        },
+        {
+          title: "Weight(Kg)",
+          dataIndex: "weight",
+          key: "weight",
+        },
+        {
+          title: "Count",
+          dataIndex: "count",
+          key: "count",
+        },
+        {
+          title: "Exchange rate",
+          dataIndex: "exchangeRate",
+          key: "exchangeRate",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="number"
+                size="small"
+                bordered={false}
+                value={text}
+                onChange={(e) => setExchangeRatState(e.target.value)}
+              />
+            );
+          },
+        },
+        {
+          title: "Postage",
+          dataIndex: "postage",
+          key: "postage",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="number"
+                size="small"
+                prefix="$"
+                bordered={false}
+                value={text}
+                onChange={(e) => setPostage(e.target.value)}
+              />
+            );
+          },
+        },
+      ],
     },
   ];
 
@@ -210,8 +255,9 @@ const OrderPage = (props) => {
       weight: null,
       stock: 0,
       employee: 0,
-      note: "",
       subtotalWeight: null,
+      cost: null,
+      note: "",
     }))
     .toJS();
 
@@ -224,7 +270,9 @@ const OrderPage = (props) => {
   const [totalWeight, setTotalWeight] = useState(0);
 
   const setEachWeight = (data, index) => {
-    data[index]["weight"] = data[index]["subtotalWeight"] / data[index]["qty"];
+    data[index]["weight"] = Number(
+      (data[index]["subtotalWeight"] / data[index]["qty"]).toFixed(2)
+    );
   };
 
   const addWeight = (data) => {
@@ -233,6 +281,34 @@ const OrderPage = (props) => {
       newTotalWeight += item["subtotalWeight"];
     });
     setTotalWeight(newTotalWeight);
+  };
+
+  const calculateCost = (data, index) => {
+    data[index]["cost"] = Number(
+      (
+        (data[index]["price"] +
+          (data[index]["weight"] / packageWeight) * postage) *
+        exchangeRateState
+      ).toFixed(2)
+    );
+  };
+
+  const handleAutoFill = (index) => {
+    const newData = [...itemTableData];
+    newData[index]["subtotalWeight"] =
+      packageWeight - totalWeight - newData[index]["subtotalWeight"] < 0
+        ? 0
+        : Number(
+            (
+              packageWeight -
+              totalWeight -
+              newData[index]["subtotalWeight"]
+            ).toFixed(2)
+          );
+    setEachWeight(newData, index);
+    addWeight(newData);
+    calculateCost(newData, index);
+    setItemTableData(newData);
   };
 
   const onInputChange = (key, index) => (e) => {
@@ -244,9 +320,11 @@ const OrderPage = (props) => {
     }
     setEachWeight(newData, index);
     addWeight(newData);
+    calculateCost(newData, index);
     setItemTableData(newData);
   };
 
+  // set item columns
   const itemColumns = [
     {
       title: "Item Information",
@@ -348,19 +426,6 @@ const OrderPage = (props) => {
           dataIndex: "subtotalWeight",
           key: "subtotalWeight",
           render: (text, record, index) => {
-            const handleAutoFill = (index) => {
-              const newData = [...itemTableData];
-              newData[index]["subtotalWeight"] =
-                packageWeight - totalWeight - newData[index]["subtotalWeight"] <
-                0
-                  ? 0
-                  : Number((packageWeight -
-                    totalWeight -
-                    newData[index]["subtotalWeight"]).toFixed(2));
-              setEachWeight(newData, index);
-              addWeight(newData);
-              setItemTableData(newData);
-            };
             return (
               <>
                 <Input
@@ -375,6 +440,22 @@ const OrderPage = (props) => {
                   Auto Fill
                 </Button>
               </>
+            );
+          },
+        },
+        {
+          title: "Cost / each",
+          dataIndex: "cost",
+          key: "cost",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="text"
+                prefix="￥"
+                value={text}
+                bordered={false}
+                onChange={onInputChange("cost", index)}
+              />
             );
           },
         },
@@ -417,7 +498,7 @@ const OrderPage = (props) => {
   ];
 
   const handleSubmit = () => {
-    console.log(itemTableData, packageData[0]);
+    console.log(itemTableData, packageData[0], exchangeRateState, postage);
   };
 
   const handleAdd = () => {
@@ -437,10 +518,6 @@ const OrderPage = (props) => {
     ]);
   };
 
-  const antIcon = (
-    <LoadingOutlined style={{ fontSize: 24, color: "#3751ff" }} spin />
-  );
-
   return (
     <Container>
       <Left>
@@ -458,7 +535,7 @@ const OrderPage = (props) => {
           <SearchContainer>
             <Input
               placeholder="Please enter the package ID"
-              defaultValue="PE6247631CL"
+              defaultValue="PE6267860CL"
               ref={searchInputEl}
               style={{ width: "50%" }}
               onPressEnter={() =>
@@ -532,7 +609,7 @@ const mapDispatch = (dispatch) => ({
     }
   },
 
-  initializeExchangeRate() {    
+  initializeExchangeRate() {
     dispatch(actionCreators.initializeExchangeRateAction);
   },
 });
