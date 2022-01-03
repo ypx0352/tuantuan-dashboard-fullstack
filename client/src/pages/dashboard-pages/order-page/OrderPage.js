@@ -123,6 +123,10 @@ const OrderPage = (props) => {
     exchangeRateSpinning,
   } = props;
 
+  const normalPostage = 7.4;
+  const babyFormulaPostage = 18.9;
+  const exchangeRateInSetting = 4.7;
+
   const searchInputEl = useRef(null);
 
   // get current exchange rate
@@ -152,6 +156,17 @@ const OrderPage = (props) => {
           title: "Phone",
           dataIndex: "phone",
           key: "phone",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="text"
+                prefix="+86"
+                size="small"
+                value={text}
+                bordered={false}
+              />
+            );
+          },
         },
         {
           title: "Address",
@@ -165,6 +180,32 @@ const OrderPage = (props) => {
   // fetch package data from store
   const [postage, setPostage] = useState(null);
   const [exchangeRateState, setExchangeRatState] = useState(null);
+
+  const calculatePostage = (packageType) => {
+    switch (packageType) {
+      case "非奶粉":
+        setPostage(
+          Number(
+            (originalOrder.get("package_weight") <= 1
+              ? 1
+              : originalOrder.get("package_weight")) *
+              normalPostage +
+              1
+          ).toFixed(2)
+        );
+        break;
+      case "奶粉":
+        setPostage(babyFormulaPostage);
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    calculatePostage(originalOrder.get("item_type"));
+    setExchangeRatState(exchangeRateInSetting);
+  }, [originalOrder]);
 
   const packageData = [
     {
@@ -196,9 +237,20 @@ const OrderPage = (props) => {
           width: "15%",
         },
         {
-          title: "Weight(Kg)",
+          title: "Weight",
           dataIndex: "weight",
           key: "weight",
+          render: (text, record, index) => {
+            return (
+              <Input
+                type="number"
+                suffix="Kg"
+                value={text}
+                size="small"
+                bordered={false}
+              />
+            );
+          },
         },
         {
           title: "Count",
@@ -465,9 +517,9 @@ const OrderPage = (props) => {
           key: "note",
           render: (text, record, index) => {
             return (
-              <Input
-                type="text"
+              <TextArea
                 value={text}
+                autoSize
                 bordered={false}
                 onChange={onInputChange("note", index)}
               />

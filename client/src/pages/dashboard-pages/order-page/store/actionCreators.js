@@ -32,6 +32,7 @@ export const searchAction = (pk_id) => {
         value: fromJS(false),
       });
     } catch (error) {
+      console.log(error);
       const { msg } = error.response.data;
       message.warning(msg);
 
