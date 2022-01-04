@@ -188,7 +188,7 @@ const OrderPage = (props) => {
           Number(
             (originalOrder.get("package_weight") <= 1
               ? 1
-              : originalOrder.get("package_weight")) *
+              : Number(originalOrder.get("package_weight")).toFixed(1)) *
               normalPostage +
               1
           ).toFixed(2)
