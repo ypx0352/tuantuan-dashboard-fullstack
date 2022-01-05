@@ -22,5 +22,5 @@ app.get("/api/all", async (req, res) => {
 app.use("/api/order", orderRouter);
 
 app.listen(1100, () => {
-  console.log("server listening on port 1100.");
+  console.log("server listening on port 1100");
 });
