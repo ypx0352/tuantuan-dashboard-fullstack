@@ -65,3 +65,17 @@ export const initializeExchangeRateAction = async (dispatch) => {
     });
   }
 };
+
+export const submitTableDataAction = (tableData)=>{
+  return async (dispatch)=>{
+    try {
+      const response = await axios.post(serverBaseUrl + '/api/order/submit', tableData);  
+
+
+    } catch (error) {
+      console.log(error);
+      const { msg } = error.response.data;
+      message.warning(msg);
+    }
+}
+}

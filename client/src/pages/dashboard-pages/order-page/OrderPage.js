@@ -18,11 +18,11 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
-  width: 20%;
+  width: 15%;
 `;
 
 const Right = styled.div`
-  width: 80%;
+  width: 85%;
   padding: 20px;
 `;
 
@@ -121,6 +121,7 @@ const OrderPage = (props) => {
     exchangeRate,
     initializeExchangeRate,
     exchangeRateSpinning,
+    handleSubmit,
   } = props;
 
   const normalPostage = 7.4;
@@ -186,12 +187,12 @@ const OrderPage = (props) => {
       case "非奶粉":
         setPostage(
           Number(
-            (originalOrder.get("package_weight") <= 1
+            ((originalOrder.get("package_weight") <= 1
               ? 1
               : Number(originalOrder.get("package_weight")).toFixed(1)) *
               normalPostage +
               1
-          ).toFixed(2)
+          ).toFixed(2))
         );
         break;
       case "奶粉":
@@ -423,6 +424,7 @@ const OrderPage = (props) => {
                 prefix="$"
                 bordered={false}
                 controls={false}
+                min={0}
                 value={text}
                 onChange={onInputChange("price", index)}
               />
@@ -549,9 +551,7 @@ const OrderPage = (props) => {
     },
   ];
 
-  const handleSubmit = () => {
-    console.log(itemTableData, packageData[0], exchangeRateState, postage);
-  };
+  
 
   const handleAdd = () => {
     setItemTableData([
@@ -610,20 +610,24 @@ const OrderPage = (props) => {
           <Spin spinning={spinning} tip="Loading">
             <TableWrapper>
               <Table
-                style={{ width: "50%" }}
+                style={{ width: "100%" }}
                 columns={packageColumns}
                 dataSource={packageData}
                 pagination={{ position: ["none", "none"] }}
                 bordered
               />
+            </TableWrapper>
+
+            <TableWrapper>
               <Table
-                style={{ width: "50%" }}
+                style={{ width: "100%" }}
                 columns={receiverColumns}
                 dataSource={receiverData}
                 pagination={{ position: ["none", "none"] }}
                 bordered
               />
             </TableWrapper>
+
             <TableWrapper>
               <Table
                 style={{ width: "100%" }}
@@ -635,7 +639,16 @@ const OrderPage = (props) => {
             </TableWrapper>
             <SubmitWrapper>
               <SubmitBtn onClick={handleAdd}>Add</SubmitBtn>
-              <SubmitBtn onClick={handleSubmit}>Submit</SubmitBtn>
+              <SubmitBtn
+                onClick={() =>
+                  handleSubmit({
+                    items: itemTableData,
+                    package: packageData[0],                    
+                  })
+                }
+              >
+                Submit
+              </SubmitBtn>
             </SubmitWrapper>
           </Spin>
         </OrderContainer>
@@ -663,6 +676,10 @@ const mapDispatch = (dispatch) => ({
 
   initializeExchangeRate() {
     dispatch(actionCreators.initializeExchangeRateAction);
+  },
+
+  handleSubmit(tableData) {
+    dispatch(actionCreators.submitTableDataAction(tableData));
   },
 });
 

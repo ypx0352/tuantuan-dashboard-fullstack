@@ -11,11 +11,11 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
-  width: 20%;
+  width: 15%;
 `;
 
 const Right = styled.div`
-  width: 80%;
+  width: 85%;
   padding: 20px;
 `;
 

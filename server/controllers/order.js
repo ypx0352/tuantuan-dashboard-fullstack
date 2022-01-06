@@ -155,4 +155,62 @@ const getExchangeRate = async (req, res) => {
   }
 };
 
-module.exports = { getOrder, getExchangeRate };
+const submitOrder = async (req, res) => {
+  const soldItems = [];
+  const stockItems = [];
+  const employeeItems = [];
+  const tableData = req.body;
+  const { id, exchangeRate } = tableData.package;
+
+  tableData.items.forEach((element) => {
+    const { item, qty, stock, employee, price, weight, cost, note } = element;
+
+    if (stock > 0) {
+      stockItems.push({
+        item,
+        qty: stock,
+        price,
+        weight,
+        cost,
+        note,
+        pk_id: id,
+        exchangeRate,
+      });
+    }
+    if (employee > 0) {
+      employeeItems.push({
+        item,
+        qty: employee,
+        price,
+        weight,
+        cost,
+        note,
+        pk_id: id,
+        exchangeRate,
+      });
+    }
+    if (qty - stock - employee > 0) {
+      soldItems.push({
+        item,
+        qty: qty - stock - employee,
+        price,
+        weight,
+        cost,
+        note,
+        pk_id: id,
+        exchangeRate,
+      });
+    }
+  });
+
+  console.log(
+    "sold",
+    soldItems,
+    "stock",
+    stockItems,
+    "employee",
+    employeeItems
+  );
+};
+
+module.exports = { getOrder, getExchangeRate, submitOrder };
