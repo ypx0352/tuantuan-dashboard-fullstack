@@ -11,6 +11,7 @@ import { actionCreators } from "./store";
 const { TextArea } = Input;
 
 const Container = styled.div`
+  position: relative;
   display: flex;
   background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
@@ -56,9 +57,11 @@ const UserImage = styled.img`
 `;
 
 const OrderContainer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding: 10px;
 `;
 
 const SearchContainer = styled.div`
@@ -82,7 +85,9 @@ const SearchBtn = styled.div`
 const SubmitWrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin: 20px 0;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed grey;
 `;
 
 const SubmitBtn = styled.div`
@@ -107,6 +112,33 @@ const ExchangeRateWrapper = styled.a.attrs({ target: "_blank" })`
 const TableWrapper = styled.div`
   display: flex;
   justify-content: center;
+`;
+
+const PopupContainer = styled.div`
+  position: absolute;
+  display: none;
+  top: 300px;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  margin: 20px;
+  -webkit-box-shadow: 0px 0px 20px -6px #000000;
+  box-shadow: 0px 0px 20px -6px #000000;
+  background-color: white;
+`;
+
+const TableContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const ConfirmationContainer = styled.div``;
+
+const ConfirmationWrapper = styled.div`
+  &.hide {
+    visibility: hidden;
+  }
 `;
 
 const antIcon = (
@@ -187,12 +219,14 @@ const OrderPage = (props) => {
       case "非奶粉":
         setPostage(
           Number(
-            ((originalOrder.get("package_weight") <= 1
-              ? 1
-              : Number(originalOrder.get("package_weight")).toFixed(1)) *
-              normalPostage +
+            (
+              (originalOrder.get("package_weight") <= 1
+                ? 1
+                : Number(originalOrder.get("package_weight")).toFixed(1)) *
+                normalPostage +
               1
-          ).toFixed(2))
+            ).toFixed(2)
+          )
         );
         break;
       case "奶粉":
@@ -402,6 +436,7 @@ const OrderPage = (props) => {
           title: "Qty",
           dataIndex: "qty",
           key: "qty",
+          width: "10%",
           render: (text, record, index) => {
             return (
               <Input
@@ -423,7 +458,6 @@ const OrderPage = (props) => {
                 type="number"
                 prefix="$"
                 bordered={false}
-                controls={false}
                 min={0}
                 value={text}
                 onChange={onInputChange("price", index)}
@@ -551,7 +585,82 @@ const OrderPage = (props) => {
     },
   ];
 
-  
+  // set sold columns
+  const soldColumns = [
+    {
+      title: "Sold items",
+      children: [
+        {
+          title: "Item",
+          dataIndex: "item",
+          key: "item",
+        },
+        {
+          title: "Qty",
+          dataIndex: "qty",
+          key: "qty",
+        },
+        {
+          title: "Cost / each (AUD)",
+          dataIndex: "cost",
+          key: "cost",
+        },
+      ],
+    },
+  ];
+
+  // set stock columns
+  const stockColumns = [
+    {
+      title: "Stock items",
+      children: [
+        {
+          title: "Item",
+          dataIndex: "item",
+          key: "item",
+        },
+        {
+          title: "Qty",
+          dataIndex: "qty",
+          key: "qty",
+        },
+        {
+          title: "Cost / each (AUD)",
+          dataIndex: "cost",
+          key: "cost",
+        },
+      ],
+    },
+  ];
+
+  // set employee columns
+  const employeeColumns = [
+    {
+      title: "Employee items",
+      children: [
+        {
+          title: "Item",
+          dataIndex: "item",
+          key: "item",
+        },
+        {
+          title: "Qty",
+          dataIndex: "qty",
+          key: "qty",
+        },
+        {
+          title: "Cost / each (AUD)",
+          dataIndex: "cost",
+          key: "cost",
+        },
+      ],
+    },
+  ];
+
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // get confirmation element ref
+  const confirmationRef = useRef(null);
 
   const handleAdd = () => {
     setItemTableData([
@@ -570,6 +679,12 @@ const OrderPage = (props) => {
     ]);
   };
 
+  const handleBack = () => {
+    setShowConfirmation(false);
+  };
+
+  const scrollToConfirmation = () =>
+    window.scrollTo(0, confirmationRef.current.offsetTop);
   return (
     <Container>
       <Left>
@@ -607,7 +722,7 @@ const OrderPage = (props) => {
             {exchangeRate}
           </ExchangeRateWrapper>
 
-          <Spin spinning={spinning} tip="Loading">
+          <Spin spinning={spinning} tip="Loading...">
             <TableWrapper>
               <Table
                 style={{ width: "100%" }}
@@ -640,17 +755,59 @@ const OrderPage = (props) => {
             <SubmitWrapper>
               <SubmitBtn onClick={handleAdd}>Add</SubmitBtn>
               <SubmitBtn
-                onClick={() =>
+                onClick={() => {
+                  setShowConfirmation(true);
                   handleSubmit({
                     items: itemTableData,
-                    package: packageData[0],                    
-                  })
-                }
+                    package: packageData[0],
+                  });
+                  scrollToConfirmation();
+                }}
               >
                 Submit
               </SubmitBtn>
             </SubmitWrapper>
           </Spin>
+          <ConfirmationContainer ref={confirmationRef}>
+            <ConfirmationWrapper className={showConfirmation ? "" : "hide"}>
+              <Spin spinning={spinning} tip="Loading...">
+                <TableWrapper>
+                  <Table
+                    style={{ width: "100%" }}
+                    columns={soldColumns}
+                    dataSource={itemTableData}
+                    pagination={{ position: ["none", "none"] }}
+                    bordered
+                    size="small"
+                  />
+                </TableWrapper>
+                <TableWrapper>
+                  <Table
+                    style={{ width: "100%" }}
+                    columns={stockColumns}
+                    dataSource={itemTableData}
+                    pagination={{ position: ["none", "none"] }}
+                    bordered
+                    size="small"
+                  />
+                </TableWrapper>
+                <TableWrapper>
+                  <Table
+                    style={{ width: "100%" }}
+                    columns={employeeColumns}
+                    dataSource={itemTableData}
+                    pagination={{ position: ["none", "none"] }}
+                    bordered
+                    size="small"
+                  />
+                </TableWrapper>
+                <SubmitWrapper>
+                  <SubmitBtn onClick={handleBack}>Back</SubmitBtn>
+                  <SubmitBtn onClick={handleAdd}>Confirm</SubmitBtn>
+                </SubmitWrapper>
+              </Spin>
+            </ConfirmationWrapper>
+          </ConfirmationContainer>
         </OrderContainer>
       </Right>
       <BackTop />

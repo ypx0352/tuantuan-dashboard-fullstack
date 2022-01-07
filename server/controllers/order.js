@@ -161,56 +161,55 @@ const submitOrder = async (req, res) => {
   const employeeItems = [];
   const tableData = req.body;
   const { id, exchangeRate } = tableData.package;
+  try {
+    tableData.items.forEach((element) => {
+      const { item, qty, stock, employee, price, weight, cost, note } = element;
 
-  tableData.items.forEach((element) => {
-    const { item, qty, stock, employee, price, weight, cost, note } = element;
+      if (stock > 0) {
+        stockItems.push({
+          item,
+          qty: stock,
+          price,
+          weight,
+          cost,
+          note,
+          pk_id: id,
+          exchangeRate,
+        });
+      }
+      if (employee > 0) {
+        employeeItems.push({
+          item,
+          qty: employee,
+          price,
+          weight,
+          cost,
+          note,
+          pk_id: id,
+          exchangeRate,
+        });
+      }
+      if (qty - stock - employee > 0) {
+        soldItems.push({
+          item,
+          qty: qty - stock - employee,
+          price,
+          weight,
+          cost,
+          note,
+          pk_id: id,
+          exchangeRate,
+        });
+      }
+    });
 
-    if (stock > 0) {
-      stockItems.push({
-        item,
-        qty: stock,
-        price,
-        weight,
-        cost,
-        note,
-        pk_id: id,
-        exchangeRate,
-      });
-    }
-    if (employee > 0) {
-      employeeItems.push({
-        item,
-        qty: employee,
-        price,
-        weight,
-        cost,
-        note,
-        pk_id: id,
-        exchangeRate,
-      });
-    }
-    if (qty - stock - employee > 0) {
-      soldItems.push({
-        item,
-        qty: qty - stock - employee,
-        price,
-        weight,
-        cost,
-        note,
-        pk_id: id,
-        exchangeRate,
-      });
-    }
-  });
-
-  console.log(
-    "sold",
-    soldItems,
-    "stock",
-    stockItems,
-    "employee",
-    employeeItems
-  );
+    res
+      .status(200)
+      .json({ sold: soldItems, stock: stockItems, employee: employeeItems });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Can not submit table data!" });
+  }
 };
 
 module.exports = { getOrder, getExchangeRate, submitOrder };
