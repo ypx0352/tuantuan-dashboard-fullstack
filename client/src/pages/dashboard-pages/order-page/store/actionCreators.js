@@ -18,7 +18,7 @@ export const searchAction = (pk_id) => {
 
     try {
       const response = await axios.get(
-        serverBaseUrl+`/api/order/${pk_id.trim()}`
+        serverBaseUrl + `/api/order/${pk_id.trim()}`
       );
       const { result } = response.data;
 
@@ -48,7 +48,7 @@ export const initializeExchangeRateAction = async (dispatch) => {
   dispatch({ type: actionTypes.EXCHANGE_RATE_SPINNING, value: fromJS(true) });
   try {
     const response = await axios.get(
-      serverBaseUrl +'/api/order/tools/exchange_rate'
+      serverBaseUrl + "/api/order/tools/exchange_rate"
     );
     const { result } = response.data;
     dispatch({ type: actionTypes.EXCHANGE_RATE, value: fromJS(result) });
@@ -66,16 +66,35 @@ export const initializeExchangeRateAction = async (dispatch) => {
   }
 };
 
-export const submitTableDataAction = (tableData)=>{
-  return async (dispatch)=>{
+export const submitTableDataAction = (tableData) => {
+  return async (dispatch) => {
+    dispatch({
+      type: actionTypes.CONFIRMATION_SPINNING,
+      value: fromJS(true),
+    });
     try {
-      const response = await axios.post(serverBaseUrl + '/api/order/submit', tableData);  
+      const response = await axios.post(
+        serverBaseUrl + "/api/order/submit",
+        tableData
+      );
 
+      dispatch({
+        type: actionTypes.CONFIRMATION_DATA,
+        value: fromJS(response.data),
+      });
 
+      dispatch({
+        type: actionTypes.CONFIRMATION_SPINNING,
+        value: fromJS(false),
+      });
     } catch (error) {
+      dispatch({
+        type: actionTypes.CONFIRMATION_SPINNING,
+        value: fromJS(false),
+      });
       console.log(error);
       const { msg } = error.response.data;
       message.warning(msg);
     }
-}
-}
+  };
+};

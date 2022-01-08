@@ -112,6 +112,9 @@ const ExchangeRateWrapper = styled.a.attrs({ target: "_blank" })`
 const TableWrapper = styled.div`
   display: flex;
   justify-content: center;
+  &.hide {
+    display: none;
+  }
 `;
 
 const PopupContainer = styled.div`
@@ -136,8 +139,11 @@ const TableContainer = styled.div`
 const ConfirmationContainer = styled.div``;
 
 const ConfirmationWrapper = styled.div`
-  &.hide {
+  /* &.hide {
     visibility: hidden;
+  } */
+  &.hide {
+    display: none;
   }
 `;
 
@@ -154,6 +160,8 @@ const OrderPage = (props) => {
     initializeExchangeRate,
     exchangeRateSpinning,
     handleSubmit,
+    confirmationSpinning,
+    confirmationData,
   } = props;
 
   const normalPostage = 7.4;
@@ -411,6 +419,23 @@ const OrderPage = (props) => {
     setItemTableData(newData);
   };
 
+  const handleAdd = () => {
+    setItemTableData([
+      ...itemTableData,
+      {
+        key: new Date().toLocaleString(),
+        item: null,
+        qty: null,
+        price: null,
+        weight: null,
+        stock: 0,
+        employee: 0,
+        note: "",
+        subtotalWeight: null,
+      },
+    ]);
+  };
+
   // set item columns
   const itemColumns = [
     {
@@ -601,7 +626,7 @@ const OrderPage = (props) => {
           key: "qty",
         },
         {
-          title: "Cost / each (AUD)",
+          title: "Cost / each (￥)",
           dataIndex: "cost",
           key: "cost",
         },
@@ -625,7 +650,7 @@ const OrderPage = (props) => {
           key: "qty",
         },
         {
-          title: "Cost / each (AUD)",
+          title: "Cost / each (￥)",
           dataIndex: "cost",
           key: "cost",
         },
@@ -649,7 +674,7 @@ const OrderPage = (props) => {
           key: "qty",
         },
         {
-          title: "Cost / each (AUD)",
+          title: "Cost / each (￥)",
           dataIndex: "cost",
           key: "cost",
         },
@@ -662,29 +687,16 @@ const OrderPage = (props) => {
   // get confirmation element ref
   const confirmationRef = useRef(null);
 
-  const handleAdd = () => {
-    setItemTableData([
-      ...itemTableData,
-      {
-        key: new Date().toLocaleString(),
-        item: null,
-        qty: null,
-        price: null,
-        weight: null,
-        stock: 0,
-        employee: 0,
-        note: "",
-        subtotalWeight: null,
-      },
-    ]);
-  };
-
   const handleBack = () => {
     setShowConfirmation(false);
   };
 
+  // set time out to let system get the height of the confirmation element
   const scrollToConfirmation = () =>
-    window.scrollTo(0, confirmationRef.current.offsetTop);
+    setTimeout(() => {
+      confirmationRef.current.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+
   return (
     <Container>
       <Left>
@@ -770,32 +782,44 @@ const OrderPage = (props) => {
           </Spin>
           <ConfirmationContainer ref={confirmationRef}>
             <ConfirmationWrapper className={showConfirmation ? "" : "hide"}>
-              <Spin spinning={spinning} tip="Loading...">
-                <TableWrapper>
+              <Spin spinning={confirmationSpinning} tip="Loading...">
+                <TableWrapper
+                  className={
+                    confirmationData["sold"].length === 0 ? "hide" : ""
+                  }
+                >
                   <Table
                     style={{ width: "100%" }}
                     columns={soldColumns}
-                    dataSource={itemTableData}
+                    dataSource={confirmationData["sold"]}
                     pagination={{ position: ["none", "none"] }}
                     bordered
                     size="small"
                   />
                 </TableWrapper>
-                <TableWrapper>
+                <TableWrapper
+                  className={
+                    confirmationData["stock"].length === 0 ? "hide" : ""
+                  }
+                >
                   <Table
                     style={{ width: "100%" }}
                     columns={stockColumns}
-                    dataSource={itemTableData}
+                    dataSource={confirmationData["stock"]}
                     pagination={{ position: ["none", "none"] }}
                     bordered
                     size="small"
                   />
                 </TableWrapper>
-                <TableWrapper>
+                <TableWrapper
+                  className={
+                    confirmationData["employee"].length === 0 ? "hide" : ""
+                  }
+                >
                   <Table
                     style={{ width: "100%" }}
                     columns={employeeColumns}
-                    dataSource={itemTableData}
+                    dataSource={confirmationData["employee"]}
                     pagination={{ position: ["none", "none"] }}
                     bordered
                     size="small"
@@ -820,6 +844,8 @@ const mapState = (state) => ({
   spinning: state.getIn(["order", "spinning"]),
   exchangeRate: state.getIn(["order", "exchangeRate"]),
   exchangeRateSpinning: state.getIn(["order", "exchangeRateSpinning"]),
+  confirmationSpinning: state.getIn(["order", "confirmationSpinning"]),
+  confirmationData: state.getIn(["order", "confirmationData"]).toJS(),
 });
 
 const mapDispatch = (dispatch) => ({

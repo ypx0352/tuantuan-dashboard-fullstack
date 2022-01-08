@@ -14,7 +14,13 @@ const defaultState = fromJS({
   },
   spinning: false,
   exchangeRate: "",
-  exchangeRateSpinning: false
+  exchangeRateSpinning: false,
+  confirmationSpinning: false,
+  confirmationData: {
+    sold: [],
+    stock: [],
+    employee: [],
+  },
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -33,6 +39,12 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.EXCHANGE_RATE_SPINNING:
       return state.set("exchangeRateSpinning", action.value);
+
+    case actionTypes.CONFIRMATION_SPINNING:
+      return state.set("confirmationSpinning", action.value);
+
+    case actionTypes.CONFIRMATION_DATA:
+      return state.set("confirmationData", action.value);
 
     default:
       return state;

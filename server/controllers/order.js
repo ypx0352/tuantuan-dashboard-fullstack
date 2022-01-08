@@ -163,10 +163,11 @@ const submitOrder = async (req, res) => {
   const { id, exchangeRate } = tableData.package;
   try {
     tableData.items.forEach((element) => {
-      const { item, qty, stock, employee, price, weight, cost, note } = element;
+      const {key, item, qty, stock, employee, price, weight, cost, note } = element;
 
       if (stock > 0) {
         stockItems.push({
+          key,
           item,
           qty: stock,
           price,
@@ -179,6 +180,7 @@ const submitOrder = async (req, res) => {
       }
       if (employee > 0) {
         employeeItems.push({
+          key,
           item,
           qty: employee,
           price,
@@ -191,6 +193,7 @@ const submitOrder = async (req, res) => {
       }
       if (qty - stock - employee > 0) {
         soldItems.push({
+          key,
           item,
           qty: qty - stock - employee,
           price,
