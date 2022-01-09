@@ -139,9 +139,6 @@ const TableContainer = styled.div`
 const ConfirmationContainer = styled.div``;
 
 const ConfirmationWrapper = styled.div`
-  /* &.hide {
-    visibility: hidden;
-  } */
   &.hide {
     display: none;
   }
