@@ -68,30 +68,74 @@ export const initializeExchangeRateAction = async (dispatch) => {
 
 export const submitTableDataAction = (tableData) => {
   return async (dispatch) => {
-    dispatch({
-      type: actionTypes.CONFIRMATION_SPINNING,
-      value: fromJS(true),
-    });
+    // input validation
     try {
-      const response = await axios.post(
-        serverBaseUrl + "/api/order/submit",
-        tableData
-      );
+      if (tableData.items.length === 0) {
+        throw new Error("error");
+      } else {
+        tableData.items.forEach((element) => {
+          const { item, qty, price, weight, cost } = element;
+          if (qty * price * weight * cost === 0 || item.length === 0) {
+            throw new Error("error");
+          }
+        });
+      }
 
       dispatch({
-        type: actionTypes.CONFIRMATION_DATA,
-        value: fromJS(response.data),
+        type: actionTypes.SHOW_CONFIRMATION,
+        value: fromJS(true),
       });
 
       dispatch({
         type: actionTypes.CONFIRMATION_SPINNING,
-        value: fromJS(false),
+        value: fromJS(true),
       });
+
+      try {
+        const response = await axios.post(
+          serverBaseUrl + "/api/order/submit",
+          tableData
+        );
+
+        dispatch({
+          type: actionTypes.CONFIRMATION_DATA,
+          value: fromJS(response.data),
+        });
+
+        dispatch({
+          type: actionTypes.CONFIRMATION_SPINNING,
+          value: fromJS(false),
+        });
+      } catch (error) {
+        dispatch({
+          type: actionTypes.CONFIRMATION_SPINNING,
+          value: fromJS(false),
+        });
+        console.log(error);
+        const { msg } = error.response.data;
+        message.warning(msg);
+      }
     } catch (error) {
       dispatch({
-        type: actionTypes.CONFIRMATION_SPINNING,
+        type: actionTypes.SHOW_CONFIRMATION,
         value: fromJS(false),
       });
+      message.warning("Input is not completed.");
+    }
+  };
+};
+
+export const saveConfirmationDataAction = (confirmationData) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.post(
+        serverBaseUrl + "/api/order/confirm",
+        confirmationData
+      );
+      // TODO need a customised alert and reset data
+      const { msg } = response.data;
+      message.success(msg);
+    } catch (error) {
       console.log(error);
       const { msg } = error.response.data;
       message.warning(msg);

@@ -6,7 +6,8 @@ import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
 import userImage from "../../../image/tuan-logo.jpeg";
-import { actionCreators } from "./store";
+import { actionCreators, actionTypes } from "./store";
+import { fromJS } from "immutable";
 
 const { TextArea } = Input;
 
@@ -157,8 +158,11 @@ const OrderPage = (props) => {
     initializeExchangeRate,
     exchangeRateSpinning,
     handleSubmit,
+    showConfirmation,
+    setShowConfirmation,
     confirmationSpinning,
     confirmationData,
+    handleConfirm,
   } = props;
 
   const normalPostage = 7.4;
@@ -679,8 +683,7 @@ const OrderPage = (props) => {
     },
   ];
 
-  const [showConfirmation, setShowConfirmation] = useState(false);
-
+  
   // get confirmation element ref
   const confirmationRef = useRef(null);
 
@@ -692,7 +695,7 @@ const OrderPage = (props) => {
   const scrollToConfirmation = () =>
     setTimeout(() => {
       confirmationRef.current.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    }, 100);    
 
   return (
     <Container>
@@ -764,8 +767,7 @@ const OrderPage = (props) => {
             <SubmitWrapper>
               <SubmitBtn onClick={handleAdd}>Add</SubmitBtn>
               <SubmitBtn
-                onClick={() => {
-                  setShowConfirmation(true);
+                onClick={() => {                  
                   handleSubmit({
                     items: itemTableData,
                     package: packageData[0],
@@ -824,7 +826,7 @@ const OrderPage = (props) => {
                 </TableWrapper>
                 <SubmitWrapper>
                   <SubmitBtn onClick={handleBack}>Back</SubmitBtn>
-                  <SubmitBtn onClick={handleAdd}>Confirm</SubmitBtn>
+                  <SubmitBtn onClick={()=>handleConfirm(confirmationData)}>Confirm</SubmitBtn>
                 </SubmitWrapper>
               </Spin>
             </ConfirmationWrapper>
@@ -841,6 +843,7 @@ const mapState = (state) => ({
   spinning: state.getIn(["order", "spinning"]),
   exchangeRate: state.getIn(["order", "exchangeRate"]),
   exchangeRateSpinning: state.getIn(["order", "exchangeRateSpinning"]),
+  showConfirmation: state.getIn(['order','showConfirmation']),
   confirmationSpinning: state.getIn(["order", "confirmationSpinning"]),
   confirmationData: state.getIn(["order", "confirmationData"]).toJS(),
 });
@@ -861,6 +864,14 @@ const mapDispatch = (dispatch) => ({
   handleSubmit(tableData) {
     dispatch(actionCreators.submitTableDataAction(tableData));
   },
+
+  handleConfirm(confirmationData){
+    dispatch(actionCreators.saveConfirmationDataAction(confirmationData))
+  },
+
+  setShowConfirmation(value){
+    dispatch({type:actionTypes.SHOW_CONFIRMATION, value: fromJS(value)})
+  }
 });
 
 export default connect(mapState, mapDispatch)(OrderPage);

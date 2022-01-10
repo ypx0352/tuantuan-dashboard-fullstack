@@ -1,8 +1,13 @@
 const cheerio = require("cheerio");
 const FormData = require("form-data");
 const axios = require("axios");
-var cookies = [];
+const {
+  SoldItemsModel,
+  StockItemsModel,
+  EmployeeItemsModel,
+} = require("../models/orderModels");
 
+var cookies = [];
 // login the account of the post office and get cookies
 const login = async () => {
   var bodyFormData = new FormData();
@@ -163,7 +168,8 @@ const submitOrder = async (req, res) => {
   const { id, exchangeRate } = tableData.package;
   try {
     tableData.items.forEach((element) => {
-      const {key, item, qty, stock, employee, price, weight, cost, note } = element;
+      const { key, item, qty, stock, employee, price, weight, cost, note } =
+        element;
 
       if (stock > 0) {
         stockItems.push({
@@ -176,8 +182,11 @@ const submitOrder = async (req, res) => {
           note,
           pk_id: id,
           exchangeRate,
+          type: "stock",
+          status: "order placed",
         });
       }
+
       if (employee > 0) {
         employeeItems.push({
           key,
@@ -189,8 +198,11 @@ const submitOrder = async (req, res) => {
           note,
           pk_id: id,
           exchangeRate,
+          type: "employee",
+          status: "order placed",
         });
       }
+
       if (qty - stock - employee > 0) {
         soldItems.push({
           key,
@@ -202,6 +214,8 @@ const submitOrder = async (req, res) => {
           note,
           pk_id: id,
           exchangeRate,
+          type: "sold",
+          status: "order placed",
         });
       }
     });
@@ -211,8 +225,128 @@ const submitOrder = async (req, res) => {
       .json({ sold: soldItems, stock: stockItems, employee: employeeItems });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ msg: "Can not submit table data!" });
+    res.status(400).json({ msg: "Fail to submit table data!" });
   }
 };
 
-module.exports = { getOrder, getExchangeRate, submitOrder };
+const confirmOrder = async (req, res) => {
+  const { stock, employee, sold } = req.body;
+
+  if (sold.length > 0) {
+    try {
+      await SoldItemsModel.insertMany(
+        sold.map((soldItem) => {
+          const {
+            item,
+            qty,
+            cost,
+            price,
+            weight,
+            pk_id,
+            note,
+            exchangeRate,
+            type,
+            status,
+          } = soldItem;
+          return {
+            item: item,
+            qty: qty,
+            cost: cost,
+            price: price,
+            weight: weight,
+            pk_id: pk_id,
+            note: note,
+            exchangeRate: exchangeRate,
+            type: type,
+            status: status,
+          };
+        })
+      );
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(400)
+        .json({ msg: "Failed to save sold items. Nothing saved." });
+    }
+  }
+
+  if (stock.length > 0) {
+    try {
+      await StockItemsModel.insertMany(
+        stock.map((stockItem) => {
+          const {
+            item,
+            qty,
+            cost,
+            price,
+            weight,
+            pk_id,
+            note,
+            exchangeRate,
+            type,
+            status,
+          } = stockItem;
+          return {
+            item: item,
+            qty: qty,
+            cost: cost,
+            price: price,
+            weight: weight,
+            pk_id: pk_id,
+            note: note,
+            exchangeRate: exchangeRate,
+            type: type,
+            status: status,
+          };
+        })
+      );
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({
+        msg: "Failed to save stock items. Sold items saved if applicable.",
+      });
+    }
+  }
+
+  if (employee.length > 0) {
+    try {
+      await EmployeeItemsModel.insertMany(
+        employee.map((employeeItem) => {
+          const {
+            item,
+            qty,
+            cost,
+            price,
+            weight,
+            pk_id,
+            note,
+            exchangeRate,
+            type,
+            status,
+          } = employeeItem;
+          return {
+            item: item,
+            qty: qty,
+            cost: cost,
+            price: price,
+            weight: weight,
+            pk_id: pk_id,
+            note: note,
+            exchangeRate: exchangeRate,
+            type: type,
+            status: status,
+          };
+        })
+      );
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({
+        msg: "Failed to save employee items. Sold items and stock items saved if applicable.",
+      });
+    }
+  }
+
+  res.status(200).json({ msg: "Data saved to database successfully!" });
+};
+
+module.exports = { getOrder, getExchangeRate, submitOrder, confirmOrder };
