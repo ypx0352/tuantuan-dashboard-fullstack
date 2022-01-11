@@ -868,7 +868,7 @@ const OrderPage = (props) => {
       <Modal
         title={confirmResultTitle}
         visible={showConfirmationResultDialog}
-        okText="Place another order"
+        okText="Place new order"
         cancelText="Close"
         style={{ top: "20px" }}
         onOk={handleOnOk}
