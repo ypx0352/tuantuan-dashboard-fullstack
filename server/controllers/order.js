@@ -220,9 +220,12 @@ const submitOrder = async (req, res) => {
       }
     });
 
-    res
-      .status(200)
-      .json({ sold: soldItems, stock: stockItems, employee: employeeItems });
+    res.status(200).json({
+      pk_id: id,
+      sold: soldItems,
+      stock: stockItems,
+      employee: employeeItems,
+    });
   } catch (error) {
     console.log(error);
     res.status(400).json({ msg: "Fail to submit table data!" });
@@ -230,8 +233,40 @@ const submitOrder = async (req, res) => {
 };
 
 const confirmOrder = async (req, res) => {
-  const { stock, employee, sold } = req.body;
+  const { pk_id, stock, employee, sold } = req.body;
 
+  // Avoiding duplicate saves
+  try {
+    const check_sold_result = await SoldItemsModel.findOne({ pk_id: pk_id });
+    if (check_sold_result !== null) {
+      return res.status(400).json({
+        msg: "Failed! This package has already been saved! ",
+      });
+    }
+
+    const check_stock_result = await StockItemsModel.findOne({ pk_id: pk_id });
+    if (check_stock_result !== null) {
+      return res.status(400).json({
+        msg: "Failed! This package has already been saved! ",
+      });
+    }
+
+    const check_employee_result = await EmployeeItemsModel.findOne({
+      pk_id: pk_id,
+    });
+    if (check_employee_result !== null) {
+      return res.status(400).json({
+        msg: "Failed! This package has already been saved! ",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      msg: "Failed to check duplication. Nothing saved",
+    });
+  }
+
+  // Insert data to three collections
   if (sold.length > 0) {
     try {
       await SoldItemsModel.insertMany(

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { Table, Input, Spin, message, BackTop, Button } from "antd";
+import { Table, Input, Spin, message, BackTop, Button, Modal } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
@@ -83,7 +83,7 @@ const SearchBtn = styled.div`
   color: white;
 `;
 
-const SubmitWrapper = styled.div`
+const BtnWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   margin: 20px 0;
@@ -91,7 +91,7 @@ const SubmitWrapper = styled.div`
   border-bottom: 1px dashed grey;
 `;
 
-const SubmitBtn = styled.div`
+const Btn = styled.div`
   width: 10%;
   padding: 12px;
   margin-left: 10px;
@@ -116,25 +116,6 @@ const TableWrapper = styled.div`
   &.hide {
     display: none;
   }
-`;
-
-const PopupContainer = styled.div`
-  position: absolute;
-  display: none;
-  top: 300px;
-  left: 0;
-  width: 100%;
-  padding: 10px;
-  margin: 20px;
-  -webkit-box-shadow: 0px 0px 20px -6px #000000;
-  box-shadow: 0px 0px 20px -6px #000000;
-  background-color: white;
-`;
-
-const TableContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 `;
 
 const ConfirmationContainer = styled.div``;
@@ -163,6 +144,12 @@ const OrderPage = (props) => {
     confirmationSpinning,
     confirmationData,
     handleConfirm,
+    submitLoading,
+    showConfirmationResultDialog,
+    handleOnOk,
+    setShowConfirmationResultDialog,
+    confirmResult,
+    confirmLoading,
   } = props;
 
   const normalPostage = 7.4;
@@ -683,7 +670,6 @@ const OrderPage = (props) => {
     },
   ];
 
-  
   // get confirmation element ref
   const confirmationRef = useRef(null);
 
@@ -695,7 +681,11 @@ const OrderPage = (props) => {
   const scrollToConfirmation = () =>
     setTimeout(() => {
       confirmationRef.current.scrollIntoView({ behavior: "smooth" });
-    }, 100);    
+    }, 100);
+
+  // Fetch confirm result from store
+  const confirmResultTitle = confirmResult.get("title");
+  const confirmResultMessage = confirmResult.get("msg");
 
   return (
     <Container>
@@ -721,11 +711,23 @@ const OrderPage = (props) => {
                 handleSearch(searchInputEl.current.state.value)
               }
             />
-            <SearchBtn
+            <Button
+              style={{
+                width: "10%",
+                height: "50px",
+                padding: "12px",
+                "margin-left": "10px",
+                "border-radius": "8px",
+                border: "none",
+                "text-align": "center",
+                "background-color": "#3751ff",
+                color: "white",
+              }}
               onClick={() => handleSearch(searchInputEl.current.state.value)}
+              loading={spinning}
             >
               Search
-            </SearchBtn>
+            </Button>
           </SearchContainer>
 
           <ExchangeRateWrapper href="https://www.boc.cn/sourcedb/whpj/enindex_1619.html">
@@ -764,20 +766,32 @@ const OrderPage = (props) => {
                 bordered
               />
             </TableWrapper>
-            <SubmitWrapper>
-              <SubmitBtn onClick={handleAdd}>Add</SubmitBtn>
-              <SubmitBtn
-                onClick={() => {                  
+            <BtnWrapper>
+              <Btn onClick={handleAdd}>Add</Btn>
+              <Button
+                loading={submitLoading}
+                onClick={() => {
                   handleSubmit({
                     items: itemTableData,
                     package: packageData[0],
                   });
                   scrollToConfirmation();
                 }}
+                style={{
+                  width: "10%",
+                  height: "50px",
+                  padding: "12px",
+                  "margin-left": "10px",
+                  "border-radius": "8px",
+                  border: "none",
+                  "text-align": "center",
+                  "background-color": "#3751ff",
+                  color: "white",
+                }}
               >
                 Submit
-              </SubmitBtn>
-            </SubmitWrapper>
+              </Button>
+            </BtnWrapper>
           </Spin>
           <ConfirmationContainer ref={confirmationRef}>
             <ConfirmationWrapper className={showConfirmation ? "" : "hide"}>
@@ -824,16 +838,44 @@ const OrderPage = (props) => {
                     size="small"
                   />
                 </TableWrapper>
-                <SubmitWrapper>
-                  <SubmitBtn onClick={handleBack}>Back</SubmitBtn>
-                  <SubmitBtn onClick={()=>handleConfirm(confirmationData)}>Confirm</SubmitBtn>
-                </SubmitWrapper>
+                <BtnWrapper>
+                  <Btn onClick={handleBack}>Back</Btn>
+                  <Button
+                    style={{
+                      width: "10%",
+                      height: "50px",
+                      padding: "12px",
+                      "margin-left": "10px",
+                      "border-radius": "8px",
+                      border: "none",
+                      "text-align": "center",
+                      "background-color": "#3751ff",
+                      color: "white",
+                    }}
+                    loading={confirmLoading}
+                    onClick={() => handleConfirm(confirmationData)}
+                  >
+                    Confirm
+                  </Button>
+                </BtnWrapper>
               </Spin>
             </ConfirmationWrapper>
           </ConfirmationContainer>
         </OrderContainer>
       </Right>
       <BackTop />
+
+      <Modal
+        title={confirmResultTitle}
+        visible={showConfirmationResultDialog}
+        okText="Place another order"
+        cancelText="Close"
+        style={{ top: "20px" }}
+        onOk={handleOnOk}
+        onCancel={() => setShowConfirmationResultDialog(false)}
+      >
+        <p>{confirmResultMessage}</p>
+      </Modal>
     </Container>
   );
 };
@@ -843,9 +885,16 @@ const mapState = (state) => ({
   spinning: state.getIn(["order", "spinning"]),
   exchangeRate: state.getIn(["order", "exchangeRate"]),
   exchangeRateSpinning: state.getIn(["order", "exchangeRateSpinning"]),
-  showConfirmation: state.getIn(['order','showConfirmation']),
+  submitLoading: state.getIn(["order", "submitLoading"]),
+  confirmLoading: state.getIn(["order", "confirmLoading"]),
+  showConfirmation: state.getIn(["order", "showConfirmation"]),
   confirmationSpinning: state.getIn(["order", "confirmationSpinning"]),
   confirmationData: state.getIn(["order", "confirmationData"]).toJS(),
+  showConfirmationResultDialog: state.getIn([
+    "order",
+    "showConfirmationResultDialog",
+  ]),
+  confirmResult: state.getIn(["order", "confirmResult"]),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -865,13 +914,24 @@ const mapDispatch = (dispatch) => ({
     dispatch(actionCreators.submitTableDataAction(tableData));
   },
 
-  handleConfirm(confirmationData){
-    dispatch(actionCreators.saveConfirmationDataAction(confirmationData))
+  handleConfirm(confirmationData) {
+    dispatch(actionCreators.saveConfirmationDataAction(confirmationData));
   },
 
-  setShowConfirmation(value){
-    dispatch({type:actionTypes.SHOW_CONFIRMATION, value: fromJS(value)})
-  }
+  setShowConfirmation(value) {
+    dispatch({ type: actionTypes.SHOW_CONFIRMATION, value: fromJS(value) });
+  },
+
+  handleOnOk() {
+    dispatch(actionCreators.handleOnOkAction);
+  },
+
+  setShowConfirmationResultDialog(value) {
+    dispatch({
+      type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
+      value: fromJS(value),
+    });
+  },
 });
 
 export default connect(mapState, mapDispatch)(OrderPage);

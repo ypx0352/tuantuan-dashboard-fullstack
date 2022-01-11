@@ -15,13 +15,18 @@ const defaultState = fromJS({
   spinning: false,
   exchangeRate: "",
   exchangeRateSpinning: false,
-  showConfirmation:false,
+  submitLoading: false,
+  showConfirmation: false,
   confirmationSpinning: false,
   confirmationData: {
+    pk_id: "",
     sold: [],
     stock: [],
     employee: [],
   },
+  confirmLoading: false,
+  showConfirmationResultDialog: false,
+  confirmResult: { title: "Result", msg: "Loading" },
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -41,14 +46,31 @@ const returnNewStateToStore = (state = defaultState, action) => {
     case actionTypes.EXCHANGE_RATE_SPINNING:
       return state.set("exchangeRateSpinning", action.value);
 
-      case actionTypes.SHOW_CONFIRMATION:
-        return state.set('showConfirmation', action.value)
+    case actionTypes.SUBMIT_LOADING:
+      return state.set("submitLoading", action.value);
+
+    case actionTypes.SHOW_CONFIRMATION:
+      return state.set("showConfirmation", action.value);
 
     case actionTypes.CONFIRMATION_SPINNING:
       return state.set("confirmationSpinning", action.value);
 
     case actionTypes.CONFIRMATION_DATA:
       return state.set("confirmationData", action.value);
+
+    case actionTypes.CONFIRM_LOADING:
+      return state.set("confirmLoading", action.value);
+
+    case actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG:
+      return state.set("showConfirmationResultDialog", action.value);
+
+    case actionTypes.RESET_ORDER_STORE:
+      const newState = defaultState.toJS();
+      newState.exchangeRate = state.get("exchangeRate");
+      return fromJS(newState);
+
+    case actionTypes.CONFIRM_RESULT:
+      return state.set("confirmResult", action.value);
 
     default:
       return state;

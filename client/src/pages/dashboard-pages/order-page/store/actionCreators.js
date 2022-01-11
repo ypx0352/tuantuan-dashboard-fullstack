@@ -68,6 +68,7 @@ export const initializeExchangeRateAction = async (dispatch) => {
 
 export const submitTableDataAction = (tableData) => {
   return async (dispatch) => {
+    dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(true) });
     // input validation
     try {
       if (tableData.items.length === 0) {
@@ -106,11 +107,15 @@ export const submitTableDataAction = (tableData) => {
           type: actionTypes.CONFIRMATION_SPINNING,
           value: fromJS(false),
         });
+
+        dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(false) });
       } catch (error) {
         dispatch({
           type: actionTypes.CONFIRMATION_SPINNING,
           value: fromJS(false),
         });
+
+        dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(false) });
         console.log(error);
         const { msg } = error.response.data;
         message.warning(msg);
@@ -120,13 +125,17 @@ export const submitTableDataAction = (tableData) => {
         type: actionTypes.SHOW_CONFIRMATION,
         value: fromJS(false),
       });
-      message.warning("Input is not completed.");
+      dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(false) });
+      message.warning("Input is incompleted.");
     }
   };
 };
 
 export const saveConfirmationDataAction = (confirmationData) => {
   return async (dispatch) => {
+    dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(true) });
+
+    const confirmResult = {};
     try {
       const response = await axios.post(
         serverBaseUrl + "/api/order/confirm",
@@ -134,11 +143,40 @@ export const saveConfirmationDataAction = (confirmationData) => {
       );
       // TODO need a customised alert and reset data
       const { msg } = response.data;
-      message.success(msg);
+      confirmResult.title = "Success";
+      confirmResult.msg = msg;
+
+      dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(false) });
+
+      dispatch({
+        type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
+        value: fromJS(true),
+      });
     } catch (error) {
       console.log(error);
       const { msg } = error.response.data;
-      message.warning(msg);
+      confirmResult.title = "Error";
+      confirmResult.msg = msg;
+
+      dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(false) });
+
+      dispatch({
+        type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
+        value: fromJS(true),
+      });
     }
+
+    dispatch({
+      type: actionTypes.CONFIRM_RESULT,
+      value: fromJS(confirmResult),
+    });
   };
+};
+
+export const handleOnOkAction = (dispatch) => {
+  dispatch({ type: actionTypes.RESET_ORDER_STORE });
+  dispatch({
+    type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
+    value: fromJS(false),
+  });
 };
