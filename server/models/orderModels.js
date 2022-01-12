@@ -149,7 +149,9 @@ const employeeItemsSchema = new mongoose.Schema(
 );
 
 const SoldItemsModel = connection.model("sold_items", soldItemsSchema);
+
 const StockItemsModel = connection.model("stock_items", stockItemsSchema);
+
 const EmployeeItemsModel = connection.model(
   "employee_items",
   employeeItemsSchema

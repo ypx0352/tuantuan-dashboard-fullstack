@@ -1,10 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import userImage from "../../../image/tuan-logo.jpeg";
 import Sidebar from "../static/Sidebar";
+import Header from "../static/Header";
+import userImage from "../../../image/tuan-logo.jpeg";
 
 const Container = styled.div`
   display: flex;
+  min-height: 100vh;
   background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
@@ -16,36 +18,7 @@ const Left = styled.div`
 
 const Right = styled.div`
   width: 85%;
-  padding: 20px;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Title = styled.span`
-  font-size: 24px;
-  font-weight: bold;
-`;
-
-const UserWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-`;
-
-const Name = styled.span`
-  font-weight: bold;
-`;
-
-const UserImage = styled.img`
-  width: 40px;
-  height: 40px;
-  margin-left: 10px;
-  border-radius: 20px;
-`;
+  padding: 20px;`
 
 const BlockWrapper = styled.div`
   display: flex;
@@ -93,16 +66,11 @@ const OverviewPage = () => {
   return (
     <Container>
       <Left>
-        <Sidebar/>
+        <Sidebar />
       </Left>
       <Right>
-        <Header>
-          <Title>Overview</Title>
-          <UserWrapper>
-            <Name>Tuantuan</Name>
-            <UserImage src={userImage}></UserImage>
-          </UserWrapper>
-        </Header>
+        <Header title="Overview" userName="Tuantuan" userImage={userImage} />
+
         <BlockWrapper>
           <Block>
             <BlockTitle>Unresolved Order</BlockTitle>

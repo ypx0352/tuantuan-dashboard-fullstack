@@ -16,6 +16,8 @@ export const searchAction = (pk_id) => {
       type: actionTypes.RESET_ORDER,
     });
 
+    dispatch({ type: actionTypes.SHOW_CONFIRMATION, value: fromJS(false) });
+
     try {
       const response = await axios.get(
         serverBaseUrl + `/api/order/${pk_id.trim()}`

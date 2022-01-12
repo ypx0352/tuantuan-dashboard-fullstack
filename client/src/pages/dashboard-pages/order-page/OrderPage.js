@@ -5,6 +5,7 @@ import { Table, Input, Spin, message, BackTop, Button, Modal } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
+import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
@@ -14,6 +15,7 @@ const { TextArea } = Input;
 const Container = styled.div`
   position: relative;
   display: flex;
+  min-height: 100vh;
   background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
@@ -28,35 +30,6 @@ const Right = styled.div`
   padding: 20px;
 `;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const Title = styled.span`
-  font-size: 24px;
-  font-weight: bold;
-`;
-
-const UserWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-`;
-
-const Name = styled.span`
-  font-weight: bold;
-`;
-
-const UserImage = styled.img`
-  width: 40px;
-  height: 40px;
-  margin-left: 10px;
-  border-radius: 20px;
-`;
-
 const OrderContainer = styled.div`
   position: relative;
   display: flex;
@@ -69,18 +42,6 @@ const SearchContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 60px;
-`;
-
-const SearchBtn = styled.div`
-  width: 10%;
-  padding: 12px;
-  margin-left: 10px;
-  border-radius: 8px;
-  border: none;
-  text-align: center;
-  background-color: #3751ff;
-  cursor: pointer;
-  color: white;
 `;
 
 const BtnWrapper = styled.div`
@@ -152,6 +113,7 @@ const OrderPage = (props) => {
     confirmLoading,
   } = props;
 
+  // Some parameter that should be stored in setting file
   const normalPostage = 7.4;
   const babyFormulaPostage = 18.9;
   const exchangeRateInSetting = 4.7;
@@ -159,7 +121,7 @@ const OrderPage = (props) => {
   const searchInputEl = useRef(null);
 
   // get current exchange rate
-  useEffect(() => initializeExchangeRate(), []);
+  useEffect(() => initializeExchangeRate(exchangeRate), []);
 
   // fetch receiver data from store
   const receiverData = [
@@ -693,13 +655,8 @@ const OrderPage = (props) => {
         <Sidebar />
       </Left>
       <Right>
-        <Header>
-          <Title>Order</Title>
-          <UserWrapper>
-            <Name>Tuantuan</Name>
-            <UserImage src={userImage}></UserImage>
-          </UserWrapper>
-        </Header>
+        <Header title="Order" userName="Tuantuan" userImage={userImage} />
+
         <OrderContainer>
           <SearchContainer>
             <Input
@@ -906,8 +863,10 @@ const mapDispatch = (dispatch) => ({
     }
   },
 
-  initializeExchangeRate() {
-    dispatch(actionCreators.initializeExchangeRateAction);
+  initializeExchangeRate(exchangeRate) {
+    if (exchangeRate === "") {
+      dispatch(actionCreators.initializeExchangeRateAction);
+    }
   },
 
   handleSubmit(tableData) {
