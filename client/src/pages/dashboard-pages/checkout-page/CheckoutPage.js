@@ -72,12 +72,54 @@ const antIcon = (
 );
 
 const CheckoutPage = (props) => {
-  const { itemsCount, countSpinning, getItemsCount } = props;
+  const { itemsCount, countSpinning, getAllItems, allItems } = props;
+  console.log(allItems);
+
   useEffect(() => {
-    getItemsCount();
+    getAllItems();
   }, []);
 
-  const { sold, stock, employee, exception } = itemsCount;
+  const { soldCount, stockCount, employeeCount, exceptionCount } = itemsCount;
+
+  // set stock columns
+  const columns = [
+    {
+      title: "All items",
+      children: [
+        {
+          title: "Item",
+          dataIndex: "item",
+          key: "item",
+        },
+        {
+          title: "Qty",
+          dataIndex: "qty",
+          key: "qty",
+        },
+        {
+          title: "Cost / each (￥)",
+          dataIndex: "cost",
+          key: "cost",
+        },
+        {
+          title: "Type",
+          dataIndex: "type",
+          key: "type",
+        },
+        {
+          title: "Type",
+          dataIndex: "type",
+          key: "type",
+        },
+
+        {
+          title: "Note",
+          dataIndex: "note",
+          key: "note",
+        },
+      ],
+    },
+  ];
 
   return (
     <Container>
@@ -93,7 +135,7 @@ const CheckoutPage = (props) => {
               {countSpinning ? (
                 <Spin spinning={countSpinning} indicator={antIcon} />
               ) : (
-                sold
+                soldCount
               )}
             </BlockContent>
           </Block>
@@ -103,7 +145,7 @@ const CheckoutPage = (props) => {
               {countSpinning ? (
                 <Spin spinning={countSpinning} indicator={antIcon} />
               ) : (
-                stock
+                stockCount
               )}
             </BlockContent>
           </Block>
@@ -113,7 +155,7 @@ const CheckoutPage = (props) => {
               {countSpinning ? (
                 <Spin spinning={countSpinning} indicator={antIcon} />
               ) : (
-                employee
+                employeeCount
               )}
             </BlockContent>
           </Block>
@@ -123,7 +165,7 @@ const CheckoutPage = (props) => {
               {countSpinning ? (
                 <Spin spinning={countSpinning} indicator={antIcon} />
               ) : (
-                exception
+                exceptionCount
               )}
             </BlockContent>
           </Block>
@@ -136,11 +178,12 @@ const CheckoutPage = (props) => {
 const mapState = (state) => ({
   itemsCount: state.getIn(["checkout", "itemsCount"]).toJS(),
   countSpinning: state.getIn(["checkout", "countSpinning"]),
+  allItems: state.getIn(['checkout','allItems']).toJS()
 });
 
 const mapDispatch = (dispatch) => ({
-  getItemsCount() {
-    dispatch(actionCreators.getItemsCountAction);
+  getAllItems() {
+    dispatch(actionCreators.getAllItemsAction);
   },
 });
 

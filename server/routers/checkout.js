@@ -1,7 +1,7 @@
 const router = require('express').Router()
-const count = require('../controllers/checkout')
+const allItems = require("../controllers/checkout");
 
-router.get('/count', count)
+router.get("/all_items", allItems);
 
 
 module.exports = router
