@@ -26,7 +26,9 @@ const getItemsCount = (allItems) => {
     exceptionCount += item["qty"];
   });
 
-  return { soldCount, stockCount, employeeCount, exceptionCount };
+  const allCount = soldCount + stockCount + employeeCount + exceptionCount;
+
+  return { soldCount, stockCount, employeeCount, exceptionCount, allCount };
 };
 
 export const getAllItemsAction = async (dispatch) => {
@@ -34,6 +36,28 @@ export const getAllItemsAction = async (dispatch) => {
   try {
     const response = await axios.get(serverBaseUrl + "/api/checkout/all_items");
     const allItems = response.data.result;
+
+    var { soldItems, stockItems, employeeItems, exceptionItems } = allItems;
+
+    soldItems = soldItems.map((item) => {
+      item.key = item._id;
+      return item;
+    });
+
+    stockItems = stockItems.map((item) => {
+      item.key = item._id;
+      return item;
+    });
+
+    employeeItems = employeeItems.map((item) => {
+      item.key = item._id;
+      return item;
+    });
+
+    exceptionItems = exceptionItems.map((item) => {
+      item.key = item._id;
+      return item;
+    });
 
     dispatch({
       type: actionTypes.SET_ALL_ITEMS,

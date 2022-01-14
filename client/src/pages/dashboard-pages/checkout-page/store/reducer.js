@@ -2,14 +2,21 @@ import { fromJS } from "immutable";
 import { actionTypes } from ".";
 
 const defaultState = fromJS({
-  allItems: { sold: null, stock: null, employee: null, exception: null },
+  allItems: {
+    soldItems: [],
+    stockItems: [],
+    employeeItems: [],
+    exceptionItems: [],
+  },
   itemsCount: {
     soldCount: null,
     stockCount: null,
     employeeCount: null,
     exceptionCount: null,
+    allCount:null
   },
   countSpinning: false,
+  blockSelected:'All Items'
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -22,6 +29,9 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.SET_ITEMS_COUNT:
       return state.set("itemsCount", action.value);
+
+      case actionTypes.BLOCK_SELECTED:
+        return state.set('blockSelected', action.value)
 
     default:
       return state;

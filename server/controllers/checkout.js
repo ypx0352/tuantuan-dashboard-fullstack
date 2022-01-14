@@ -6,9 +6,9 @@ const {
 
 const allItems = async (req, res) => {
   try {
-    const soldItems = await SoldItemsModel.find();
+    var soldItems = await SoldItemsModel.find();
 
-    const stockItems = await StockItemsModel.find();
+    var stockItems = await StockItemsModel.find();
 
     const employeeItems = await EmployeeItemsModel.find();
 
