@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { InputNumber, Spin, Table } from "antd";
+import { InputNumber, Input, Spin, Table } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
@@ -115,10 +115,35 @@ const CheckoutPage = (props) => {
 
   const { soldItems, stockItems, employeeItems, exceptionItems } = allItems;
 
-  // Default columns (all items)
-  const allItemsColumns = [
+  // Default table data (all items)
+  const allItemsTableData = soldItems.concat(
+    stockItems,
+    employeeItems,
+    exceptionItems
+  );
+
+  const [tableDataState, setTableDataState] = useState([]);
+
+  //Set table data
+  const setTableData = (block) => {
+    switch (block) {
+      case "All Items":
+        return setTableDataState(allItemsTableData);
+      case "Sold Items":
+        return setTableDataState(soldItems);
+      case "Stock Items":
+        return setTableDataState(stockItems);
+      case "Employee Items":
+        return setTableDataState(employeeItems);
+      case "Exception Items":
+        return setTableDataState(exceptionItems);
+    }
+  };
+
+  // Set columns
+  const setColumns = (block) => [
     {
-      title: "All Items",
+      title: `${block}`,
       children: [
         {
           title: "Item",
@@ -147,17 +172,17 @@ const CheckoutPage = (props) => {
           render: (text, record, index) => {
             return (
               <InputNumber
+                type="number"
                 bordered={false}
                 prefix="￥"
                 value={text}
                 controls={false}
                 min={0}
-                //onChange={}
+                onChange={hanldeInputChange(record, index)}
               />
             );
           },
         },
-
         {
           title: "Note",
           dataIndex: "note",
@@ -167,90 +192,17 @@ const CheckoutPage = (props) => {
     },
   ];
 
-  const [columnsState, setColumnsState] = useState(allItemsColumns);
-
-  // Set columns
-  const setColumns = (block) =>
-    setColumnsState([
-      {
-        title: `${block}`,
-        children: [
-          {
-            title: "Item",
-            dataIndex: "item",
-            key: "item",
-          },
-          {
-            title: "Qty",
-            dataIndex: "qty",
-            key: "qty",
-          },
-          {
-            title: "Cost / each (￥)",
-            dataIndex: "cost",
-            key: "cost",
-          },
-          {
-            title: "Type",
-            dataIndex: "type",
-            key: "type",
-          },
-          {
-            title: "Payment",
-            dataIndex: "payment",
-            key: "payment",
-            render: (text, record, index) => {
-              return (
-                <InputNumber
-                  bordered={false}
-                  prefix="￥"
-                  value={text}
-                  controls={false}
-                  min={0}
-                  //onChange={}
-                />
-              );
-            },
-          },
-
-          {
-            title: "Note",
-            dataIndex: "note",
-            key: "note",
-          },
-        ],
-      },
-    ]);
-
-  // Default table data (all items)
-  const allItemsTableData = soldItems.concat(
-    stockItems,
-    employeeItems,
-    exceptionItems
-  );
-
-  const [tableDataState, setTableDataState] = useState([]);
-
-  //Set table data
-  const setTableData = (block) => {
-    switch (block) {
-      case "All Items":
-        return setTableDataState(allItemsTableData);
-      case "Sold Items":
-        return setTableDataState(soldItems);
-      case "Stock Items":
-        return setTableDataState(stockItems);
-      case "Employee Items":
-        return setTableDataState(employeeItems);
-      case "Exception Items":
-        return setTableDataState(exceptionItems);
-    }
-  };
+  const [columnsState, setColumnsState] = useState(setColumns("All Items"));
 
   const handleBlockClicked = (block) => {
     setBlockSelected(block);
-    setColumns(block);
+    setColumnsState(setColumns(block));
     setTableData(block);
+  };
+
+  const hanldeInputChange = (record, index) => (e) => {
+    record.payment = e;
+    console.log(tableDataState);
   };
 
   return (
