@@ -179,7 +179,7 @@ const CheckoutPage = (props) => {
     } else {
       return [
         {
-          title: `${block}`,
+          title: block,
           children: [
             {
               title: "Item",
@@ -234,7 +234,6 @@ const CheckoutPage = (props) => {
               title: "Profits / row (￥)",
               dataIndex: "profits",
               key: "profits",
-
               render: (text, record, index) => {
                 return (
                   <InputNumber
@@ -303,6 +302,10 @@ const CheckoutPage = (props) => {
   );
 
   const [tableDataState, setTableDataState] = useState([]);
+
+  useEffect(() => {
+    setTableDataState(allItemsTableData);
+  }, [countSpinning]);
 
   //Set table data
   const setTableData = (block) => {
@@ -408,9 +411,10 @@ const CheckoutPage = (props) => {
               columns={columnsState}
               rowKey={(record) => record._id}
               dataSource={
-                tableDataState.length === 0 && blockSelected === "All Items"
-                  ? allItemsTableData
-                  : tableDataState
+                // tableDataState.length === 0 && blockSelected === "All Items"
+                //   ? allItemsTableData
+                //   : tableDataState
+                tableDataState
               }
               bordered
             />
