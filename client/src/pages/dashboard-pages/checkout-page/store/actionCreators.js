@@ -40,22 +40,22 @@ export const getAllItemsAction = async (dispatch) => {
     var { soldItems, stockItems, employeeItems, exceptionItems } = allItems;
 
     soldItems = soldItems.map((item) => {
-      item.key = item._id;
+      item.date = new Date(item.createdAt).toLocaleDateString();
       return item;
     });
 
     stockItems = stockItems.map((item) => {
-      item.key = item._id;
+      item.date = new Date(item.createdAt).toLocaleDateString();
       return item;
     });
 
     employeeItems = employeeItems.map((item) => {
-      item.key = item._id;
+      item.date = new Date(item.createdAt).toLocaleDateString();
       return item;
     });
 
     exceptionItems = exceptionItems.map((item) => {
-      item.key = item._id;
+      item.date = new Date(item.createdAt).toLocaleDateString();
       return item;
     });
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { InputNumber, Input, Spin, Table } from "antd";
+import { InputNumber, Input, Spin, Table, Button } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
@@ -92,6 +92,13 @@ const TableWrapper = styled.div`
   align-items: center;
 `;
 
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
 const antIcon = (
   <LoadingOutlined style={{ fontSize: 48, color: "#3751ff" }} spin />
 );
@@ -115,8 +122,181 @@ const CheckoutPage = (props) => {
 
   const { soldItems, stockItems, employeeItems, exceptionItems } = allItems;
 
+  const hanldeInputChange = (record, index) => (e) => {
+    const types = ["sold", "stock", "employee", "exception"];
+    const tableData = [soldItems, stockItems, employeeItems, exceptionItems];
+    const { qty, cost, type } = record;
+    const typeIndex = types.indexOf(type);
+    tableData[typeIndex][index].payment = e;
+    tableData[typeIndex][index].profits = Number((e - qty * cost).toFixed(2));
+    setTableDataState(tableData[typeIndex]);
+    allItemsTableData = soldItems.concat(
+      stockItems,
+      employeeItems,
+      exceptionItems
+    );
+  };
+
+  const handleAddToStock = (record) => {
+    console.log(record);
+  };
+
+  // Set columns
+  const setColumns = (block) => {
+    if (block === "Employee Items") {
+      return [
+        {
+          title: block,
+          children: [
+            {
+              title: "Item",
+              dataIndex: "item",
+              key: "item",
+            },
+            {
+              title: "Qty",
+              dataIndex: "qty",
+              key: "qty",
+            },
+            {
+              title: "Cost / each (￥)",
+              dataIndex: "cost",
+              key: "cost",
+            },
+            {
+              title: "Type",
+              dataIndex: "type",
+              key: "type",
+            },
+            {
+              title: "Note",
+              dataIndex: "note",
+              key: "note",
+            },
+          ],
+        },
+      ];
+    } else {
+      return [
+        {
+          title: `${block}`,
+          children: [
+            {
+              title: "Item",
+              dataIndex: "item",
+              key: "item",
+            },
+            {
+              title: "Qty",
+              dataIndex: "qty",
+              key: "qty",
+            },
+            {
+              title: "Cost / each (￥)",
+              dataIndex: "cost",
+              key: "cost",
+            },
+            {
+              title: "Type",
+              dataIndex: "type",
+              key: "type",
+            },
+            {
+              title: "Note",
+              dataIndex: "note",
+              key: "note",
+            },
+            {
+              title: "Date",
+              dataIndex: "date",
+              key: "date",
+            },
+            {
+              title: "Payment / row (￥)",
+              dataIndex: "payment",
+              key: "payment",
+              render: (text, record, index) => {
+                return (
+                  <InputNumber
+                    disabled={record.type === "employee" ? true : false}
+                    type="number"
+                    bordered={false}
+                    prefix="￥"
+                    value={text}
+                    controls={false}
+                    min={0}
+                    onChange={hanldeInputChange(record, index)}
+                  />
+                );
+              },
+            },
+            {
+              title: "Profits / row (￥)",
+              dataIndex: "profits",
+              key: "profits",
+
+              render: (text, record, index) => {
+                return (
+                  <InputNumber
+                    min={10}
+                    bordered={false}
+                    value={text}
+                    controls={false}
+                  />
+                );
+              },
+            },
+            {
+              title: "Add to",
+              dataIndex: "add",
+              key: "add",
+              render: (text, record, index) => {
+                return (
+                  <ButtonWrapper>
+                    <Button
+                      style={{
+                        width: "70px",
+                        marginBottom: "10px",
+                        borderRadius: "8px",
+                        border: "none",
+                        textAlign: "center",
+                        backgroundColor: "#3751ff",
+                        color: "white",
+                      }}
+                    >
+                      Cart
+                    </Button>
+                    <Button
+                      style={{
+                        width: "70px",
+                        borderRadius: "8px",
+                        border: "none",
+                        textAlign: "center",
+                        backgroundColor: "sandybrown",
+                        color: "white",
+                      }}
+                      onClick={() => handleAddToStock(record)}
+                    >
+                      Stock
+                    </Button>
+                  </ButtonWrapper>
+                );
+              },
+            },
+          ],
+        },
+      ];
+    }
+  };
+
+  const [columnsState, setColumnsState] = useState();
+
+  useEffect(() => {
+    setColumnsState(setColumns("All Items"));
+  }, [countSpinning]);
+
   // Default table data (all items)
-  const allItemsTableData = soldItems.concat(
+  var allItemsTableData = soldItems.concat(
     stockItems,
     employeeItems,
     exceptionItems
@@ -140,69 +320,10 @@ const CheckoutPage = (props) => {
     }
   };
 
-  // Set columns
-  const setColumns = (block) => [
-    {
-      title: `${block}`,
-      children: [
-        {
-          title: "Item",
-          dataIndex: "item",
-          key: "item",
-        },
-        {
-          title: "Qty",
-          dataIndex: "qty",
-          key: "qty",
-        },
-        {
-          title: "Cost / each (￥)",
-          dataIndex: "cost",
-          key: "cost",
-        },
-        {
-          title: "Type",
-          dataIndex: "type",
-          key: "type",
-        },
-        {
-          title: "Payment",
-          dataIndex: "payment",
-          key: "payment",
-          render: (text, record, index) => {
-            return (
-              <InputNumber
-                type="number"
-                bordered={false}
-                prefix="￥"
-                value={text}
-                controls={false}
-                min={0}
-                onChange={hanldeInputChange(record, index)}
-              />
-            );
-          },
-        },
-        {
-          title: "Note",
-          dataIndex: "note",
-          key: "note",
-        },
-      ],
-    },
-  ];
-
-  const [columnsState, setColumnsState] = useState(setColumns("All Items"));
-
   const handleBlockClicked = (block) => {
     setBlockSelected(block);
     setColumnsState(setColumns(block));
     setTableData(block);
-  };
-
-  const hanldeInputChange = (record, index) => (e) => {
-    record.payment = e;
-    console.log(tableDataState);
   };
 
   return (
@@ -283,7 +404,9 @@ const CheckoutPage = (props) => {
           <TableWrapper>
             <Table
               style={{ width: "100%" }}
+              tableLayout="auto"
               columns={columnsState}
+              rowKey={(record) => record._id}
               dataSource={
                 tableDataState.length === 0 && blockSelected === "All Items"
                   ? allItemsTableData

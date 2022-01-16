@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { Table, Input, Spin, message, BackTop, Button, Modal } from "antd";
+import { Table, Input, Spin, message, BackTop, Button, Modal, InputNumber } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
@@ -395,7 +395,7 @@ const OrderPage = (props) => {
           title: "Item",
           dataIndex: "item",
           key: "item",
-          width: "20%",
+          width: "20%",          
           render: (text, record, index) => {
             return (
               <TextArea
@@ -717,6 +717,7 @@ const OrderPage = (props) => {
             <TableWrapper>
               <Table
                 style={{ width: "100%" }}
+                tableLayout="auto"
                 columns={itemColumns}
                 dataSource={itemTableData}
                 pagination={{ position: ["none", "none"] }}
