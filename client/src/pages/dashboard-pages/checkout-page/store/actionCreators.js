@@ -75,3 +75,14 @@ export const getAllItemsAction = async (dispatch) => {
     dispatch({ type: actionTypes.COUNT_SPINNING, value: fromJS(false) });
   }
 };
+
+export const addToStockAction = (record) => {
+  return async (dispatch) => {
+    const { addToStock, _id, type } = record;
+    console.log(addToStock, _id, type);
+    const response = await axios.put(
+      serverBaseUrl + "/api/checkout/add_to_stock",
+      { addToStock, _id, type }
+    );
+  };
+};

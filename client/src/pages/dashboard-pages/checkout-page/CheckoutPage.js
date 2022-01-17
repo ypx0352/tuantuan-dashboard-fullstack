@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { InputNumber, Input, Spin, Table, Button } from "antd";
+import { InputNumber, Input, Spin, Table, Button, Popconfirm, message } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
@@ -111,6 +111,7 @@ const CheckoutPage = (props) => {
     allItems,
     blockSelected,
     setBlockSelected,
+    handleAddToStock
   } = props;
 
   useEffect(() => {
@@ -137,9 +138,7 @@ const CheckoutPage = (props) => {
     );
   };
 
-  const handleAddToStock = (record) => {
-    console.log(record);
-  };
+  
 
   // Set columns
   const setColumns = (block) => {
@@ -265,19 +264,41 @@ const CheckoutPage = (props) => {
                     >
                       Cart
                     </Button>
-                    <Button
-                      style={{
-                        width: "70px",
-                        borderRadius: "8px",
-                        border: "none",
-                        textAlign: "center",
-                        backgroundColor: "sandybrown",
-                        color: "white",
-                      }}
-                      onClick={() => handleAddToStock(record)}
-                    >
-                      Stock
-                    </Button>
+                    {record.type === "stock" ? (
+                      ""
+                    ) : (
+                      <Popconfirm
+                        placement="topRight"
+                        title={
+                          <>
+                            Number of items to add: {"  "}
+                            <InputNumber
+                              size="small"
+                              min={1}
+                              max={record.qty}
+                              defaultValue={null}
+                              onChange={(e) => (record.addToStock = e)}
+                            />
+                          </>
+                        }
+                        onConfirm={() => handleAddToStock(record)}
+                        okText="Add"
+                        cancelText="Cancel"
+                      >
+                        <Button
+                          style={{
+                            width: "70px",
+                            borderRadius: "8px",
+                            border: "none",
+                            textAlign: "center",
+                            backgroundColor: "sandybrown",
+                            color: "white",
+                          }}
+                        >
+                          Stock
+                        </Button>
+                      </Popconfirm>
+                    )}
                   </ButtonWrapper>
                 );
               },
@@ -440,6 +461,15 @@ const mapDispatch = (dispatch) => ({
   setBlockSelected(block) {
     dispatch({ type: actionTypes.BLOCK_SELECTED, value: fromJS(block) });
   },
+
+  handleAddToStock(record){
+    if(record.addToStock === undefined){
+      message.warning("Input must not be null!");      
+    }else{ 
+      dispatch(actionCreators.addToStockAction(record))
+    }
+   
+  }
 });
 
 export default connect(mapState, mapDispatch)(CheckoutPage);
