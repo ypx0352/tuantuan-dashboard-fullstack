@@ -29,28 +29,57 @@ const allItems = async (req, res) => {
 
 const addToStock = async (req, res) => {
   const { addToStock, _id, type } = req.body;
-  console.log(addToStock, _id, type);
   const types = ["sold", "employee"];
   const models = [SoldItemsModel, EmployeeItemsModel];
   const typeIndex = types.indexOf(type);
-  console.log(models[typeIndex]);
-  const result = await models[typeIndex].findById(_id);
-  const newQty = result.qty - addToStock;
-  if (newQty === 0) {
-    const result = await models[typeIndex].findByIdAndDelete(_id);
-    console.log(result);
-  } else {
-    const result = await models[typeIndex].findByIdAndUpdate(
-      _id,
-      {
-        $set: { qty: newQty },
-      },
-      { new: true }
-    );
-    console.log(result);
-  }
-  // console.log(result);
-};
+  try {
+    // Deduct the qty of the item saved in sold or employee collection
+    const origianlSoldOrEmployeeResult = await models[typeIndex].findById(_id);
+    const newQtySoldOrEmployee = origianlSoldOrEmployeeResult.qty - addToStock;
+    if (newQtySoldOrEmployee === 0) {
+      await models[typeIndex].findByIdAndDelete(_id);
+    } else {
+      await models[typeIndex].findByIdAndUpdate(_id, {
+        $set: { qty: newQtySoldOrEmployee },
+      });
+    }
 
+    const { item, cost, pk_id } = origianlSoldOrEmployeeResult;
+    const originalStockResult = await StockItemsModel.findOne({
+      item,
+      cost,
+      pk_id,
+    });
+
+    // If the item is not saved in stock, create a new record in stock collection
+    if (originalStockResult === null) {
+      const newQtyStock = addToStock;
+      const { item, cost, price, weight, pk_id, note, exchangeRate, status } =
+        origianlSoldOrEmployeeResult;
+
+      await StockItemsModel.create({
+        item: item,
+        qty: newQtyStock,
+        cost: cost,
+        price: price,
+        weight: weight,
+        pk_id: pk_id,
+        note: note,
+        exchangeRate: exchangeRate,
+        type: "stock",
+        status: status,
+      });
+      console.log("null");
+    } else {
+      // If the item was already saved in stock, add the qty of the item
+      const newQtyStock = originalStockResult.qty + addToStock;
+      await StockItemsModel.findByIdAndUpdate(originalStockResult._id, {
+        $set: { qty: newQtyStock },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports = { allItems, addToStock };
