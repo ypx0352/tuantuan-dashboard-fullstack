@@ -501,12 +501,7 @@ const CheckoutPage = (props) => {
               tableLayout="auto"
               columns={columnsState}
               rowKey={(record) => record._id}
-              dataSource={
-                // tableDataState.length === 0 && blockSelected === "All Items"
-                //   ? allItemsTableData
-                //   : tableDataState
-                tableDataState
-              }
+              dataSource={tableDataState}
               bordered
             />
           </TableWrapper>
