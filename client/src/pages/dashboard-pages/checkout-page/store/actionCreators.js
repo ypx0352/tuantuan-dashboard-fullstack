@@ -79,10 +79,14 @@ export const getAllItemsAction = async (dispatch) => {
 export const addToStockAction = (record) => {
   return async (dispatch) => {
     const { addToStock, _id, type } = record;
-    console.log(addToStock, _id, type);
-    const response = await axios.put(
-      serverBaseUrl + "/api/checkout/add_to_stock",
-      { addToStock, _id, type }
-    );
+    try {
+      const response = await axios.put(
+        serverBaseUrl + "/api/checkout/add_to_stock",
+        { addToStock, _id, type }
+      );
+    } catch (error) {
+      
+    }
+    
   };
 };
