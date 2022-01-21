@@ -13,10 +13,10 @@ const defaultState = fromJS({
     stockCount: null,
     employeeCount: null,
     exceptionCount: null,
-    allCount:null
+    allCount: null,
   },
   countSpinning: false,
-  blockSelected:'All Items'
+  blockSelected: "All Items",
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -30,8 +30,12 @@ const returnNewStateToStore = (state = defaultState, action) => {
     case actionTypes.SET_ITEMS_COUNT:
       return state.set("itemsCount", action.value);
 
-      case actionTypes.BLOCK_SELECTED:
-        return state.set('blockSelected', action.value)
+    case actionTypes.BLOCK_SELECTED:
+      if (action.value === "originalSelectedBlock") {
+        return state.set("blockSelected", state.get("blockSelected"));
+      } else {
+        return state.set("blockSelected", action.value);
+      }
 
     default:
       return state;

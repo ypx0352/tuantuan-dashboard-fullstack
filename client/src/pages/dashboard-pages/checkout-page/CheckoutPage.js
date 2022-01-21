@@ -306,6 +306,7 @@ const CheckoutPage = (props) => {
               render: (text, record, index) => {
                 return (
                   <InputNumber
+                    disabled={record.type === "employee" ? true : false}
                     min={10}
                     bordered={false}
                     value={text}
@@ -382,7 +383,7 @@ const CheckoutPage = (props) => {
   const [columnsState, setColumnsState] = useState();
 
   useEffect(() => {
-    setColumnsState(setColumns("All Items"));
+    setColumnsState(setColumns(blockSelected));
   }, [countSpinning]);
 
   // Default table data (all items)
@@ -393,10 +394,6 @@ const CheckoutPage = (props) => {
   );
 
   const [tableDataState, setTableDataState] = useState([]);
-
-  useEffect(() => {
-    setTableDataState(allItemsTableData);
-  }, [countSpinning]);
 
   //Set table data
   const setTableData = (block) => {
@@ -413,6 +410,10 @@ const CheckoutPage = (props) => {
         return setTableDataState(exceptionItems);
     }
   };
+
+  useEffect(() => {
+    setTableData(blockSelected);
+  }, [countSpinning]);
 
   const handleBlockClicked = (block) => {
     setBlockSelected(block);
@@ -532,6 +533,7 @@ const mapDispatch = (dispatch) => ({
       message.warning("Input must not be null!");
     } else {
       dispatch(actionCreators.addToStockAction(record));
+      //dispatch(actionCreators.getAllItemsAction);
     }
   },
 });

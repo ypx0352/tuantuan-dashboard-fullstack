@@ -6,13 +6,13 @@ const {
 
 const allItems = async (req, res) => {
   try {
-    var soldItems = await SoldItemsModel.find();
+    const soldItems = await SoldItemsModel.find();
 
-    var stockItems = await StockItemsModel.find();
+    const stockItems = await StockItemsModel.find();
 
     const employeeItems = await EmployeeItemsModel.find();
 
-    var exceptionItems = [];
+    const exceptionItems = [];
 
     const allItems = {
       soldItems,
@@ -23,7 +23,7 @@ const allItems = async (req, res) => {
     res.status(200).json({ result: allItems });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ msg: "Can not get the amount of items." });
+    res.status(400).json({ msg: "Can not get all items." });
   }
 };
 
@@ -69,16 +69,23 @@ const addToStock = async (req, res) => {
         type: "stock",
         status: status,
       });
-      console.log("null");
+      return res.status(200).json({
+        msg: `${newQtyStock} ${item} has been added to stock successfully.`,
+      });
     } else {
       // If the item was already saved in stock, add the qty of the item
       const newQtyStock = originalStockResult.qty + addToStock;
+      const item = originalStockResult.item;
       await StockItemsModel.findByIdAndUpdate(originalStockResult._id, {
         $set: { qty: newQtyStock },
+      });
+      return res.status(200).json({
+        msg: `${addToStock} ${item} has been added to stock successfully.`,
       });
     }
   } catch (error) {
     console.log(error);
+    res.status(400).json({ msg: "Failed to add to stock. Server error!" });
   }
 };
 
