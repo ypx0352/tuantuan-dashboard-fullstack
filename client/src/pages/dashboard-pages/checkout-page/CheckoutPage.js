@@ -120,6 +120,7 @@ const CheckoutPage = (props) => {
     blockSelected,
     setBlockSelected,
     handleAddToStock,
+    handleAddToCart,
   } = props;
 
   useEffect(() => {
@@ -190,19 +191,40 @@ const CheckoutPage = (props) => {
               render: (text, record, index) => {
                 return (
                   <ButtonWrapper>
-                    <Button
-                      style={{
-                        width: "70px",
-                        marginBottom: "10px",
-                        borderRadius: "8px",
-                        border: "none",
-                        textAlign: "center",
-                        backgroundColor: "#3751ff",
-                        color: "white",
-                      }}
+                    <Popconfirm
+                      placement="topRight"
+                      title={
+                        <>
+                          Number of items to be added to the cart: {"  "}
+                          <InputNumber
+                            size="small"
+                            min={1}
+                            max={record.qty}
+                            defaultValue={null}
+                            onChange={(e) => {
+                              record.addToCart = e;
+                            }}
+                          />
+                        </>
+                      }
+                      onConfirm={() => handleAddToCart(record)}
+                      okText="Add to cart"
+                      cancelText="Cancel"
                     >
-                      Cart
-                    </Button>
+                      <Button
+                        style={{
+                          width: "70px",
+                          marginBottom: "10px",
+                          borderRadius: "8px",
+                          border: "none",
+                          textAlign: "center",
+                          backgroundColor: "#3751ff",
+                          color: "white",
+                        }}
+                      >
+                        Cart
+                      </Button>
+                    </Popconfirm>
                     {record.type === "stock" ? (
                       ""
                     ) : (
@@ -210,7 +232,7 @@ const CheckoutPage = (props) => {
                         placement="topRight"
                         title={
                           <>
-                            Number of items to add: {"  "}
+                            Number of items to be added to the stock: {"  "}
                             <InputNumber
                               size="small"
                               min={1}
@@ -221,7 +243,7 @@ const CheckoutPage = (props) => {
                           </>
                         }
                         onConfirm={() => handleAddToStock(record)}
-                        okText="Add"
+                        okText="Add to stock"
                         cancelText="Cancel"
                       >
                         <Button
@@ -322,19 +344,41 @@ const CheckoutPage = (props) => {
               render: (text, record, index) => {
                 return (
                   <ButtonWrapper>
-                    <Button
-                      style={{
-                        width: "70px",
-                        marginBottom: "10px",
-                        borderRadius: "8px",
-                        border: "none",
-                        textAlign: "center",
-                        backgroundColor: "#3751ff",
-                        color: "white",
-                      }}
+                    <Popconfirm
+                      placement="topRight"
+                      title={
+                        <>
+                          Number of items to be added to the cart: {"  "}
+                          <InputNumber
+                            size="small"
+                            min={1}
+                            max={record.qty}
+                            defaultValue={null}
+                            onChange={(e) => {
+                              record.addToCart = e;
+                            }}
+                          />
+                        </>
+                      }
+                      onConfirm={() => handleAddToCart(record)}
+                      okText="Add to cart"
+                      cancelText="Cancel"
                     >
-                      Cart
-                    </Button>
+                      <Button
+                        style={{
+                          width: "70px",
+                          marginBottom: "10px",
+                          borderRadius: "8px",
+                          border: "none",
+                          textAlign: "center",
+                          backgroundColor: "#3751ff",
+                          color: "white",
+                        }}
+                      >
+                        Cart
+                      </Button>
+                    </Popconfirm>
+
                     {record.type === "stock" ? (
                       ""
                     ) : (
@@ -342,18 +386,20 @@ const CheckoutPage = (props) => {
                         placement="topRight"
                         title={
                           <>
-                            Number of items to add: {"  "}
+                            Number of items to be added to the stock: {"  "}
                             <InputNumber
                               size="small"
                               min={1}
                               max={record.qty}
                               defaultValue={null}
-                              onChange={(e) => (record.addToStock = e)}
+                              onChange={(e) => {
+                                record.addToStock = e;
+                              }}
                             />
                           </>
                         }
                         onConfirm={() => handleAddToStock(record)}
-                        okText="Add"
+                        okText="Add to stock"
                         cancelText="Cancel"
                       >
                         <Button
@@ -529,13 +575,21 @@ const mapDispatch = (dispatch) => ({
   },
 
   handleAddToStock(record) {
-    if (record.addToStock === undefined) {
-      message.warning("Input must not be null!");
+    const { addToStock } = record;
+    if (addToStock === undefined) {
+      message.warning("Invalid input!");
     } else {
       dispatch(actionCreators.addToStockAction(record));
-      //dispatch(actionCreators.getAllItemsAction);
     }
   },
+
+  handleAddToCart(record){
+    const {addToCart} = record;
+    if(addToCart === undefined){
+      message.warning('Invalid input!')
+    }
+    console.log(record);
+  }
 });
 
 export default connect(mapState, mapDispatch)(CheckoutPage);

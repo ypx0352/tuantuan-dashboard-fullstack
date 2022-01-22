@@ -31,11 +31,7 @@ const returnNewStateToStore = (state = defaultState, action) => {
       return state.set("itemsCount", action.value);
 
     case actionTypes.BLOCK_SELECTED:
-      if (action.value === "originalSelectedBlock") {
-        return state.set("blockSelected", state.get("blockSelected"));
-      } else {
-        return state.set("blockSelected", action.value);
-      }
+      return state.set("blockSelected", action.value);
 
     default:
       return state;

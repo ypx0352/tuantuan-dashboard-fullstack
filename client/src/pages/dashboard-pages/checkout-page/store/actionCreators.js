@@ -90,10 +90,7 @@ export const addToStockAction = (record) => {
       const { msg } = response.data;
       message.success(msg);
       dispatch(getAllItemsAction);
-      dispatch({
-        type: actionTypes.BLOCK_SELECTED,
-        value: "originalSelectedBlock",
-      });
+     
     } catch (error) {
       console.log(error);
       const { msg } = error.response.data;
