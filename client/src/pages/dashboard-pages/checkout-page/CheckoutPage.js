@@ -583,13 +583,13 @@ const mapDispatch = (dispatch) => ({
     }
   },
 
-  handleAddToCart(record){
-    const {addToCart} = record;
-    if(addToCart === undefined){
-      message.warning('Invalid input!')
+  handleAddToCart(record) {
+    const { addToCart } = record;
+    if (addToCart === undefined) {
+      message.warning("Invalid input!");
     }
     console.log(record);
-  }
+  },
 });
 
 export default connect(mapState, mapDispatch)(CheckoutPage);
