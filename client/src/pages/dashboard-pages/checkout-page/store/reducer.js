@@ -17,6 +17,7 @@ const defaultState = fromJS({
   },
   countSpinning: false,
   blockSelected: "All Items",
+  showCart: true
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {

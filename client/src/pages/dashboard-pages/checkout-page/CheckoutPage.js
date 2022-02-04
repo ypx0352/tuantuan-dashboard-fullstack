@@ -15,6 +15,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
+import Cart from "../static/Cart";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
 
@@ -132,6 +133,7 @@ const CheckoutPage = (props) => {
     setBlockSelected,
     handleAddToStock,
     handleAddToCart,
+    showCart,
   } = props;
 
   useEffect(() => {
@@ -642,7 +644,7 @@ const CheckoutPage = (props) => {
 
   const [tableDataState, setTableDataState] = useState([]);
 
-  //Set table data
+  // Set table data
   const setTableData = (block) => {
     switch (block) {
       case "All Items":
@@ -674,7 +676,13 @@ const CheckoutPage = (props) => {
         <Sidebar />
       </Left>
       <Right>
-        <Header title="Checkout" userName="Tuantuan" userImage={userImage} />
+        <Cart className={showCart ? "" : "hide"} />
+        <Header
+          title="Checkout"
+          userName="Tuantuan"
+          userImage={userImage}
+          cartCount={20}
+        />
         <ContentWrapper>
           <BlockWrapper>
             <Block
@@ -764,6 +772,7 @@ const mapState = (state) => ({
   countSpinning: state.getIn(["checkout", "countSpinning"]),
   allItems: state.getIn(["checkout", "allItems"]).toJS(),
   blockSelected: state.getIn(["checkout", "blockSelected"]),
+  showCart: state.getIn(["static", "showCart"]),
 });
 
 const mapDispatch = (dispatch) => ({
