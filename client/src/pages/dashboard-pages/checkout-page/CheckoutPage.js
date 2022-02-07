@@ -797,8 +797,10 @@ const mapDispatch = (dispatch) => ({
     const { addToCart } = record;
     if (addToCart === undefined) {
       message.warning("Invalid input!");
+    }else{
+      dispatch(actionCreators.addToCartAction(record))
     }
-    console.log(record);
+    
   },
 });
 

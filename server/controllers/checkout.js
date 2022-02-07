@@ -4,6 +4,8 @@ const {
   EmployeeItemsModel,
 } = require("../models/orderModels");
 
+const CartModel = require("../models/checkoutModels");
+
 const allItems = async (req, res) => {
   try {
     const soldItems = await SoldItemsModel.find();
@@ -89,4 +91,45 @@ const addToStock = async (req, res) => {
   }
 };
 
-module.exports = { allItems, addToStock };
+const addToCart = async (req, res) => {
+  const { addToCart, _id, type, subtotal } = req.body;
+
+  const types = ["sold", "stock", "employee"];
+  const models = [SoldItemsModel, StockItemsModel, EmployeeItemsModel];
+  const typeIndex = types.indexOf(type);
+
+  try {
+    const originalItem = await models[typeIndex].findById(_id);
+    if (originalItem === null) {
+      res
+        .status(400)
+        .json({ msg: "Failed to add to cart. Item does not exist!" });
+    } else {
+      const { item, cost, type } = originalItem;
+      solid_id = _id;
+      const user_id = "tuantuan";
+      const profits = subtotal - cost * addToCart;
+      const halfProfits = profits / 2;
+      const cartItem = { item, solid_id, cost, profits, addToCart, type };
+      //console.log(record);
+
+      const result = await CartModel.findOne({ user_id: user_id });
+      if (result === null) {
+        await CartModel.create({
+          user_id: user_id,
+          items: [cartItem],
+        });
+      } else {
+        await CartModel.findOneAndUpdate(
+          { user_id: user_id },
+          { $push: { items: [cartItem] } }
+        );
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Failed to add to cart. Server error!" });
+  }
+};
+
+module.exports = { allItems, addToStock, addToCart };

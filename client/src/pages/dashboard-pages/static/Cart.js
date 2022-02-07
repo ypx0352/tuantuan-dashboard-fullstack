@@ -95,7 +95,7 @@ const Cart = (props) => {
   const getCartItem = () => {
     return cartItems.map((item) => {
       return (
-        <Record>
+        <Record key={item.get("item")}>
           <span style={{ width: "50%" }}>{item.get("item")}</span>
           <span style={{ width: "23%" }}>{item.get("qty")}</span>
           <Remove className="remove" style={{ width: "20%" }}>
@@ -113,7 +113,7 @@ const Cart = (props) => {
         <span style={{ width: "50%" }}>Cart</span>
         <span style={{ width: "48%" }}>Quantity</span>
         <span
-          class="material-icons-outlined"
+          className="material-icons-outlined"
           onClick={() => setShowCart(false)}
           style={{ cursor: "pointer" }}
         >
@@ -130,10 +130,10 @@ const Cart = (props) => {
         <Button>Checkout</Button>
         <CompanyLogo>
           <span
-            class="iconfont icon-zhifubaozhifu-copy-copy"
+            className="iconfont icon-zhifubaozhifu-copy-copy"
             style={{ marginRight: "10px" }}
           ></span>
-          <span class="iconfont icon-weixinzhifu1-copy-copy"> </span>
+          <span className="iconfont icon-weixinzhifu1-copy-copy"> </span>
         </CompanyLogo>
       </CartSummary>
     </CartContainer>

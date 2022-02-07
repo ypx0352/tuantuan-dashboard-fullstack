@@ -90,7 +90,22 @@ export const addToStockAction = (record) => {
       const { msg } = response.data;
       message.success(msg);
       dispatch(getAllItemsAction);
-     
+    } catch (error) {
+      console.log(error);
+      const { msg } = error.response.data;
+      message.error(msg);
+    }
+  };
+};
+
+export const addToCartAction = (record) => {
+  return async (dispatch) => {
+    const { addToCart, _id, type,subtotal } = record;
+    try {
+      const response = await axios.post(
+        serverBaseUrl + "/api/checkout/add_to_cart",
+        { addToCart, _id, type,subtotal }
+      );
     } catch (error) {
       console.log(error);
       const { msg } = error.response.data;
