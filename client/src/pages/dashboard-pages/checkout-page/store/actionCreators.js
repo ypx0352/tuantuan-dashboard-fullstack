@@ -2,6 +2,7 @@ import { fromJS } from "immutable";
 import { message } from "antd";
 import { actionTypes } from ".";
 import axios from "axios";
+import { actionCreators } from "../../static/store";
 
 const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
 
@@ -100,12 +101,20 @@ export const addToStockAction = (record) => {
 
 export const addToCartAction = (record) => {
   return async (dispatch) => {
-    const { addToCart, _id, type,subtotal } = record;
+    const { addToCart, _id, type } = record;
+    var payload = { addToCart, _id, type };
+    if(type !== 'employee'){
+      const {subtotal} = record;
+      payload = { addToCart, _id, type, subtotal };
+    }
     try {
       const response = await axios.post(
-        serverBaseUrl + "/api/checkout/add_to_cart",
-        { addToCart, _id, type,subtotal }
+        serverBaseUrl + "/api/cart/add_to_cart",
+        payload
       );
+      const { msg } = response.data;
+      message.success(msg);
+      dispatch(actionCreators.initializeCartAction);
     } catch (error) {
       console.log(error);
       const { msg } = error.response.data;

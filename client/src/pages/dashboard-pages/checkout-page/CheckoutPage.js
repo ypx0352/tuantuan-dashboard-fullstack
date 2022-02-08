@@ -3,12 +3,12 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import {
   InputNumber,
-  Input,
   Spin,
   Table,
   Button,
   Popconfirm,
   message,
+  Modal,
 } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -21,8 +21,9 @@ import { fromJS } from "immutable";
 
 const Container = styled.div`
   display: flex;
-  min-height: 100vh;
-  background-color: #f7f8fc;
+  min-width: 930px;
+  //min-height: 100vh;
+  //background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
 `;
@@ -134,6 +135,11 @@ const CheckoutPage = (props) => {
     handleAddToStock,
     handleAddToCart,
     showCart,
+    cartItemsCount,
+    showModal,
+    setShowModal,
+    prepareAddToException,
+    addToException,
   } = props;
 
   useEffect(() => {
@@ -209,14 +215,25 @@ const CheckoutPage = (props) => {
                   title={
                     <PopconfirmInputContainer>
                       <PopconfirmInputWrapper>
+                        <Button
+                          size="small"
+                          onClick={() => {
+                            record.addToCart = record.qty;
+                            setUpdate(record);
+                          }}
+                        >
+                          All
+                        </Button>
                         Qty:
                         <InputNumber
                           size="small"
                           min={1}
                           max={record.qty}
                           defaultValue={null}
+                          value={record.addToCart}
                           onChange={(e) => {
                             record.addToCart = e;
+                            setUpdate(record.addToCart);
                           }}
                         />
                       </PopconfirmInputWrapper>
@@ -225,7 +242,7 @@ const CheckoutPage = (props) => {
                       ) : (
                         <>
                           <PopconfirmInputWrapper>
-                            Subtotal (￥): {"  "}
+                            Subtotal (￥):
                             <InputNumber
                               size="small"
                               min={0}
@@ -245,7 +262,11 @@ const CheckoutPage = (props) => {
                           <PopconfirmInputWrapper>
                             Profits (￥):
                             <InputNumber
-                              min={10}
+                              style={
+                                record.profits >= 10
+                                  ? { color: "green" }
+                                  : { color: "red" }
+                              }
                               bordered={false}
                               value={record.profits}
                               controls={false}
@@ -255,7 +276,13 @@ const CheckoutPage = (props) => {
                       )}
                     </PopconfirmInputContainer>
                   }
-                  onConfirm={() => handleAddToCart(record)}
+                  onConfirm={() => {
+                    if (record.profits >= 10) {
+                      handleAddToCart(record);
+                    } else {
+                      prepareAddToException(record);
+                    }
+                  }}
                   okText="Add to cart"
                   cancelText="Cancel"
                 >
@@ -281,12 +308,22 @@ const CheckoutPage = (props) => {
                     placement="topRight"
                     title={
                       <>
-                        Qty: {"  "}
+                        <Button
+                          size="small"
+                          onClick={() => {
+                            record.addToStock = record.qty;
+                            setUpdate(record);
+                          }}
+                        >
+                          All
+                        </Button>
+                        Qty:
                         <InputNumber
                           size="small"
                           min={1}
                           max={record.qty}
                           defaultValue={null}
+                          value={record.addToStock}
                           onChange={(e) => {
                             record.addToStock = e;
                           }}
@@ -681,7 +718,7 @@ const CheckoutPage = (props) => {
           title="Checkout"
           userName="Tuantuan"
           userImage={userImage}
-          cartCount={20}
+          cartCount={cartItemsCount}
         />
         <ContentWrapper>
           <BlockWrapper>
@@ -763,6 +800,19 @@ const CheckoutPage = (props) => {
           </TableWrapper>
         </ContentWrapper>
       </Right>
+
+      <Modal
+        title="Profit exception!  "
+        visible={showModal}
+        okText="Add to exception"
+        cancelText="Back"
+        style={{ top: "20px" }}
+        onOk={addToException}
+        onCancel={() => setShowModal(false)}
+      >
+        <p>Profit is less than ￥10.00.</p>
+        <p>Add the item to the exceptions or go back to modifications.</p>
+      </Modal>
     </Container>
   );
 };
@@ -773,6 +823,8 @@ const mapState = (state) => ({
   allItems: state.getIn(["checkout", "allItems"]).toJS(),
   blockSelected: state.getIn(["checkout", "blockSelected"]),
   showCart: state.getIn(["static", "showCart"]),
+  cartItemsCount: state.getIn(["static", "cartItemsCount"]),
+  showModal: state.getIn(["checkout", "showModal"]),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -797,10 +849,22 @@ const mapDispatch = (dispatch) => ({
     const { addToCart } = record;
     if (addToCart === undefined) {
       message.warning("Invalid input!");
-    }else{
-      dispatch(actionCreators.addToCartAction(record))
+    } else {
+      dispatch(actionCreators.addToCartAction(record));
     }
-    
+  },
+
+  setShowModal(value) {
+    dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(value) });
+  },
+
+  prepareAddToException(record) {
+    dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(true) });
+    console.log(record);
+  },
+
+  addToException() {
+    console.log("add to exception");
   },
 });
 

@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 const SidebarWrapper = styled.div`
   height: 100%;
+  min-width: 150px;
   display: flex;
   flex-direction: column;
   background-color: #363740;

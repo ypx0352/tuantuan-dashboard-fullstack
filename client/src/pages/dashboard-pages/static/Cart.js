@@ -1,8 +1,9 @@
 import { fromJS } from "immutable";
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { actionTypes } from "./store";
+import { Empty } from "antd";
+import { actionCreators, actionTypes } from "./store";
 
 const CartContainer = styled.div`
   @keyframes display_cart {
@@ -10,14 +11,14 @@ const CartContainer = styled.div`
       height: 0;
     }
     to {
-      height: 50%;
+      height: 35%;
     }
   }
 
   display: flex;
   position: relative;
   flex-direction: column;
-  height: 50%;
+  height: 35%;
   background-color: #363740;
   padding: 20px;
   animation-name: display_cart;
@@ -34,6 +35,11 @@ const Header = styled.div`
   font-weight: bold;
   padding-bottom: 15px;
   border-bottom: 2px solid rgba(255, 254, 242, 0.1);
+`;
+
+const Items = styled.div`
+  height: 50%;
+  overflow: auto;
 `;
 
 const Record = styled.div`
@@ -56,12 +62,21 @@ const Remove = styled.span`
 `;
 
 const CartSummary = styled.div`
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
   display: flex;
   position: absolute;
   bottom: 25px;
   right: 15px;
   flex-direction: column;
   color: #bcbbb4;
+  animation: fadeIn 2s ease-in;
 `;
 
 const Subtotal = styled.div`
@@ -90,18 +105,27 @@ const CompanyLogo = styled.div`
 `;
 
 const Cart = (props) => {
-  const { setShowCart, cartItems } = props;
+  const { setShowCart, cartItems, initializeCart, cartSubtotal, handleRemove } =
+    props;
+
+  useEffect(() => {
+    initializeCart();
+  }, []);
 
   const getCartItem = () => {
-    return cartItems.map((item) => {
+    return cartItems.map((item, index) => {
       return (
-        <Record key={item.get("item")}>
+        <Record key={index}>
           <span style={{ width: "50%" }}>{item.get("item")}</span>
-          <span style={{ width: "23%" }}>{item.get("qty")}</span>
-          <Remove className="remove" style={{ width: "20%" }}>
+          <span style={{ width: "23%" }}>{item.get("addToCart")}</span>
+          <Remove
+            className="remove"
+            style={{ width: "20%" }}
+            onClick={() => handleRemove(item.get("_id"))}
+          >
             Remove
           </Remove>
-          <span style={{ width: "7%" }}>￥ {item.get("subtotal")}</span>
+          <span style={{ width: "7%" }}>￥ {item.get("payAmount")}</span>
         </Record>
       );
     });
@@ -120,33 +144,60 @@ const Cart = (props) => {
           close
         </span>
       </Header>
-      {getCartItem()}
+      <Items>
+        {cartItems.size === 0 ? (
+          <Empty
+            image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+            imageStyle={{
+              height: "50%",
+              marginTop: "10%",
+            }}
+            style={{ color: "#bcbbb4" }}
+            description={<span>Your cart is empty</span>}
+          />
+        ) : (
+          getCartItem()
+        )}
+      </Items>
 
-      <CartSummary>
-        <Subtotal>
-          <span style={{ fontSize: "15px" }}>Subtotal</span>
-          <span style={{ fontSize: "25px" }}> ￥160.00</span>
-        </Subtotal>
-        <Button>Checkout</Button>
-        <CompanyLogo>
-          <span
-            className="iconfont icon-zhifubaozhifu-copy-copy"
-            style={{ marginRight: "10px" }}
-          ></span>
-          <span className="iconfont icon-weixinzhifu1-copy-copy"> </span>
-        </CompanyLogo>
-      </CartSummary>
+      {cartItems.size === 0 ? (
+        ""
+      ) : (
+        <CartSummary>
+          <Subtotal>
+            <span style={{ fontSize: "15px" }}>Subtotal</span>
+            <span style={{ fontSize: "25px" }}>￥ {cartSubtotal}</span>
+          </Subtotal>
+          <Button>Checkout</Button>
+          <CompanyLogo>
+            <span
+              className="iconfont icon-zhifubaozhifu-copy-copy"
+              style={{ marginRight: "10px" }}
+            ></span>
+            <span className="iconfont icon-weixinzhifu1-copy-copy"> </span>
+          </CompanyLogo>
+        </CartSummary>
+      )}
     </CartContainer>
   );
 };
 
 const mapState = (state) => ({
   cartItems: state.getIn(["static", "cartItems"]),
+  cartSubtotal: state.getIn(["static", "cartSubtotal"]),
 });
 
 const mapDispatch = (dispatch) => ({
   setShowCart(value) {
     dispatch({ type: actionTypes.SET_SHOW_CART, value: fromJS(value) });
+  },
+
+  initializeCart() {
+    dispatch(actionCreators.initializeCartAction);
+  },
+
+  handleRemove(value) {
+    dispatch(actionCreators.removeFromCartAction(value));
   },
 });
 

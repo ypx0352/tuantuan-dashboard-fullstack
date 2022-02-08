@@ -39,12 +39,10 @@ const UserImage = styled.img`
 `;
 
 const Cart = styled.div`
-
   margin-left: 10px;
   font-weight: bold;
   cursor: pointer;
   text-decoration-line: underline;
-  
 `;
 
 const Header = (props) => {

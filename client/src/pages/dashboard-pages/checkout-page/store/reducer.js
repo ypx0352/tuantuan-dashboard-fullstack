@@ -17,7 +17,7 @@ const defaultState = fromJS({
   },
   countSpinning: false,
   blockSelected: "All Items",
-  showCart: true
+  showModal: false,
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -33,6 +33,9 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.BLOCK_SELECTED:
       return state.set("blockSelected", action.value);
+
+    case actionTypes.SHOW_MODAL:
+      return state.set("showModal", action.value);
 
     default:
       return state;
