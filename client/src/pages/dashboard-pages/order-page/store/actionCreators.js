@@ -5,6 +5,8 @@ import { actionTypes } from ".";
 
 const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
 
+console.log(process.env);
+
 export const searchAction = (pk_id) => {
   return async (dispatch) => {
     dispatch({

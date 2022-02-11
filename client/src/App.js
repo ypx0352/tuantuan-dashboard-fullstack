@@ -1,6 +1,6 @@
-import styled from "styled-components";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
+//import 'dotenv/config'
 import store from "./store";
 import LandingPage from "./pages/landing-page/LandingPage";
 import LoginPage from "./pages/login-page/LoginPage";
