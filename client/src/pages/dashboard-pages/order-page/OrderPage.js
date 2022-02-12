@@ -1,7 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { Table, Input, Spin, message, BackTop, Button, Modal, InputNumber } from "antd";
+import {
+  Table,
+  Input,
+  Spin,
+  message,
+  BackTop,
+  Button,
+  Modal,
+  InputNumber,
+} from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
@@ -111,14 +120,21 @@ const OrderPage = (props) => {
     setShowConfirmationResultDialog,
     confirmResult,
     confirmLoading,
+    normalPostage,
+    babyFormulaPostage,
+    exchangeRateInSetting,
+    initializeSettings,
   } = props;
 
   // Some parameter that should be stored in setting file
-  const normalPostage = 7.4;
-  const babyFormulaPostage = 18.9;
-  const exchangeRateInSetting = 4.7;
+  // const normalPostage = 7.4;
+  // const babyFormulaPostage = 18.9;
+  // const exchangeRateInSetting = 4.7;
 
   const searchInputEl = useRef(null);
+
+  // get settings
+  useEffect(() => initializeSettings(), []);
 
   // get current exchange rate
   useEffect(() => initializeExchangeRate(exchangeRate), []);
@@ -395,7 +411,7 @@ const OrderPage = (props) => {
           title: "Item",
           dataIndex: "item",
           key: "item",
-          width: "20%",          
+          width: "20%",
           render: (text, record, index) => {
             return (
               <TextArea
@@ -853,6 +869,9 @@ const mapState = (state) => ({
     "showConfirmationResultDialog",
   ]),
   confirmResult: state.getIn(["order", "confirmResult"]),
+  normalPostage: state.getIn(["order", "normalPostage"]),
+  babyFormulaPostage: state.getIn(["order", "babyFormulaPostage"]),
+  exchangeRateInSetting: state.getIn(["order", "exchangeRateInSetting"]),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -891,6 +910,10 @@ const mapDispatch = (dispatch) => ({
       type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
       value: fromJS(value),
     });
+  },
+
+  initializeSettings() {
+    dispatch(actionCreators.initializeSettingsAction);
   },
 });
 

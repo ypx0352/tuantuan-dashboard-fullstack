@@ -27,6 +27,9 @@ const defaultState = fromJS({
   confirmLoading: false,
   showConfirmationResultDialog: false,
   confirmResult: { title: "Result", msg: "Loading" },
+  normalPostage: null,
+  babyFormulaPostage: null,
+  exchangeRateInSetting: null,
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {

@@ -184,3 +184,14 @@ export const handleOnOkAction = (dispatch) => {
     value: fromJS(false),
   });
 };
+
+export const initializeSettingsAction = async (dispatch) => {
+  try {
+    const response = await axios.get(serverBaseUrl + "/api/setting");
+    const { result } = response.data;
+  } catch (error) {
+    console.log(error);
+    const { msg } = error.response.data;
+    message.error(msg);
+  }
+};

@@ -33,7 +33,7 @@ const login = async () => {
 
 // search for a specific package
 const getOnePackage = async (pk_id) => {
-  console.log("check package.");
+  console.log("check one package.");
   var packageSearchData = new FormData();
   packageSearchData.append("msearch_text", "idnum");
   packageSearchData.append("sm_search", "1");

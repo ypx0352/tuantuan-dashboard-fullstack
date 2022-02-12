@@ -4,6 +4,7 @@ require("dotenv").config();
 const orderRouter = require("./routers/order");
 const checkoutRouter = require("./routers/checkout");
 const cartRouter = require('./routers/cart')
+const settingRouter = require('./routers/setting')
 
 const app = express();
 app.use(express.json());
@@ -25,7 +26,9 @@ app.use("/api/order", orderRouter);
 
 app.use("/api/checkout", checkoutRouter);
 
-app.use('/api/cart', cartRouter)
+app.use('/api/cart', cartRouter);
+
+app.use('/api/setting', settingRouter);
 
 app.listen(1100, () => {
   console.log("server listening on port 1100.");
