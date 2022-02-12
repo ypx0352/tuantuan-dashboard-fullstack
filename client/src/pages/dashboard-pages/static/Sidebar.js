@@ -85,6 +85,12 @@ const Sidebar = () => {
           </ListItemIcon>
           <ListItemText>Product</ListItemText>
         </ListItemWrapper>
+        <ListItemWrapper href="/dashboard/setting">
+          <ListItemIcon className="material-icons-outlined">
+            settings
+          </ListItemIcon>
+          <ListItemText>Setting</ListItemText>
+        </ListItemWrapper>
       </List>
     </SidebarWrapper>
   );

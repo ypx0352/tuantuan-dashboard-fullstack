@@ -18,7 +18,8 @@ const Left = styled.div`
 
 const Right = styled.div`
   width: 85%;
-  padding: 20px;`
+  padding: 20px;
+`;
 
 const BlockWrapper = styled.div`
   display: flex;
@@ -69,7 +70,12 @@ const OverviewPage = () => {
         <Sidebar />
       </Left>
       <Right>
-        <Header title="Overview" userName="Tuantuan" userImage={userImage} />
+        <Header
+          title="Overview"
+          userName="Tuantuan"
+          userImage={userImage}
+          cartCount="hide"
+        />
 
         <BlockWrapper>
           <Block>

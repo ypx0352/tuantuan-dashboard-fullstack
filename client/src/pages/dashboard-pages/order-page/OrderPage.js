@@ -186,7 +186,7 @@ const OrderPage = (props) => {
 
   // fetch package data from store
   const [postage, setPostage] = useState(null);
-  const [exchangeRateState, setExchangeRatState] = useState(null);
+  //const [exchangeRateState, setExchangeRatState] = useState(null);
 
   const calculatePostage = (packageType) => {
     switch (packageType) {
@@ -213,7 +213,7 @@ const OrderPage = (props) => {
 
   useEffect(() => {
     calculatePostage(originalOrder.get("item_type"));
-    setExchangeRatState(exchangeRateInSetting);
+    //setExchangeRatState(exchangeRateInSetting);
   }, [originalOrder]);
 
   const packageData = [
@@ -224,7 +224,7 @@ const OrderPage = (props) => {
       weight: originalOrder.get("package_weight"),
       count: originalOrder.get("item_count"),
       postage: postage,
-      exchangeRate: exchangeRateState,
+      exchangeRate: exchangeRateInSetting,
     },
   ];
 
@@ -270,17 +270,18 @@ const OrderPage = (props) => {
           title: "Exchange rate",
           dataIndex: "exchangeRate",
           key: "exchangeRate",
-          render: (text, record, index) => {
-            return (
-              <Input
-                type="number"
-                size="small"
-                bordered={false}
-                value={text}
-                onChange={(e) => setExchangeRatState(e.target.value)}
-              />
-            );
-          },
+          // render: (text, record, index) => {
+          //   return (
+          //     <Input
+          //       type="number"
+          //       size="small"
+          //       bordered={false}
+          //       value={text}
+          //       controls={false}
+          //       //onChange={(e) => setExchangeRatState(e.target.value)}
+          //     />
+          //   );
+          // },
         },
         {
           title: "Postage",
@@ -349,7 +350,7 @@ const OrderPage = (props) => {
       (
         (data[index]["price"] +
           (data[index]["weight"] / packageWeight) * postage) *
-        exchangeRateState
+        exchangeRateInSetting
       ).toFixed(2)
     );
   };
@@ -671,7 +672,12 @@ const OrderPage = (props) => {
         <Sidebar />
       </Left>
       <Right>
-        <Header title="Order" userName="Tuantuan" userImage={userImage} />
+        <Header
+          title="Order"
+          userName="Tuantuan"
+          userImage={userImage}
+          cartCount="hide"
+        />
 
         <OrderContainer>
           <SearchContainer>

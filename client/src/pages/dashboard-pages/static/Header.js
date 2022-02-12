@@ -43,6 +43,9 @@ const Cart = styled.div`
   font-weight: bold;
   cursor: pointer;
   text-decoration-line: underline;
+  &.hide {
+    display: none;
+  }
 `;
 
 const Header = (props) => {
@@ -56,7 +59,12 @@ const Header = (props) => {
           <Name>{props.userName}</Name>
           <UserImage src={props.userImage}></UserImage>
         </UserWrapper>
-        <Cart onClick={() => setShowCart(true)}>Cart {props.cartCount}</Cart>
+        <Cart
+          className={props.cartCount === "hide" ? "hide" : ""}
+          onClick={() => setShowCart(true)}
+        >
+          Cart {props.cartCount}
+        </Cart>
       </Right>
     </Container>
   );

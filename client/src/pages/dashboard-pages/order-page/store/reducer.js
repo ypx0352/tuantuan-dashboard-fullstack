@@ -75,6 +75,13 @@ const returnNewStateToStore = (state = defaultState, action) => {
     case actionTypes.CONFIRM_RESULT:
       return state.set("confirmResult", action.value);
 
+    case actionTypes.INITIAL_SETTINGS:
+      return state.merge({
+        normalPostage: action.value.get("normalPostage"),
+        babyFormulaPostage: action.value.get("babyFormulaPostage"),
+        exchangeRateInSetting: action.value.get("exchangeRateInSetting"),
+      });
+
     default:
       return state;
   }

@@ -189,7 +189,21 @@ export const initializeSettingsAction = async (dispatch) => {
   try {
     const response = await axios.get(serverBaseUrl + "/api/setting");
     const { result } = response.data;
-    
+    const setting = {};
+    result.forEach((item) => {
+      switch (item.name) {
+        case "normalPostage":
+          setting.normalPostage = item.value;
+          break;
+        case "babyFormulaPostage":
+          setting.babyFormulaPostage = item.value;
+          break;
+        case "exchangeRateInSetting":
+          setting.exchangeRateInSetting = item.value;
+          break;
+      }
+    });
+    dispatch({ type: actionTypes.INITIAL_SETTINGS, value: fromJS(setting) });
   } catch (error) {
     console.log(error);
     const { msg } = error.response.data;

@@ -22,7 +22,7 @@ import { fromJS } from "immutable";
 const Container = styled.div`
   display: flex;
   min-width: 930px;
-  //min-height: 100vh;
+  min-height: 100vh;
   //background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
