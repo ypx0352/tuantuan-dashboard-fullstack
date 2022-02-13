@@ -16,12 +16,14 @@ const getSetting = async (req, res) => {
 };
 
 const setSetting = async (req, res) => {
-  const { name, value } = req.query;
+  const { name, value } = req.body;
+  console.log(name, value);
   try {
     await SettingModel.findOneAndUpdate(
       { name: name },
       { $set: { value: value } }
     );
+    return res.status(200).json({ msg: "Update successfully!" });
   } catch (error) {
     console.log(error);
     res.status(400).json({ msg: "Failed to update setting. Server error." });
