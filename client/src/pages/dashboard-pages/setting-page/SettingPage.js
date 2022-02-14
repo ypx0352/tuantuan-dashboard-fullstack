@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { Button, InputNumber } from "antd";
+import { Button, InputNumber, message } from "antd";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
-import { actionCreators } from "./store";
+import { actionCreators, actionTypes } from "./store";
+import { fromJS } from "immutable";
 
 const Container = styled.div`
   display: flex;
@@ -46,14 +47,19 @@ const Item = styled.div`
 `;
 
 const SettingPage = (props) => {
-  const { getSettings, settings, updateSetting } = props;
+  const {
+    getSettings,
+    settings,
+    updateSetting,
+    settingsInput,
+    handleSettingsInput,
+  } = props;
 
   useEffect(() => getSettings(), []);
 
-  const newSettings = {};
-
   const handleInput = (name) => (e) => {
-    newSettings[`${name}`] = e;
+    settingsInput[`${name}`] = e;
+    handleSettingsInput(settingsInput);
   };
 
   return (
@@ -90,13 +96,13 @@ const SettingPage = (props) => {
               size="small"
               controls={false}
               defaultValue={null}
-              value={newSettings.normalPostage}
+              value={settingsInput.normalPostage}
               onChange={handleInput("normalPostage")}
             />
             <Button
               size="small"
               onClick={() =>
-                updateSetting("normalPostage", newSettings["normalPostage"])
+                updateSetting("normalPostage", settingsInput["normalPostage"])
               }
             >
               Update
@@ -121,7 +127,7 @@ const SettingPage = (props) => {
               onClick={() =>
                 updateSetting(
                   "babyFormulaPostage",
-                  newSettings["babyFormulaPostage"]
+                  settingsInput["babyFormulaPostage"]
                 )
               }
             >
@@ -147,7 +153,7 @@ const SettingPage = (props) => {
               onClick={() =>
                 updateSetting(
                   "exchangeRateInSetting",
-                  newSettings["exchangeRateInSetting"]
+                  settingsInput["exchangeRateInSetting"]
                 )
               }
             >
@@ -162,6 +168,7 @@ const SettingPage = (props) => {
 
 const mapState = (state) => ({
   settings: state.getIn(["setting", "settings"]),
+  settingsInput: state.getIn(["setting", "settingsInput"]).toJS(),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -169,8 +176,17 @@ const mapDispatch = (dispatch) => ({
     dispatch(actionCreators.getSettingsAction);
   },
 
+  handleSettingsInput(newSettings) {
+    console.log(newSettings);
+    dispatch({ type: actionTypes.SETTINGS_INPUT, value: fromJS(newSettings) });
+  },
+
   updateSetting(name, value) {
-    dispatch(actionCreators.updateSettingAction(name, value));
+    if (value === undefined) {
+      message.warn("Error! Input must not be empty.");
+    } else {
+      dispatch(actionCreators.updateSettingAction(name, value));
+    }
   },
 });
 

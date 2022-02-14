@@ -56,7 +56,7 @@ const itemSchema = new mongoose.Schema({
   item: { type: String, required: true },
   solid_id: { type: String, required: true },
   cost: { type: Number, required: true },
-  profits: { type: Number, required: true },
+  //profits: { type: Number, required: true },
   addToCart: { type: Number, required: true },
   type: { type: String, required: true },
   payAmount: { type: Number, required: true },

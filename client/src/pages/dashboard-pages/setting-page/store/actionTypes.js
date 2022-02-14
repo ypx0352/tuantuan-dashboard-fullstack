@@ -1,1 +1,3 @@
 export const GET_SETTINGS = "GET_SETTINGS";
+
+export const SETTINGS_INPUT = "SETTINGS_INPUT";

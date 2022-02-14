@@ -30,9 +30,9 @@ const addToCart = async (req, res) => {
         const { subtotal } = req.body;
         const profits = subtotal - cost * addToCart;
         const halfProfits = profits / 2;
-        payAmount = cost + halfProfits;
+        payAmount = cost * addToCart + halfProfits;
       } else {
-        payAmount = cost;
+        payAmount = cost * addToCart;
       }
       cartItem = { item, solid_id, cost, addToCart, type, payAmount };
 

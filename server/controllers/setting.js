@@ -23,7 +23,7 @@ const setSetting = async (req, res) => {
       { name: name },
       { $set: { value: value } }
     );
-    return res.status(200).json({ msg: "Update successfully!" });
+    return res.status(200).json({ msg: "Updated successfully!" });
   } catch (error) {
     console.log(error);
     res.status(400).json({ msg: "Failed to update setting. Server error." });

@@ -10,7 +10,6 @@ export const getSettingsAction = async (dispatch) => {
   try {
     const response = await axios.get(serverBaseUrl + "/api/setting");
     const { result } = response.data;
-    console.log(result);
     result.forEach((item) => {
       settings[`${item.name}`] = {
         value: item.value,

@@ -196,9 +196,8 @@ const OrderPage = (props) => {
             (
               (originalOrder.get("package_weight") <= 1
                 ? 1
-                : Number(originalOrder.get("package_weight")).toFixed(1)) *
-                normalPostage +
-              1
+                : Number(originalOrder.get("package_weight")).toFixed(2)) *
+                normalPostage 
             ).toFixed(2)
           )
         );
@@ -213,7 +212,7 @@ const OrderPage = (props) => {
 
   useEffect(() => {
     calculatePostage(originalOrder.get("item_type"));
-    //setExchangeRatState(exchangeRateInSetting);
+    //setExchangeRateState(exchangeRateInSetting);
   }, [originalOrder]);
 
   const packageData = [
