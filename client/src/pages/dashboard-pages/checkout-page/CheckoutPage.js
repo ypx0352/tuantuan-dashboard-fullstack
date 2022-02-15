@@ -124,6 +124,36 @@ const antIcon = (
   <LoadingOutlined style={{ fontSize: 48, color: "#3751ff" }} spin />
 );
 
+// style={{
+//                         width: "90px",
+//                         borderRadius: "8px",
+//                         border: "none",
+//                         marginBottom: "5px",
+//                         textAlign: "center",
+//                         backgroundColor: "darkgreen",
+//                         color: "white",
+//                       }}
+
+const colors = { cart: "#3751ff", stock: "sandybrown", employee: "#18a16d" };
+
+const StyledButton = styled(Button).attrs((props) => ({
+  style: { backgroundColor: colors[`${props.destination}`] },
+  type: "primary",
+}))`
+  width: 90px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  margin-bottom: 5px;
+  text-align: center;
+  :hover {
+    opacity: 0.7;
+  }
+  :active {
+    opacity: 1;
+  }
+`;
+
 const CheckoutPage = (props) => {
   const {
     itemsCount,
@@ -168,6 +198,48 @@ const CheckoutPage = (props) => {
 
   const [update, setUpdate] = useState();
 
+  const generateButton = (record, destination) => {
+    return (
+      <Popconfirm
+        placement="topRight"
+        title={
+          <>
+            <Button
+              size="small"
+              onClick={() => {
+                record.addToStock = record.qty;
+                setUpdate(record);
+              }}
+            >
+              All
+            </Button>
+            Qty:
+            <InputNumber
+              size="small"
+              min={1}
+              max={record.qty}
+              defaultValue={null}
+              value={record.addToStock}
+              onChange={(e) => {
+                record.addToStock = e;
+              }}
+            />
+          </>
+        }
+        onConfirm={() => handleAddToStock(record)}
+        okText="Add to stock"
+        cancelText="Cancel"
+      >
+        <StyledButton
+        destination={destination}
+          
+        >
+          {destination}
+        </StyledButton>
+      </Popconfirm>
+    );
+  };
+
   // Set columns
   const setColumns = (block) => [
     {
@@ -210,6 +282,7 @@ const CheckoutPage = (props) => {
           render: (text, record, index) => {
             return (
               <ButtonWrapper>
+              {generateButton(record, 'cart')}
                 <Popconfirm
                   placement="topRight"
                   title={
@@ -286,19 +359,21 @@ const CheckoutPage = (props) => {
                   okText="Add to cart"
                   cancelText="Cancel"
                 >
-                  <Button
-                    style={{
-                      width: "70px",
-                      marginBottom: "10px",
-                      borderRadius: "8px",
-                      border: "none",
-                      textAlign: "center",
-                      backgroundColor: "#3751ff",
-                      color: "white",
-                    }}
+                  <StyledButton
+                    
+
+                    // style={{
+                    //   width: "70px",
+                    //   marginBottom: "10px",
+                    //   borderRadius: "8px",
+                    //   border: "none",
+                    //   textAlign: "center",
+                    //   backgroundColor: "#3751ff",
+                    //   color: "white",
+                    // }}
                   >
                     Cart
-                  </Button>
+                  </StyledButton>
                 </Popconfirm>
 
                 {record.type === "stock" ? (
@@ -339,6 +414,7 @@ const CheckoutPage = (props) => {
                         width: "70px",
                         borderRadius: "8px",
                         border: "none",
+                        marginBottom: "10px",
                         textAlign: "center",
                         backgroundColor: "sandybrown",
                         color: "white",
@@ -348,6 +424,43 @@ const CheckoutPage = (props) => {
                     </Button>
                   </Popconfirm>
                 )}
+
+                {record.type === "employee" ? (
+                  ""
+                ) : (
+                  <Popconfirm
+                    placement="topRight"
+                    title={
+                      <>
+                        <Button
+                          size="small"
+                          onClick={() => {
+                            record.addToStock = record.qty;
+                            setUpdate(record);
+                          }}
+                        >
+                          All
+                        </Button>
+                        Qty:
+                        <InputNumber
+                          size="small"
+                          min={1}
+                          max={record.qty}
+                          defaultValue={null}
+                          value={record.addToStock}
+                          onChange={(e) => {
+                            record.addToStock = e;
+                          }}
+                        />
+                      </>
+                    }
+                    onConfirm={() => handleAddToStock(record)}
+                    okText="Add to stock"
+                    cancelText="Cancel"
+                  >
+                    <StyledButton>Employee</StyledButton>
+                  </Popconfirm>
+                )}
               </ButtonWrapper>
             );
           },
@@ -355,316 +468,6 @@ const CheckoutPage = (props) => {
       ],
     },
   ];
-
-  // const setColumns = (block) => {
-  //   if (block === "Employee Items") {
-  //     return [
-  //       {
-  //         title: block,
-  //         children: [
-  //           {
-  //             title: "Item",
-  //             dataIndex: "item",
-  //             key: "item",
-  //           },
-  //           {
-  //             title: "Qty",
-  //             dataIndex: "qty",
-  //             key: "qty",
-  //           },
-  //           {
-  //             title: "Cost / each (￥)",
-  //             dataIndex: "cost",
-  //             key: "cost",
-  //           },
-  //           {
-  //             title: "Type",
-  //             dataIndex: "type",
-  //             key: "type",
-  //           },
-  //           {
-  //             title: "Note",
-  //             dataIndex: "note",
-  //             key: "note",
-  //           },
-  //           {
-  //             title: "Date",
-  //             dataIndex: "date",
-  //             key: "date",
-  //           },
-  //           {
-  //             title: "Add to",
-  //             dataIndex: "add",
-  //             key: "add",
-  //             render: (text, record, index) => {
-  //               return (
-  //                 <ButtonWrapper>
-  //                   <Popconfirm
-  //                     placement="topRight"
-  //                     title={
-  //                       <PopconfirmInputContainer>
-  //                         <PopconfirmInputWrapper>
-  //                           Count:
-  //                           <InputNumber
-  //                             size="small"
-  //                             min={1}
-  //                             max={record.qty}
-  //                             defaultValue={null}
-  //                             onChange={(e) => {
-  //                               record.addToCart = e;
-  //                             }}
-  //                           />
-  //                         </PopconfirmInputWrapper>
-  //                       </PopconfirmInputContainer>
-  //                     }
-  //                     onConfirm={() => handleAddToCart(record)}
-  //                     okText="Add to cart"
-  //                     cancelText="Cancel"
-  //                   >
-  //                     <Button
-  //                       style={{
-  //                         width: "70px",
-  //                         marginBottom: "10px",
-  //                         borderRadius: "8px",
-  //                         border: "none",
-  //                         textAlign: "center",
-  //                         backgroundColor: "#3751ff",
-  //                         color: "white",
-  //                       }}
-  //                     >
-  //                       Cart
-  //                     </Button>
-  //                   </Popconfirm>
-  //                   {record.type === "stock" ? (
-  //                     ""
-  //                   ) : (
-  //                     <Popconfirm
-  //                       placement="topRight"
-  //                       title={
-  //                         <>
-  //                           Number of items to be added to the stock: {"  "}
-  //                           <InputNumber
-  //                             size="small"
-  //                             min={1}
-  //                             max={record.qty}
-  //                             defaultValue={null}
-  //                             onChange={(e) => (record.addToStock = e)}
-  //                           />
-  //                         </>
-  //                       }
-  //                       onConfirm={() => handleAddToStock(record)}
-  //                       okText="Add to stock"
-  //                       cancelText="Cancel"
-  //                     >
-  //                       <Button
-  //                         style={{
-  //                           width: "70px",
-  //                           borderRadius: "8px",
-  //                           border: "none",
-  //                           textAlign: "center",
-  //                           backgroundColor: "sandybrown",
-  //                           color: "white",
-  //                         }}
-  //                       >
-  //                         Stock
-  //                       </Button>
-  //                     </Popconfirm>
-  //                   )}
-  //                 </ButtonWrapper>
-  //               );
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     ];
-  //   } else {
-  //     return [
-  //       {
-  //         title: block,
-  //         children: [
-  //           {
-  //             title: "Item",
-  //             dataIndex: "item",
-  //             key: "item",
-  //           },
-  //           {
-  //             title: "Qty",
-  //             dataIndex: "qty",
-  //             key: "qty",
-  //           },
-  //           {
-  //             title: "Cost / each (￥)",
-  //             dataIndex: "cost",
-  //             key: "cost",
-  //           },
-  //           {
-  //             title: "Type",
-  //             dataIndex: "type",
-  //             key: "type",
-  //           },
-  //           {
-  //             title: "Note",
-  //             dataIndex: "note",
-  //             key: "note",
-  //           },
-  //           {
-  //             title: "Date",
-  //             dataIndex: "date",
-  //             key: "date",
-  //           },
-  //           // {
-  //           //   title: "Payment / row (￥)",
-  //           //   dataIndex: "payment",
-  //           //   key: "payment",
-  //           //   render: (text, record, index) => {
-  //           //     return (
-  //           //       <InputNumber
-  //           //         disabled={record.type === "employee" ? true : false}
-  //           //         type="number"
-  //           //         bordered={false}
-  //           //         prefix="￥"
-  //           //         value={text}
-  //           //         controls={false}
-  //           //         min={0}
-  //           //         onChange={hanldeInputChange(record, index)}
-  //           //       />
-  //           //     );
-  //           //   },
-  //           // },
-  //           // {
-  //           //   title: "Profits / row (￥)",
-  //           //   dataIndex: "profits",
-  //           //   key: "profits",
-  //           //   render: (text, record, index) => {
-  //           //     return (
-  //           //       <InputNumber
-  //           //         disabled={record.type === "employee" ? true : false}
-  //           //         min={10}
-  //           //         bordered={false}
-  //           //         value={text}
-  //           //         controls={false}
-  //           //       />
-  //           //     );
-  //           //   },
-  //           // },
-  //           {
-  //             title: "Add to",
-  //             dataIndex: "add",
-  //             key: "add",
-  //             render: (text, record, index) => {
-  //               return (
-  //                 <ButtonWrapper>
-  //                   <Popconfirm
-  //                     placement="topRight"
-  //                     title={
-  //                       <PopconfirmInputContainer>
-  //                         <PopconfirmInputWrapper>
-  //                           Count:
-  //                           <InputNumber
-  //                             size="small"
-  //                             min={1}
-  //                             max={record.qty}
-  //                             defaultValue={null}
-  //                             onChange={(e) => {
-  //                               record.addToCart = e;
-  //                             }}
-  //                           />
-  //                         </PopconfirmInputWrapper>
-  //                         {record.type === "employee" ? (
-  //                           ""
-  //                         ) : (
-  //                           <>
-  //                             <PopconfirmInputWrapper>
-  //                               Subtotal (￥): {"  "}
-  //                               <InputNumber
-  //                                 size="small"
-  //                                 min={0}
-  //                                 controls={false}
-  //                                 defaultValue={null}
-  //                                 onChange={(e) => {
-  //                                   record.profits =
-  //                                     e - record.addToCart * record.cost;
-  //                                 }}
-  //                               />
-  //                             </PopconfirmInputWrapper>
-  //                             <PopconfirmInputWrapper>
-  //                               Profits (￥):
-  //                               <InputNumber
-  //                                 min={10}
-  //                                 bordered={false}
-  //                                 value={record.profits}
-  //                                 controls={false}
-  //                               />
-  //                             </PopconfirmInputWrapper>
-  //                           </>
-  //                         )}
-  //                       </PopconfirmInputContainer>
-  //                     }
-  //                     onConfirm={() => handleAddToCart(record)}
-  //                     okText="Add to cart"
-  //                     cancelText="Cancel"
-  //                   >
-  //                     <Button
-  //                       style={{
-  //                         width: "70px",
-  //                         marginBottom: "10px",
-  //                         borderRadius: "8px",
-  //                         border: "none",
-  //                         textAlign: "center",
-  //                         backgroundColor: "#3751ff",
-  //                         color: "white",
-  //                       }}
-  //                     >
-  //                       Cart
-  //                     </Button>
-  //                   </Popconfirm>
-
-  //                   {record.type === "stock" ? (
-  //                     ""
-  //                   ) : (
-  //                     <Popconfirm
-  //                       placement="topRight"
-  //                       title={
-  //                         <>
-  //                           Number of items to be added to the stock: {"  "}
-  //                           <InputNumber
-  //                             size="small"
-  //                             min={1}
-  //                             max={record.qty}
-  //                             defaultValue={null}
-  //                             onChange={(e) => {
-  //                               record.addToStock = e;
-  //                             }}
-  //                           />
-  //                         </>
-  //                       }
-  //                       onConfirm={() => handleAddToStock(record)}
-  //                       okText="Add to stock"
-  //                       cancelText="Cancel"
-  //                     >
-  //                       <Button
-  //                         style={{
-  //                           width: "70px",
-  //                           borderRadius: "8px",
-  //                           border: "none",
-  //                           textAlign: "center",
-  //                           backgroundColor: "sandybrown",
-  //                           color: "white",
-  //                         }}
-  //                       >
-  //                         Stock
-  //                       </Button>
-  //                     </Popconfirm>
-  //                   )}
-  //                 </ButtonWrapper>
-  //               );
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     ];
-  //   }
-  // };
 
   const [columnsState, setColumnsState] = useState();
 
