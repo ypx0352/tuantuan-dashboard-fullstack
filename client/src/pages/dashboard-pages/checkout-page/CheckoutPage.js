@@ -124,16 +124,6 @@ const antIcon = (
   <LoadingOutlined style={{ fontSize: 48, color: "#3751ff" }} spin />
 );
 
-// style={{
-//                         width: "90px",
-//                         borderRadius: "8px",
-//                         border: "none",
-//                         marginBottom: "5px",
-//                         textAlign: "center",
-//                         backgroundColor: "darkgreen",
-//                         color: "white",
-//                       }}
-
 const colors = { cart: "#3751ff", stock: "sandybrown", employee: "#18a16d" };
 
 const StyledButton = styled(Button).attrs((props) => ({
@@ -170,6 +160,7 @@ const CheckoutPage = (props) => {
     setShowModal,
     prepareAddToException,
     addToException,
+    handleAddToEmployee,
   } = props;
 
   useEffect(() => {
@@ -198,46 +189,133 @@ const CheckoutPage = (props) => {
 
   const [update, setUpdate] = useState();
 
+  const capitalizeFirstLetter = (word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  };
+
   const generateButton = (record, destination) => {
-    return (
-      <Popconfirm
-        placement="topRight"
-        title={
-          <>
-            <Button
-              size="small"
-              onClick={() => {
-                record.addToStock = record.qty;
-                setUpdate(record);
-              }}
-            >
-              All
-            </Button>
-            Qty:
-            <InputNumber
-              size="small"
-              min={1}
-              max={record.qty}
-              defaultValue={null}
-              value={record.addToStock}
-              onChange={(e) => {
-                record.addToStock = e;
-              }}
-            />
-          </>
-        }
-        onConfirm={() => handleAddToStock(record)}
-        okText="Add to stock"
-        cancelText="Cancel"
-      >
-        <StyledButton
-        destination={destination}
-          
+    const methods = [handleAddToStock, handleAddToEmployee];
+    const destinations = ["stock", "employee"];
+    const index = destinations.indexOf(destination);
+    if (destination != "cart") {
+      return (
+        <Popconfirm
+          placement="topRight"
+          title={
+            <>
+              <Button
+                size="small"
+                onClick={() => {
+                  //record.addToStock = record.qty;
+                  record[`addTo${capitalizeFirstLetter(destination)}`] =
+                    record.qty;
+                  setUpdate(record);
+                }}
+              >
+                All
+              </Button>
+              Qty:
+              <InputNumber
+                size="small"
+                min={1}
+                max={record.qty}
+                defaultValue={null}
+                value={record[`addTo${capitalizeFirstLetter(destination)}`]}
+                onChange={(e) => {
+                  record[`addTo${capitalizeFirstLetter(destination)}`] = e;
+                }}
+              />
+            </>
+          }
+          onConfirm={() => methods[index](record)}
+          okText={`Add to ${destination}`}
+          cancelText="Cancel"
         >
-          {destination}
-        </StyledButton>
-      </Popconfirm>
-    );
+          <StyledButton destination={destination}>
+            {capitalizeFirstLetter(destination)}
+          </StyledButton>
+        </Popconfirm>
+      );
+    } else {
+      return (
+        <Popconfirm
+          placement="topRight"
+          title={
+            <PopconfirmInputContainer>
+              <PopconfirmInputWrapper>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    record.addToCart = record.qty;
+                    setUpdate(record);
+                  }}
+                >
+                  All
+                </Button>
+                Qty:
+                <InputNumber
+                  size="small"
+                  min={1}
+                  max={record.qty}
+                  defaultValue={null}
+                  value={record.addToCart}
+                  onChange={(e) => {
+                    record.addToCart = e;
+                    setUpdate(record.addToCart);
+                  }}
+                />
+              </PopconfirmInputWrapper>
+              {record.type === "employee" ? (
+                ""
+              ) : (
+                <>
+                  <PopconfirmInputWrapper>
+                    Subtotal (￥):
+                    <InputNumber
+                      size="small"
+                      min={0}
+                      controls={false}
+                      defaultValue={null}
+                      onChange={(e) => {
+                        record.subtotal = e;
+                        record.profits = Number(
+                          (e - record.addToCart * record.cost).toFixed(2)
+                        );
+                        setUpdate(record.profits);
+                      }}
+                    />
+                  </PopconfirmInputWrapper>
+                  <PopconfirmInputWrapper>
+                    Profits (￥):
+                    <InputNumber
+                      style={
+                        record.profits >= 10
+                          ? { color: "green" }
+                          : { color: "red" }
+                      }
+                      bordered={false}
+                      value={record.profits}
+                      controls={false}
+                    />
+                  </PopconfirmInputWrapper>
+                </>
+              )}
+            </PopconfirmInputContainer>
+          }
+          onConfirm={() => {
+            if (record.profits >= 10) {
+              handleAddToCart(record);
+            } else {
+              prepareAddToException(record);
+            }
+          }}
+          okText="Add to cart"
+          cancelText="Cancel"
+        >
+          <StyledButton destination="cart">Cart</StyledButton>
+        </Popconfirm>
+      );
+    }
   };
 
   // Set columns
@@ -282,185 +360,11 @@ const CheckoutPage = (props) => {
           render: (text, record, index) => {
             return (
               <ButtonWrapper>
-              {generateButton(record, 'cart')}
-                <Popconfirm
-                  placement="topRight"
-                  title={
-                    <PopconfirmInputContainer>
-                      <PopconfirmInputWrapper>
-                        <Button
-                          size="small"
-                          onClick={() => {
-                            record.addToCart = record.qty;
-                            setUpdate(record);
-                          }}
-                        >
-                          All
-                        </Button>
-                        Qty:
-                        <InputNumber
-                          size="small"
-                          min={1}
-                          max={record.qty}
-                          defaultValue={null}
-                          value={record.addToCart}
-                          onChange={(e) => {
-                            record.addToCart = e;
-                            setUpdate(record.addToCart);
-                          }}
-                        />
-                      </PopconfirmInputWrapper>
-                      {record.type === "employee" ? (
-                        ""
-                      ) : (
-                        <>
-                          <PopconfirmInputWrapper>
-                            Subtotal (￥):
-                            <InputNumber
-                              size="small"
-                              min={0}
-                              controls={false}
-                              defaultValue={null}
-                              onChange={(e) => {
-                                record.subtotal = e;
-                                record.profits = Number(
-                                  (e - record.addToCart * record.cost).toFixed(
-                                    2
-                                  )
-                                );
-                                setUpdate(record.profits);
-                              }}
-                            />
-                          </PopconfirmInputWrapper>
-                          <PopconfirmInputWrapper>
-                            Profits (￥):
-                            <InputNumber
-                              style={
-                                record.profits >= 10
-                                  ? { color: "green" }
-                                  : { color: "red" }
-                              }
-                              bordered={false}
-                              value={record.profits}
-                              controls={false}
-                            />
-                          </PopconfirmInputWrapper>
-                        </>
-                      )}
-                    </PopconfirmInputContainer>
-                  }
-                  onConfirm={() => {
-                    if (record.profits >= 10) {
-                      handleAddToCart(record);
-                    } else {
-                      prepareAddToException(record);
-                    }
-                  }}
-                  okText="Add to cart"
-                  cancelText="Cancel"
-                >
-                  <StyledButton
-                    
-
-                    // style={{
-                    //   width: "70px",
-                    //   marginBottom: "10px",
-                    //   borderRadius: "8px",
-                    //   border: "none",
-                    //   textAlign: "center",
-                    //   backgroundColor: "#3751ff",
-                    //   color: "white",
-                    // }}
-                  >
-                    Cart
-                  </StyledButton>
-                </Popconfirm>
-
-                {record.type === "stock" ? (
-                  ""
-                ) : (
-                  <Popconfirm
-                    placement="topRight"
-                    title={
-                      <>
-                        <Button
-                          size="small"
-                          onClick={() => {
-                            record.addToStock = record.qty;
-                            setUpdate(record);
-                          }}
-                        >
-                          All
-                        </Button>
-                        Qty:
-                        <InputNumber
-                          size="small"
-                          min={1}
-                          max={record.qty}
-                          defaultValue={null}
-                          value={record.addToStock}
-                          onChange={(e) => {
-                            record.addToStock = e;
-                          }}
-                        />
-                      </>
-                    }
-                    onConfirm={() => handleAddToStock(record)}
-                    okText="Add to stock"
-                    cancelText="Cancel"
-                  >
-                    <Button
-                      style={{
-                        width: "70px",
-                        borderRadius: "8px",
-                        border: "none",
-                        marginBottom: "10px",
-                        textAlign: "center",
-                        backgroundColor: "sandybrown",
-                        color: "white",
-                      }}
-                    >
-                      Stock
-                    </Button>
-                  </Popconfirm>
-                )}
-
-                {record.type === "employee" ? (
-                  ""
-                ) : (
-                  <Popconfirm
-                    placement="topRight"
-                    title={
-                      <>
-                        <Button
-                          size="small"
-                          onClick={() => {
-                            record.addToStock = record.qty;
-                            setUpdate(record);
-                          }}
-                        >
-                          All
-                        </Button>
-                        Qty:
-                        <InputNumber
-                          size="small"
-                          min={1}
-                          max={record.qty}
-                          defaultValue={null}
-                          value={record.addToStock}
-                          onChange={(e) => {
-                            record.addToStock = e;
-                          }}
-                        />
-                      </>
-                    }
-                    onConfirm={() => handleAddToStock(record)}
-                    okText="Add to stock"
-                    cancelText="Cancel"
-                  >
-                    <StyledButton>Employee</StyledButton>
-                  </Popconfirm>
-                )}
+                {generateButton(record, "cart")}
+                {record.type === "stock" ? "" : generateButton(record, "stock")}
+                {record.type === "employee"
+                  ? ""
+                  : generateButton(record, "employee")}
               </ButtonWrapper>
             );
           },
@@ -645,6 +549,15 @@ const mapDispatch = (dispatch) => ({
       message.warning("Invalid input!");
     } else {
       dispatch(actionCreators.addToStockAction(record));
+    }
+  },
+
+  handleAddToEmployee(record) {
+    const { addToEmployee } = record;
+    if (addToEmployee === undefined) {
+      message.warning("Invalid input!");
+    } else {
+      dispatch(actionCreators.addToEmployeeAction(record));
     }
   },
 

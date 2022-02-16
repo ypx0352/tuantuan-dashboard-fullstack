@@ -89,4 +89,66 @@ const addToStock = async (req, res) => {
   }
 };
 
-module.exports = { allItems, addToStock };
+const addToEmployee = async (req, res) => {
+  const { addToEmployee, _id, type } = req.body;
+  const types = ["sold", "stock"];
+  const models = [SoldItemsModel, StockItemsModel];
+  const typeIndex = types.indexOf(type);
+  const dateTime = new Date().toLocaleString();
+  try {
+    const originalRecord = await models[typeIndex].findById(_id);
+    if (originalRecord === null) {
+      return res.status(400).json({
+        msg: "Failed to add to employee. Can not find the item in database.",
+      });
+    } else {
+      // Add the item to employee collection. If the item is already saved in the collection (share the same pk_id and cost), add the qty of this item. Otherwise, create a new record of this item in employee collection.
+      const { item, cost, price, weight, pk_id, note, exchangeRate, status } =
+        originalRecord;
+      const employeeRecord = await EmployeeItemsModel.findOne({
+        pk_id: originalRecord.pk_id,
+        cost: originalRecord.cost,
+        item: originalRecord.item,
+      });
+      if (employeeRecord === null) {
+        await EmployeeItemsModel.create({
+          item: item,
+          qty: addToEmployee,
+          cost: cost,
+          price: price,
+          weight: weight,
+          pk_id: pk_id,
+          note: `${note} * [add ${addToEmployee} to employee at ${dateTime}] *`,
+          exchangeRate: exchangeRate,
+          type: "employee",
+          status: status,
+        });
+      } else {
+        await EmployeeItemsModel.findByIdAndUpdate(employeeRecord._id, {
+          $set: {
+            qty: employeeRecord.qty + addToEmployee,
+            note: `${employeeRecord.note} * [add ${addToEmployee} to employee at ${dateTime}] *`,
+          },
+        });
+      }
+
+      // Deduct the number of this item in original collection, if the number becomes 0, delete the item from the original collection.
+      if (originalRecord.qty - addToEmployee === 0) {
+        await models[typeIndex].findByIdAndDelete(originalRecord._id);
+      } else {
+        await models[typeIndex].findByIdAndUpdate(originalRecord._id, {
+          $set: { qty: originalRecord.qty - addToEmployee },
+        });
+      }
+
+      return res.status(200).json({
+        msg: `${addToEmployee} ${item} has been added to employee successfully.`,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Failed to add to employee. Server error!" });
+  }
+};
+
+module.exports = { allItems, addToStock, addToEmployee };

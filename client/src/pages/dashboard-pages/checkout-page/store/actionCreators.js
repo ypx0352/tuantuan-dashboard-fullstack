@@ -99,12 +99,31 @@ export const addToStockAction = (record) => {
   };
 };
 
+export const addToEmployeeAction = (record) => {
+  return async (dispatch) => {
+    const { addToEmployee, _id, type } = record;
+    try {
+      const response = await axios.put(
+        serverBaseUrl + "/api/checkout/add_to_employee",
+        { addToEmployee, _id, type }
+      );
+      const { msg } = response.data;
+      message.success(msg);
+      dispatch(getAllItemsAction);
+    } catch (error) {
+      console.log(error);
+      const { msg } = error.response.data;
+      message.error(msg);
+    }
+  };
+};
+
 export const addToCartAction = (record) => {
   return async (dispatch) => {
     const { addToCart, _id, type } = record;
     var payload = { addToCart, _id, type };
-    if(type !== 'employee'){
-      const {subtotal} = record;
+    if (type !== "employee") {
+      const { subtotal } = record;
       payload = { addToCart, _id, type, subtotal };
     }
     try {
