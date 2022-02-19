@@ -197,7 +197,7 @@ const OrderPage = (props) => {
               (originalOrder.get("package_weight") <= 1
                 ? 1
                 : Number(originalOrder.get("package_weight")).toFixed(2)) *
-                normalPostage 
+              normalPostage
             ).toFixed(2)
           )
         );
@@ -269,18 +269,6 @@ const OrderPage = (props) => {
           title: "Exchange rate",
           dataIndex: "exchangeRate",
           key: "exchangeRate",
-          // render: (text, record, index) => {
-          //   return (
-          //     <Input
-          //       type="number"
-          //       size="small"
-          //       bordered={false}
-          //       value={text}
-          //       controls={false}
-          //       //onChange={(e) => setExchangeRatState(e.target.value)}
-          //     />
-          //   );
-          // },
         },
         {
           title: "Postage",

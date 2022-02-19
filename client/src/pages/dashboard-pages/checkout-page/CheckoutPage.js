@@ -144,6 +144,56 @@ const StyledButton = styled(Button).attrs((props) => ({
   }
 `;
 
+//  const columns = [
+//    {
+//      title: "Package ID",
+//      dataIndex: "pk_id",
+//      key: "pk_id",
+//    },
+//    { title: "Price / each", dataIndex: "price", key: "price" },
+//    { title: "weight / each", dataIndex: "weight", key: "weight" },
+//    {
+//      title: "Exchange rate",
+//      dataIndex: "exchange_rate",
+//      key: "exchange_rate",
+//    },
+//    { title: "Created on", dataIndex: "createdOn", key: "createdOn" },
+//    { title: "Log", dataIndex: "log", key: "log" },
+//  ];
+
+const ExpandedRow = (props) => {
+  const { pk_id, price, weight, exchangeRate, createdAt, log } = props.record;
+  const localCreatedAt = new Date(createdAt).toLocaleString();
+  return (
+    <>
+      <ul style={{ display: "inline-block", width: "33%" }}>
+        <li>
+          <strong>Package ID : </strong> {pk_id}
+        </li>
+        <li>
+          <strong>Price / each : </strong> ${price} 
+        </li>
+        <li>
+          <strong>Weight / each : </strong> {weight} Kg
+        </li>
+      </ul>
+      <ul style={{ display: "inline-block", width: "33%" }}>
+        <li>
+          <strong>Exchange rate : </strong> {exchangeRate}
+        </li>
+        <li>
+          <strong>Created at : </strong> {localCreatedAt}
+        </li>
+      </ul>
+      <ul style={{ display: "inline-block", width: "33%" }}>
+        <li>
+          <strong>Log : </strong>{" "}
+        </li>
+      </ul>
+    </>
+  );
+};
+
 const CheckoutPage = (props) => {
   const {
     itemsCount,
@@ -172,20 +222,20 @@ const CheckoutPage = (props) => {
 
   const { soldItems, stockItems, employeeItems, exceptionItems } = allItems;
 
-  const hanldeInputChange = (record, index) => (e) => {
-    const types = ["sold", "stock", "employee", "exception"];
-    const tableData = [soldItems, stockItems, employeeItems, exceptionItems];
-    const { qty, cost, type } = record;
-    const typeIndex = types.indexOf(type);
-    tableData[typeIndex][index].payment = e;
-    tableData[typeIndex][index].profits = Number((e - qty * cost).toFixed(2));
-    setTableDataState(tableData[typeIndex]);
-    allItemsTableData = soldItems.concat(
-      stockItems,
-      employeeItems,
-      exceptionItems
-    );
-  };
+  // const hanldeInputChange = (record, index) => (e) => {
+  //   const types = ["sold", "stock", "employee", "exception"];
+  //   const tableData = [soldItems, stockItems, employeeItems, exceptionItems];
+  //   const { qty, cost, type } = record;
+  //   const typeIndex = types.indexOf(type);
+  //   tableData[typeIndex][index].payment = e;
+  //   tableData[typeIndex][index].profits = Number((e - qty * cost).toFixed(2));
+  //   setTableDataState(tableData[typeIndex]);
+  //   allItemsTableData = soldItems.concat(
+  //     stockItems,
+  //     employeeItems,
+  //     exceptionItems
+  //   );
+  // };
 
   const [update, setUpdate] = useState();
 
@@ -344,12 +394,12 @@ const CheckoutPage = (props) => {
           key: "type",
         },
         {
-          title: "Note",
+          title: "Noted",
           dataIndex: "note",
           key: "note",
         },
         {
-          title: "Date",
+          title: "Updated on",
           dataIndex: "date",
           key: "date",
         },
@@ -372,6 +422,43 @@ const CheckoutPage = (props) => {
       ],
     },
   ];
+
+  const expandedRowRender = (record) => {
+    const columns = [
+      {
+        title: "Package ID",
+        dataIndex: "pk_id",
+        key: "pk_id",
+      },
+      { title: "Price / each", dataIndex: "price", key: "price" },
+      { title: "weight / each", dataIndex: "weight", key: "weight" },
+      {
+        title: "Exchange rate",
+        dataIndex: "exchange_rate",
+        key: "exchange_rate",
+      },
+      { title: "Created on", dataIndex: "createdOn", key: "createdOn" },
+      { title: "Log", dataIndex: "log", key: "log" },
+    ];
+
+    // const data = [
+    //   {
+    //     package_id: "123",
+    //     price: 100,
+    //     weight: 20,
+    //     exchange_rate: 4.8,
+    //     log: "no log",
+    //   },
+    // ];
+
+    console.log(tableDataState);
+
+    const data = record;
+
+    return (
+      <Table columns={columns} dataSource={data} pagination={false} bordered />
+    );
+  };
 
   const [columnsState, setColumnsState] = useState();
 
@@ -502,6 +589,9 @@ const CheckoutPage = (props) => {
               columns={columnsState}
               rowKey={(record) => record._id}
               dataSource={tableDataState}
+              expandable={{
+                expandedRowRender: (record) => <ExpandedRow record={record} />,
+              }}
               bordered
             />
           </TableWrapper>

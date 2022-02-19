@@ -161,6 +161,7 @@ const getExchangeRate = async (req, res) => {
 };
 
 const submitOrder = async (req, res) => {
+  const dataTime = new Date().toLocaleString();
   const soldItems = [];
   const stockItems = [];
   const employeeItems = [];
@@ -179,11 +180,12 @@ const submitOrder = async (req, res) => {
           price,
           weight,
           cost,
-          note,
+          note: note,
           pk_id: id,
           exchangeRate,
           type: "stock",
           status: "order placed",
+          log: `*[Add ${stock} to stock from order at ${dataTime}] *`,
         });
       }
 
@@ -195,19 +197,22 @@ const submitOrder = async (req, res) => {
           price,
           weight,
           cost,
-          note,
+          note: note,
           pk_id: id,
           exchangeRate,
           type: "employee",
           status: "order placed",
+          log: `*[Add ${employee} to employee from order at ${dataTime}] *`,
         });
       }
 
-      if (qty - stock - employee > 0) {
+      const sold = qty - stock - employee;
+
+      if (sold > 0) {
         soldItems.push({
           key,
           item,
-          qty: qty - stock - employee,
+          qty: sold,
           price,
           weight,
           cost,
@@ -216,6 +221,7 @@ const submitOrder = async (req, res) => {
           exchangeRate,
           type: "sold",
           status: "order placed",
+          log: `*[Add ${sold} to sold from order at ${dataTime}] *`,
         });
       }
     });
@@ -282,6 +288,7 @@ const confirmOrder = async (req, res) => {
             exchangeRate,
             type,
             status,
+            log,
           } = soldItem;
           return {
             item: item,
@@ -294,6 +301,7 @@ const confirmOrder = async (req, res) => {
             exchangeRate: exchangeRate,
             type: type,
             status: status,
+            log: log,
           };
         })
       );
@@ -320,6 +328,7 @@ const confirmOrder = async (req, res) => {
             exchangeRate,
             type,
             status,
+            log,
           } = stockItem;
           return {
             item: item,
@@ -332,6 +341,7 @@ const confirmOrder = async (req, res) => {
             exchangeRate: exchangeRate,
             type: type,
             status: status,
+            log: log,
           };
         })
       );
@@ -358,6 +368,7 @@ const confirmOrder = async (req, res) => {
             exchangeRate,
             type,
             status,
+            log,
           } = employeeItem;
           return {
             item: item,
@@ -370,6 +381,7 @@ const confirmOrder = async (req, res) => {
             exchangeRate: exchangeRate,
             type: type,
             status: status,
+            log: log,
           };
         })
       );

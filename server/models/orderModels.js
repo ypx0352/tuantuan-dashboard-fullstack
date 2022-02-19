@@ -44,8 +44,7 @@ const soldItemsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    createdAt: Date,
-    updatedAt: Date,
+    log: { type: String, required: true },
   },
   { timestamps: true }
 );
@@ -93,8 +92,7 @@ const stockItemsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    createdAt: Date,
-    updatedAt: Date,
+    log: { type: String, required: true },
   },
   { timestamps: true }
 );
@@ -142,8 +140,7 @@ const employeeItemsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    createdAt: Date,
-    updatedAt: Date,
+    log: { type: String, required: true },
   },
   { timestamps: true }
 );
