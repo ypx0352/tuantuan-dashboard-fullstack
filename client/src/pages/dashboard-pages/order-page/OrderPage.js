@@ -126,11 +126,6 @@ const OrderPage = (props) => {
     initializeSettings,
   } = props;
 
-  // Some parameter that should be stored in setting file
-  // const normalPostage = 7.4;
-  // const babyFormulaPostage = 18.9;
-  // const exchangeRateInSetting = 4.7;
-
   const searchInputEl = useRef(null);
 
   // get settings

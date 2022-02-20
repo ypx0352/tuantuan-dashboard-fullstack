@@ -144,23 +144,6 @@ const StyledButton = styled(Button).attrs((props) => ({
   }
 `;
 
-//  const columns = [
-//    {
-//      title: "Package ID",
-//      dataIndex: "pk_id",
-//      key: "pk_id",
-//    },
-//    { title: "Price / each", dataIndex: "price", key: "price" },
-//    { title: "weight / each", dataIndex: "weight", key: "weight" },
-//    {
-//      title: "Exchange rate",
-//      dataIndex: "exchange_rate",
-//      key: "exchange_rate",
-//    },
-//    { title: "Created on", dataIndex: "createdOn", key: "createdOn" },
-//    { title: "Log", dataIndex: "log", key: "log" },
-//  ];
-
 const ExpandedRow = (props) => {
   const { pk_id, price, weight, exchangeRate, createdAt, log } = props.record;
   const localCreatedAt = new Date(createdAt).toLocaleString();
@@ -171,7 +154,7 @@ const ExpandedRow = (props) => {
           <strong>Package ID : </strong> {pk_id}
         </li>
         <li>
-          <strong>Price / each : </strong> ${price} 
+          <strong>Price / each : </strong> ${price}
         </li>
         <li>
           <strong>Weight / each : </strong> {weight} Kg
@@ -423,43 +406,6 @@ const CheckoutPage = (props) => {
     },
   ];
 
-  const expandedRowRender = (record) => {
-    const columns = [
-      {
-        title: "Package ID",
-        dataIndex: "pk_id",
-        key: "pk_id",
-      },
-      { title: "Price / each", dataIndex: "price", key: "price" },
-      { title: "weight / each", dataIndex: "weight", key: "weight" },
-      {
-        title: "Exchange rate",
-        dataIndex: "exchange_rate",
-        key: "exchange_rate",
-      },
-      { title: "Created on", dataIndex: "createdOn", key: "createdOn" },
-      { title: "Log", dataIndex: "log", key: "log" },
-    ];
-
-    // const data = [
-    //   {
-    //     package_id: "123",
-    //     price: 100,
-    //     weight: 20,
-    //     exchange_rate: 4.8,
-    //     log: "no log",
-    //   },
-    // ];
-
-    console.log(tableDataState);
-
-    const data = record;
-
-    return (
-      <Table columns={columns} dataSource={data} pagination={false} bordered />
-    );
-  };
-
   const [columnsState, setColumnsState] = useState();
 
   useEffect(() => {
@@ -501,6 +447,36 @@ const CheckoutPage = (props) => {
     setTableData(block);
   };
 
+  const generateBlock = () => {
+    const blockNames = ["All", "Sold", "Stock", "Employee", "Exception"];
+    const counts = [
+      allCount,
+      soldCount,
+      stockCount,
+      employeeCount,
+      exceptionCount,
+    ];
+    const blockIndex = blockNames.indexOf(blockSelected);
+
+    return blockNames.map((name) => {
+      return (
+        <Block
+          onClick={() => handleBlockClicked(name)}
+          className={blockSelected === name ? "selected" : ""}
+        >
+          <BlockTitle>{name}</BlockTitle>
+          <BlockContent>
+            {countSpinning ? (
+              <Spin spinning={countSpinning} indicator={antIcon} />
+            ) : (
+              counts[blockIndex]
+            )}
+          </BlockContent>
+        </Block>
+      );
+    });
+  };
+
   return (
     <Container>
       <Left>
@@ -515,73 +491,7 @@ const CheckoutPage = (props) => {
           cartCount={cartItemsCount}
         />
         <ContentWrapper>
-          <BlockWrapper>
-            <Block
-              onClick={() => handleBlockClicked("All Items")}
-              className={blockSelected === "All Items" ? "selected" : ""}
-            >
-              <BlockTitle>All</BlockTitle>
-              <BlockContent>
-                {countSpinning ? (
-                  <Spin spinning={countSpinning} indicator={antIcon} />
-                ) : (
-                  allCount
-                )}
-              </BlockContent>
-            </Block>
-            <Block
-              onClick={() => handleBlockClicked("Sold Items")}
-              className={blockSelected === "Sold Items" ? "selected" : ""}
-            >
-              <BlockTitle>Sold</BlockTitle>
-              <BlockContent>
-                {countSpinning ? (
-                  <Spin spinning={countSpinning} indicator={antIcon} />
-                ) : (
-                  soldCount
-                )}
-              </BlockContent>
-            </Block>
-            <Block
-              onClick={() => handleBlockClicked("Stock Items")}
-              className={blockSelected === "Stock Items" ? "selected" : ""}
-            >
-              <BlockTitle>Stock</BlockTitle>
-              <BlockContent>
-                {countSpinning ? (
-                  <Spin spinning={countSpinning} indicator={antIcon} />
-                ) : (
-                  stockCount
-                )}
-              </BlockContent>
-            </Block>
-            <Block
-              onClick={() => handleBlockClicked("Employee Items")}
-              className={blockSelected === "Employee Items" ? "selected" : ""}
-            >
-              <BlockTitle>Employee</BlockTitle>
-              <BlockContent>
-                {countSpinning ? (
-                  <Spin spinning={countSpinning} indicator={antIcon} />
-                ) : (
-                  employeeCount
-                )}
-              </BlockContent>
-            </Block>
-            <Block
-              onClick={() => handleBlockClicked("Exception Items")}
-              className={blockSelected === "Exception Items" ? "selected" : ""}
-            >
-              <BlockTitle>Exception</BlockTitle>
-              <BlockContent>
-                {countSpinning ? (
-                  <Spin spinning={countSpinning} indicator={antIcon} />
-                ) : (
-                  exceptionCount
-                )}
-              </BlockContent>
-            </Block>
-          </BlockWrapper>
+          <BlockWrapper>{generateBlock()}</BlockWrapper>
           <TableWrapper>
             <Table
               style={{ width: "100%" }}

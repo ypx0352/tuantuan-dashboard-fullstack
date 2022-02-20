@@ -16,7 +16,7 @@ const defaultState = fromJS({
     allCount: null,
   },
   countSpinning: false,
-  blockSelected: "All Items",
+  blockSelected: "All",
   showModal: false,
 });
 
