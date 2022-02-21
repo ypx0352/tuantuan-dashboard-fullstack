@@ -170,7 +170,8 @@ const ExpandedRow = (props) => {
       </ul>
       <ul style={{ display: "inline-block", width: "33%" }}>
         <li>
-          <strong>Log : </strong>{" "}
+          <strong>Log : </strong>
+          {log}
         </li>
       </ul>
     </>
@@ -354,7 +355,7 @@ const CheckoutPage = (props) => {
   // Set columns
   const setColumns = (block) => [
     {
-      title: block,
+      title: `${block} items`,
       children: [
         {
           title: "Item",
@@ -382,8 +383,8 @@ const CheckoutPage = (props) => {
           key: "note",
         },
         {
-          title: "Updated on",
-          dataIndex: "date",
+          title: "Updated at",
+          dataIndex: "dateTime",
           key: "date",
         },
         {
@@ -423,18 +424,16 @@ const CheckoutPage = (props) => {
 
   // Set table data
   const setTableData = (block) => {
-    switch (block) {
-      case "All Items":
-        return setTableDataState(allItemsTableData);
-      case "Sold Items":
-        return setTableDataState(soldItems);
-      case "Stock Items":
-        return setTableDataState(stockItems);
-      case "Employee Items":
-        return setTableDataState(employeeItems);
-      case "Exception Items":
-        return setTableDataState(exceptionItems);
-    }
+    const blockNames = ["All", "Sold", "Stock", "Employee", "Exception"];
+    const tableData = [
+      allItemsTableData,
+      soldItems,
+      stockItems,
+      employeeItems,
+      exceptionItems,
+    ];
+    const dataIndex = blockNames.indexOf(block);
+    return setTableDataState(tableData[dataIndex]);
   };
 
   useEffect(() => {
@@ -456,9 +455,8 @@ const CheckoutPage = (props) => {
       employeeCount,
       exceptionCount,
     ];
-    const blockIndex = blockNames.indexOf(blockSelected);
-
     return blockNames.map((name) => {
+      const blockIndex = blockNames.indexOf(name);
       return (
         <Block
           onClick={() => handleBlockClicked(name)}

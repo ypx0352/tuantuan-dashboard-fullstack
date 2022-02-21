@@ -32,6 +32,7 @@ const addToStock = async (req, res) => {
   const types = ["sold", "employee"];
   const models = [SoldItemsModel, EmployeeItemsModel];
   const typeIndex = types.indexOf(type);
+  const dateTime = new Date().toLocaleString();
   try {
     // Deduct the qty of the item saved in sold or employee collection
     const origianlSoldOrEmployeeResult = await models[typeIndex].findById(_id);
@@ -54,20 +55,30 @@ const addToStock = async (req, res) => {
     // If the item is not saved in stock, create a new record in stock collection
     if (originalStockResult === null) {
       const newQtyStock = addToStock;
-      const { item, cost, price, weight, pk_id, note, exchangeRate, status } =
-        origianlSoldOrEmployeeResult;
+      const {
+        item,
+        cost,
+        price,
+        weight,
+        pk_id,
+        note,
+        exchangeRate,
+        status,
+        log,
+      } = origianlSoldOrEmployeeResult;
 
       await StockItemsModel.create({
-        item: item,
+        item,
         qty: newQtyStock,
-        cost: cost,
-        price: price,
-        weight: weight,
-        pk_id: pk_id,
-        note: note,
-        exchangeRate: exchangeRate,
+        cost,
+        price,
+        weight,
+        pk_id,
+        note,
+        exchangeRate,
         type: "stock",
-        status: status,
+        status,
+        log: log + `* [Transfer ${addToStock} item(s) to stock from ${type} at ${dateTime}] *`,
       });
       return res.status(200).json({
         msg: `${newQtyStock} ${item} has been added to stock successfully.`,
@@ -103,8 +114,18 @@ const addToEmployee = async (req, res) => {
       });
     } else {
       // Add the item to employee collection. If the item is already saved in the collection (share the same pk_id and cost), add the qty of this item. Otherwise, create a new record of this item in employee collection.
-      const { item, cost, price, weight, pk_id, note, exchangeRate, status } =
-        originalRecord;
+      const {
+        item,
+        cost,
+        price,
+        weight,
+        pk_id,
+        note,
+        exchangeRate,
+        status,
+        log,
+      } = originalRecord;
+      console.log(originalRecord);
       const employeeRecord = await EmployeeItemsModel.findOne({
         pk_id: originalRecord.pk_id,
         cost: originalRecord.cost,
@@ -112,16 +133,17 @@ const addToEmployee = async (req, res) => {
       });
       if (employeeRecord === null) {
         await EmployeeItemsModel.create({
-          item: item,
+          item,
           qty: addToEmployee,
-          cost: cost,
-          price: price,
-          weight: weight,
-          pk_id: pk_id,
-          note: `${note} * [add ${addToEmployee} to employee at ${dateTime}] *`,
-          exchangeRate: exchangeRate,
+          cost,
+          price,
+          weight,
+          pk_id,
+          note,
+          exchangeRate,
           type: "employee",
-          status: status,
+          status,
+          log: log + `* [Transfer ${addToEmployee} item(s) to employee from ${type} at ${dateTime}] *`,
         });
       } else {
         await EmployeeItemsModel.findByIdAndUpdate(employeeRecord._id, {

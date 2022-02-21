@@ -185,7 +185,7 @@ const submitOrder = async (req, res) => {
           exchangeRate,
           type: "stock",
           status: "order placed",
-          log: `*[Add ${stock} to stock from order at ${dataTime}] *`,
+          log: `*[Add ${stock} item(s) to stock from order at ${dataTime}] *`,
         });
       }
 
@@ -202,7 +202,7 @@ const submitOrder = async (req, res) => {
           exchangeRate,
           type: "employee",
           status: "order placed",
-          log: `*[Add ${employee} to employee from order at ${dataTime}] *`,
+          log: `*[Add ${employee} item(s) to employee from order at ${dataTime}] *`,
         });
       }
 
@@ -221,7 +221,7 @@ const submitOrder = async (req, res) => {
           exchangeRate,
           type: "sold",
           status: "order placed",
-          log: `*[Add ${sold} to sold from order at ${dataTime}] *`,
+          log: `*[Add ${sold} item(s) to sold from order at ${dataTime}] *`,
         });
       }
     });

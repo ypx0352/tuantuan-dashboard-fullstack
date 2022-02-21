@@ -30,7 +30,7 @@ export const getAllItemsAction = async (dispatch) => {
     // Add data entry in item object to record the updated date
     Object.entries(allItems).forEach((entry) => {
       entry[1].forEach((item) => {
-        item.date = new Date(item.updatedAt).toLocaleDateString();
+        item.dateTime = new Date(item.updatedAt).toLocaleString();
       });
     });
 
