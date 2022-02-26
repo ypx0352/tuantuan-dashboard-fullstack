@@ -197,6 +197,9 @@ const CheckoutPage = (props) => {
     handleAddToEmployee,
   } = props;
 
+
+  console.log(new Date().toString());
+
   useEffect(() => {
     getAllItems();
   }, []);

@@ -33,19 +33,31 @@ const addToStock = async (req, res) => {
   const models = [SoldItemsModel, EmployeeItemsModel];
   const typeIndex = types.indexOf(type);
   const dateTime = new Date().toLocaleString();
+
+  const firstLetterToUpperCase = (word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  };
+
   try {
     // Deduct the qty of the item saved in sold or employee collection
-    const origianlSoldOrEmployeeResult = await models[typeIndex].findById(_id);
-    const newQtySoldOrEmployee = origianlSoldOrEmployeeResult.qty - addToStock;
+    const originalSoldOrEmployeeResult = await models[typeIndex].findById(_id);
+    const newQtySoldOrEmployee = originalSoldOrEmployeeResult.qty - addToStock;
     if (newQtySoldOrEmployee === 0) {
       await models[typeIndex].findByIdAndDelete(_id);
     } else {
       await models[typeIndex].findByIdAndUpdate(_id, {
-        $set: { qty: newQtySoldOrEmployee },
+        $set: {
+          qty: newQtySoldOrEmployee,
+          log:
+            originalSoldOrEmployeeResult.log +
+            `*[${dateTime}  ${firstLetterToUpperCase(
+              originalSoldOrEmployeeResult.type
+            )} - ${addToStock} => Stock]* `,
+        },
       });
     }
 
-    const { item, cost, pk_id } = origianlSoldOrEmployeeResult;
+    const { item, cost, pk_id } = originalSoldOrEmployeeResult;
     const originalStockResult = await StockItemsModel.findOne({
       item,
       cost,
@@ -65,7 +77,7 @@ const addToStock = async (req, res) => {
         exchangeRate,
         status,
         log,
-      } = origianlSoldOrEmployeeResult;
+      } = originalSoldOrEmployeeResult;
 
       await StockItemsModel.create({
         item,
@@ -78,7 +90,11 @@ const addToStock = async (req, res) => {
         exchangeRate,
         type: "stock",
         status,
-        log: log + `* [Transfer ${addToStock} item(s) to stock from ${type} at ${dateTime}] *`,
+        log:
+          log +
+          `*[${dateTime} Stock + ${addToStock} <= ${firstLetterToUpperCase(
+            type
+          )}]* `,
       });
       return res.status(200).json({
         msg: `${newQtyStock} ${item} has been added to stock successfully.`,
@@ -87,8 +103,16 @@ const addToStock = async (req, res) => {
       // If the item was already saved in stock, add the qty of the item
       const newQtyStock = originalStockResult.qty + addToStock;
       const item = originalStockResult.item;
+
       await StockItemsModel.findByIdAndUpdate(originalStockResult._id, {
-        $set: { qty: newQtyStock },
+        $set: {
+          qty: newQtyStock,
+          log:
+            originalStockResult.log +
+            `*[${dateTime} Stock + ${addToStock} <= ${firstLetterToUpperCase(
+              originalSoldOrEmployeeResult.type
+            )}]* `,
+        },
       });
       return res.status(200).json({
         msg: `${addToStock} ${item} has been added to stock successfully.`,
@@ -106,8 +130,14 @@ const addToEmployee = async (req, res) => {
   const models = [SoldItemsModel, StockItemsModel];
   const typeIndex = types.indexOf(type);
   const dateTime = new Date().toLocaleString();
+
+  const firstLetterToUpperCase = (word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  };
+
   try {
     const originalRecord = await models[typeIndex].findById(_id);
+
     if (originalRecord === null) {
       return res.status(400).json({
         msg: "Failed to add to employee. Can not find the item in database.",
@@ -125,12 +155,13 @@ const addToEmployee = async (req, res) => {
         status,
         log,
       } = originalRecord;
-      console.log(originalRecord);
+
       const employeeRecord = await EmployeeItemsModel.findOne({
         pk_id: originalRecord.pk_id,
         cost: originalRecord.cost,
         item: originalRecord.item,
       });
+
       if (employeeRecord === null) {
         await EmployeeItemsModel.create({
           item,
@@ -143,13 +174,21 @@ const addToEmployee = async (req, res) => {
           exchangeRate,
           type: "employee",
           status,
-          log: log + `* [Transfer ${addToEmployee} item(s) to employee from ${type} at ${dateTime}] *`,
+          log:
+            log +
+            `*[${dateTime} Employee + ${addToEmployee} <= ${firstLetterToUpperCase(
+              type
+            )}]* `,
         });
       } else {
         await EmployeeItemsModel.findByIdAndUpdate(employeeRecord._id, {
           $set: {
             qty: employeeRecord.qty + addToEmployee,
-            note: `${employeeRecord.note} * [add ${addToEmployee} to employee at ${dateTime}] *`,
+            log:
+              employeeRecord.log +
+              `*[${dateTime} Employee + ${addToEmployee} <= ${firstLetterToUpperCase(
+                type
+              )}]* `,
           },
         });
       }
@@ -159,7 +198,14 @@ const addToEmployee = async (req, res) => {
         await models[typeIndex].findByIdAndDelete(originalRecord._id);
       } else {
         await models[typeIndex].findByIdAndUpdate(originalRecord._id, {
-          $set: { qty: originalRecord.qty - addToEmployee },
+          $set: {
+            qty: originalRecord.qty - addToEmployee,
+            log:
+              originalRecord.log +
+              `*[${dateTime} ${firstLetterToUpperCase(
+                type
+              )} - ${addToEmployee} => Employee]* `,
+          },
         });
       }
 

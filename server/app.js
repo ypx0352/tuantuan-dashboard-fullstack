@@ -5,6 +5,7 @@ const orderRouter = require("./routers/order");
 const checkoutRouter = require("./routers/checkout");
 const cartRouter = require('./routers/cart')
 const settingRouter = require('./routers/setting')
+const registerRouter = require('./routers/register')
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,8 @@ app.get("/api/all", async (req, res) => {
   console.log(packageResponse);
   res.send("1");
 });
+
+app.use('/api/register', registerRouter)
 
 app.use("/api/order", orderRouter);
 

@@ -162,69 +162,39 @@ const getExchangeRate = async (req, res) => {
 
 const submitOrder = async (req, res) => {
   const dataTime = new Date().toLocaleString();
-  const soldItems = [];
-  const stockItems = [];
-  const employeeItems = [];
   const tableData = req.body;
   const { id, exchangeRate } = tableData.package;
   try {
+    const items = [[], [], []];
     tableData.items.forEach((element) => {
-      const { key, item, qty, stock, employee, price, weight, cost, note } =
-        element;
-
-      if (stock > 0) {
-        stockItems.push({
-          key,
-          item,
-          qty: stock,
-          price,
-          weight,
-          cost,
-          note: note,
-          pk_id: id,
-          exchangeRate,
-          type: "stock",
-          status: "order placed",
-          log: `*[Add ${stock} item(s) to stock from order at ${dataTime}] *`,
-        });
-      }
-
-      if (employee > 0) {
-        employeeItems.push({
-          key,
-          item,
-          qty: employee,
-          price,
-          weight,
-          cost,
-          note: note,
-          pk_id: id,
-          exchangeRate,
-          type: "employee",
-          status: "order placed",
-          log: `*[Add ${employee} item(s) to employee from order at ${dataTime}] *`,
-        });
-      }
-
+      const { qty, stock, employee } = element;
       const sold = qty - stock - employee;
+      const counts = [sold, stock, employee];
+      const types = ["sold", "stock", "employee"];
 
-      if (sold > 0) {
-        soldItems.push({
-          key,
-          item,
-          qty: sold,
-          price,
-          weight,
-          cost,
-          note,
-          pk_id: id,
-          exchangeRate,
-          type: "sold",
-          status: "order placed",
-          log: `*[Add ${sold} item(s) to sold from order at ${dataTime}] *`,
-        });
+      const firstLetterToUpperCase = (word) => {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      };
+
+      for (let index = 0; index < counts.length; index++) {
+        const count = counts[index];
+        if (count > 0) {
+          items[index].push({
+            ...element,
+            qty: count,
+            pk_id: id,
+            exchangeRate: exchangeRate,
+            type: types[index],
+            status: "Order placed",
+            log: `*[${dataTime} ${firstLetterToUpperCase(
+              types[index]
+            )} + ${count} <= Order]* `,
+          });
+        }
       }
     });
+
+    const [soldItems, stockItems, employeeItems] = items;
 
     res.status(200).json({
       pk_id: id,
@@ -241,155 +211,38 @@ const submitOrder = async (req, res) => {
 const confirmOrder = async (req, res) => {
   const { pk_id, stock, employee, sold } = req.body;
 
-  // Avoiding duplicate saves
-  try {
-    const check_sold_result = await SoldItemsModel.findOne({ pk_id: pk_id });
-    if (check_sold_result !== null) {
+  // To avoid duplicate saves, check duplicates first.
+  const models = [SoldItemsModel, StockItemsModel, EmployeeItemsModel];
+
+  for (const model of models) {
+    const result = await model.findOne({ pk_id });
+    if (result !== null) {
       return res.status(400).json({
         msg: "Failed! This package has already been saved! ",
       });
     }
-
-    const check_stock_result = await StockItemsModel.findOne({ pk_id: pk_id });
-    if (check_stock_result !== null) {
-      return res.status(400).json({
-        msg: "Failed! This package has already been saved! ",
-      });
-    }
-
-    const check_employee_result = await EmployeeItemsModel.findOne({
-      pk_id: pk_id,
-    });
-    if (check_employee_result !== null) {
-      return res.status(400).json({
-        msg: "Failed! This package has already been saved! ",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json({
-      msg: "Failed to check duplication. Nothing saved",
-    });
   }
 
-  // Insert data to three collections
-  if (sold.length > 0) {
-    try {
-      await SoldItemsModel.insertMany(
-        sold.map((soldItem) => {
-          const {
-            item,
-            qty,
-            cost,
-            price,
-            weight,
-            pk_id,
-            note,
-            exchangeRate,
-            type,
-            status,
-            log,
-          } = soldItem;
-          return {
-            item: item,
-            qty: qty,
-            cost: cost,
-            price: price,
-            weight: weight,
-            pk_id: pk_id,
-            note: note,
-            exchangeRate: exchangeRate,
-            type: type,
-            status: status,
-            log: log,
-          };
-        })
-      );
-    } catch (error) {
-      console.log(error);
-      return res
-        .status(400)
-        .json({ msg: "Failed to save sold items. Nothing saved." });
-    }
-  }
+  // Insert data to three data collections
 
-  if (stock.length > 0) {
-    try {
-      await StockItemsModel.insertMany(
-        stock.map((stockItem) => {
-          const {
-            item,
-            qty,
-            cost,
-            price,
-            weight,
-            pk_id,
-            note,
-            exchangeRate,
-            type,
-            status,
-            log,
-          } = stockItem;
-          return {
-            item: item,
-            qty: qty,
-            cost: cost,
-            price: price,
-            weight: weight,
-            pk_id: pk_id,
-            note: note,
-            exchangeRate: exchangeRate,
-            type: type,
-            status: status,
-            log: log,
-          };
-        })
-      );
-    } catch (error) {
-      console.log(error);
-      return res.status(400).json({
-        msg: "Failed to save stock items. Sold items saved if applicable.",
-      });
-    }
-  }
-
-  if (employee.length > 0) {
-    try {
-      await EmployeeItemsModel.insertMany(
-        employee.map((employeeItem) => {
-          const {
-            item,
-            qty,
-            cost,
-            price,
-            weight,
-            pk_id,
-            note,
-            exchangeRate,
-            type,
-            status,
-            log,
-          } = employeeItem;
-          return {
-            item: item,
-            qty: qty,
-            cost: cost,
-            price: price,
-            weight: weight,
-            pk_id: pk_id,
-            note: note,
-            exchangeRate: exchangeRate,
-            type: type,
-            status: status,
-            log: log,
-          };
-        })
-      );
-    } catch (error) {
-      console.log(error);
-      return res.status(400).json({
-        msg: "Failed to save employee items. Sold items and stock items saved if applicable.",
-      });
+  const itemsCollections = [sold, stock, employee];
+  const types = ["Sold", "Stock ", "employee"];
+  for (let index = 0; index < itemsCollections.length; index++) {
+    const itemCollection = itemsCollections[index];
+    if (itemCollection.length > 0) {
+      try {
+        await models[index].insertMany(
+          itemCollection.map((item) => {
+            delete item.key;
+            return item;
+          })
+        );
+      } catch (error) {
+        console.log(error);
+        return res
+          .status(400)
+          .json({ msg: `Failed to save ${types[index]} items.` });
+      }
     }
   }
 

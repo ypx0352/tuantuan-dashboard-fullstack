@@ -1,8 +1,9 @@
-import React from "react";
+import { fromJS } from "immutable";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Logo from "../../image/tuan-logo.jpeg";
-import { actionCreators } from "./store";
+import { actionCreators, actionTypes } from "./store";
 
 const Container = styled.div`
   height: 100vh;
@@ -73,9 +74,14 @@ const Input = styled.input`
   outline: none;
   margin-top: 5px;
   font-weight: bold;
+
   ::placeholder {
     color: #9fa2b4;
     font-weight: normal;
+  }
+
+  &.error {
+    border-color: darkred;
   }
 `;
 
@@ -90,8 +96,8 @@ const ForgotPassword = styled.span`
 
 const ShowPassword = styled.span`
   position: absolute;
-  right: 0;
-  top: 52%;
+  right: 3%;
+  bottom: 10%;
   color: #9fa2b4;
   cursor: pointer;
 `;
@@ -120,8 +126,38 @@ const Link = styled.a`
   text-decoration: none;
 `;
 
+const Warning = styled.small`
+  color: darkred;
+  margin-top: 2px;
+  &.hide {
+    display: none;
+  }
+`;
+
 const RegisterPage = (props) => {
-  const { showPassword, handleShowPassword } = props;
+  const {
+    showPassword,
+    handleShowPassword,
+    handleSubmit,
+    inputErrorObject,
+    modifyInputErrorObject,
+  } = props;
+
+  const [registerInfo, setRegisterInfo] = useState({
+    name: "",
+    password: "",
+    email: "",
+    registerCode: "",
+  });
+
+  const handleInput = (e) => {
+    setRegisterInfo({ ...registerInfo, [e.target.name]: e.target.value });
+    delete inputErrorObject[e.target.name];
+    // const newObject = input
+    // modifyInputErrorObject({...inputErrorObject, [e.target.name]:})
+    modifyInputErrorObject(inputErrorObject);
+  };
+
   return (
     <Container>
       <Wrapper>
@@ -131,17 +167,43 @@ const RegisterPage = (props) => {
         <Subtitle>Enter your email, name and password below</Subtitle>
         <InputWrapper>
           <Label>EMAIL</Label>
-          <Input placeholder="Email address" type="text" />
+          <Input
+            placeholder="Email address"
+            type="text"
+            name="email"
+            onChange={handleInput}
+            className={inputErrorObject.email === undefined ? "" : "error"}
+          />
+          <Warning
+            className={inputErrorObject.email === undefined ? "hide" : ""}
+          >
+            {inputErrorObject.email}
+          </Warning>
         </InputWrapper>
+
         <InputWrapper>
           <Label>NAME</Label>
-          <Input placeholder="Name" type="text" />
+          <Input
+            placeholder="Name"
+            type="text"
+            name="name"
+            onChange={handleInput}
+            className={inputErrorObject.name === undefined ? "" : "error"}
+          />
+          <Warning
+            className={inputErrorObject.name === undefined ? "hide" : ""}
+          >
+            {inputErrorObject.name}
+          </Warning>
         </InputWrapper>
         <InputWrapper>
           <Label>PASSWORD</Label>
           <Input
             placeholder="Password"
             type={showPassword ? "text" : "password"}
+            name="password"
+            onChange={handleInput}
+            className={inputErrorObject.password === undefined ? "" : "error"}
           />
           <ShowPassword
             className="material-icons-outlined"
@@ -150,11 +212,31 @@ const RegisterPage = (props) => {
             {showPassword ? "visibility_off" : "visibility"}
           </ShowPassword>
         </InputWrapper>
+        <Warning
+          className={inputErrorObject.password === undefined ? "hide" : ""}
+        >
+          {inputErrorObject.password}
+        </Warning>
         <InputWrapper>
           <Label>REGISTER CODE</Label>
-          <Input placeholder="Register code" type="text" />
+          <Input
+            placeholder="Register code"
+            type="text"
+            name="registerCode"
+            onChange={handleInput}
+            className={
+              inputErrorObject.registerCode === undefined ? "" : "error"
+            }
+          />
+          <Warning
+            className={
+              inputErrorObject.registerCode === undefined ? "hide" : ""
+            }
+          >
+            {inputErrorObject.registerCode}
+          </Warning>
         </InputWrapper>
-        <Button>Sign Up</Button>
+        <Button onClick={(e) => handleSubmit(registerInfo)}>Sign Up</Button>
         <TextWrapper>
           <Text>Already have an account?</Text>
           <Link href="/login">Log In</Link>
@@ -166,11 +248,21 @@ const RegisterPage = (props) => {
 
 const mapState = (state) => ({
   showPassword: state.getIn(["login", "showPassword"]),
+  inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
 });
 
 const mapDispatch = (dispatch) => ({
   handleShowPassword(showPassword) {
     dispatch(actionCreators.showPassword(showPassword));
+  },
+  handleSubmit(registerInfo) {
+    dispatch(actionCreators.submitRegisterAction(registerInfo));
+  },
+  modifyInputErrorObject(newObject) {
+    dispatch({
+      type: actionTypes.MODIFY_INPUT_ERROR_OBJECT,
+      value: fromJS(newObject),
+    });
   },
 });
 

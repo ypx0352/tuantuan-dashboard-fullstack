@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Logo from "../../image/tuan-logo.jpeg";
@@ -122,6 +122,13 @@ const Link = styled.a`
 
 const LoginPage = (props) => {
   const { showPassword, handleShowPassword } = props;
+
+  const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
+
+  const handleInput = (e) => {
+    setLoginInfo({ ...loginInfo, [e.target.name]: e.target.value });
+  };
+
   return (
     <Container>
       <Wrapper>
@@ -131,13 +138,20 @@ const LoginPage = (props) => {
         <Subtitle>Enter your email and password below</Subtitle>
         <InputWrapper>
           <Label>EMAIL</Label>
-          <Input placeholder="Email address" type="text" />
+          <Input
+            placeholder="Email address"
+            type="text"
+            name="email"
+            onChange={handleInput}
+          />
         </InputWrapper>
         <InputWrapper>
           <Label>PASSWORD</Label>
           <Input
             placeholder="Password"
             type={showPassword ? "text" : "password"}
+            name="password"
+            onChange={handleInput}
           />
           <ForgotPassword>Forgot password?</ForgotPassword>
           <ShowPassword
