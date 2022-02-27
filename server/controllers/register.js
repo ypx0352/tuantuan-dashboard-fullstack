@@ -4,18 +4,8 @@ const UserModel = require("../models/user");
 const registerValidationSchema = require("../models/registerValidation");
 
 const register = async (req, res) => {
-  // Validate input
-  const { error } = Joi.object(registerValidationSchema).validate(req.body, {
-    abortEarly: false,
-  });
-  if (error) {
-    const errorObject = {};
-    const errorList = error.details;
-    errorList.forEach((error) => {
-      errorObject[error.path] = error.message;
-    });
-    return res.status(400).json({ errorObject });
-  }
+  
+  
 
   // Check duplication of email address in database
   try {

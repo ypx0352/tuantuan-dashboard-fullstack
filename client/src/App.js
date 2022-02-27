@@ -8,10 +8,13 @@ import RegisterPage from "./pages/register-page/RegisterPage";
 import OverviewPage from "./pages/dashboard-pages/overview-page/OverviewPage";
 import OrderPage from "./pages/dashboard-pages/order-page/OrderPage";
 import CheckoutPage from "./pages/dashboard-pages/checkout-page/CheckoutPage";
-import SettingPage from './pages/dashboard-pages/setting-page/SettingPage'
+import SettingPage from "./pages/dashboard-pages/setting-page/SettingPage";
 import TestPage from "./pages/dashboard-pages/test-page/TestPage";
 
 function App() {
+  const token = localStorage.getItem("token");
+  console.log(token);
+
   return (
     <Provider store={store}>
       <BrowserRouter>

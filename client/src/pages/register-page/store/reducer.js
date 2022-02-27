@@ -4,6 +4,7 @@ import { actionTypes } from ".";
 const defaultState = fromJS({
   showPassword: false,
   inputErrorObject: {},
+  login:false
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {

@@ -130,7 +130,7 @@ const Warning = styled.small`
   color: darkred;
   margin-top: 2px;
   &.hide {
-    display: none;
+    visibility: hidden;
   }
 `;
 
@@ -153,8 +153,6 @@ const RegisterPage = (props) => {
   const handleInput = (e) => {
     setRegisterInfo({ ...registerInfo, [e.target.name]: e.target.value });
     delete inputErrorObject[e.target.name];
-    // const newObject = input
-    // modifyInputErrorObject({...inputErrorObject, [e.target.name]:})
     modifyInputErrorObject(inputErrorObject);
   };
 

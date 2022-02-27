@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
+import { fromJS } from "immutable";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators } from "./store";
+import { actionTypes as registerActionTypes } from "../register-page/store";
 
 const Container = styled.div`
   height: 100vh;
@@ -90,8 +92,8 @@ const ForgotPassword = styled.span`
 
 const ShowPassword = styled.span`
   position: absolute;
-  right: 0;
-  top: 52%;
+  right: 3%;
+  bottom: 10%;
   color: #9fa2b4;
   cursor: pointer;
 `;
@@ -120,13 +122,29 @@ const Link = styled.a`
   text-decoration: none;
 `;
 
+const Warning = styled.small`
+  color: darkred;
+  margin-top: 2px;
+  &.hide {
+    visibility: hidden;
+  }
+`;
+
 const LoginPage = (props) => {
-  const { showPassword, handleShowPassword } = props;
+  const {
+    showPassword,
+    handleShowPassword,
+    handleSubmit,
+    inputErrorObject,
+    modifyInputErrorObject,
+  } = props;
 
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
 
   const handleInput = (e) => {
     setLoginInfo({ ...loginInfo, [e.target.name]: e.target.value });
+    delete inputErrorObject[e.target.name];
+    modifyInputErrorObject(inputErrorObject);
   };
 
   return (
@@ -144,6 +162,11 @@ const LoginPage = (props) => {
             name="email"
             onChange={handleInput}
           />
+          <Warning
+            className={inputErrorObject.email === undefined ? "hide" : ""}
+          >
+            {inputErrorObject.email}
+          </Warning>
         </InputWrapper>
         <InputWrapper>
           <Label>PASSWORD</Label>
@@ -161,7 +184,13 @@ const LoginPage = (props) => {
             {showPassword ? "visibility_off" : "visibility"}
           </ShowPassword>
         </InputWrapper>
-        <Button>Log In</Button>
+        <Warning
+          className={inputErrorObject.password === undefined ? "hide" : ""}
+        >
+          {inputErrorObject.password}
+        </Warning>
+
+        <Button onClick={() => handleSubmit(loginInfo)}>Log In</Button>
         <TextWrapper>
           <Text>Don't have an account?</Text>
           <Link href="/register">Sign up</Link>
@@ -173,11 +202,22 @@ const LoginPage = (props) => {
 
 const mapState = (state) => ({
   showPassword: state.getIn(["login", "showPassword"]),
+  inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
 });
 
 const mapDispatch = (dispatch) => ({
   handleShowPassword(showPassword) {
     dispatch(actionCreators.showPassword(showPassword));
+  },
+
+  handleSubmit(loginInfo) {
+    dispatch(actionCreators.loginAction(loginInfo));
+  },
+  modifyInputErrorObject(newObject) {
+    dispatch({
+      type: registerActionTypes.MODIFY_INPUT_ERROR_OBJECT,
+      value: fromJS(newObject),
+    });
   },
 });
 

@@ -22,7 +22,6 @@ export const submitRegisterAction = (registerInfo) => {
       console.log(error);
       const { errorObject, msg } = error.response.data;
 
-      console.log(msg);
       if (errorObject !== undefined) {
         dispatch({
           type: actionTypes.INPUT_ERROR_OBJECT,
