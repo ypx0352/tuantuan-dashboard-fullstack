@@ -40,7 +40,7 @@ const login = async (req, res) => {
     const token = jwt.sign({ name: name }, process.env.JWT_KEY, {
       expiresIn: 10000,
     });
-    return res.redirect('/dashboard');
+    return res.status(200).json({ msg: "Login successfully.", token });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ msg: "Failed to get token." });
