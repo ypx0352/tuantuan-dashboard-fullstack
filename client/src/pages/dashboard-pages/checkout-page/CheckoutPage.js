@@ -212,7 +212,8 @@ const CheckoutPage = (props) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   };
 
-  const generateButton = (record, destination) => {
+  const generateButton = (record, destination,showModal) => {
+    console.log(showModal);
     const methods = [handleAddToStock, handleAddToEmployee];
     const destinations = ["stock", "employee"];
     const index = destinations.indexOf(destination);
@@ -283,6 +284,20 @@ const CheckoutPage = (props) => {
                     setUpdate(record.addToCart);
                   }}
                 />
+                <Modal
+                  title="Profit exception!  "
+                  visible={showModal}
+                  okText="Add to exception"
+                  cancelText="Back"
+                  style={{ top: "20px" }}
+                  onOk={addToException}
+                  onCancel={() => setShowModal(false)}
+                >
+                  <p>Profit is less than ￥10.00.</p>
+                  <p>
+                    Add the item to the exceptions or go back to modifications.
+                  </p>
+                </Modal>
               </PopconfirmInputWrapper>
               {record.type === "employee" ? (
                 ""
@@ -323,7 +338,7 @@ const CheckoutPage = (props) => {
           }
           onConfirm={() => {
             console.log(record.type);
-            if (record.profits >= 10 && record.type !== "employee") {
+            if (record.profits >= 10 || record.type === "employee") {
               handleAddToCart(record);
             } else {
               prepareAddToException(record);
@@ -380,11 +395,13 @@ const CheckoutPage = (props) => {
           render: (text, record, index) => {
             return (
               <ButtonWrapper>
-                {generateButton(record, "cart")}
-                {record.type === "stock" ? "" : generateButton(record, "stock")}
+                {generateButton(record, "cart", showModal)}
+                {record.type === "stock"
+                  ? ""
+                  : generateButton(record, "stock", showModal)}
                 {record.type === "employee"
                   ? ""
-                  : generateButton(record, "employee")}
+                  : generateButton(record, "employee", showModal)}
               </ButtonWrapper>
             );
           },
@@ -492,7 +509,7 @@ const CheckoutPage = (props) => {
         </ContentWrapper>
       </Right>
 
-      <Modal
+      {/*<Modal
         title="Profit exception!  "
         visible={showModal}
         okText="Add to exception"
@@ -503,7 +520,8 @@ const CheckoutPage = (props) => {
       >
         <p>Profit is less than ￥10.00.</p>
         <p>Add the item to the exceptions or go back to modifications.</p>
-      </Modal>
+      </Modal>*/}
+      
     </Container>
   );
 };

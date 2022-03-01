@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { Empty } from "antd";
 import { actionCreators, actionTypes } from "./store";
+import Item from "antd/lib/list/Item";
 
 const CartContainer = styled.div`
   @keyframes display_cart {
@@ -38,7 +39,7 @@ const Header = styled.div`
 `;
 
 const Items = styled.div`
-  height: 50%;
+  height: 40%;
   overflow: auto;
 `;
 
@@ -144,21 +145,19 @@ const Cart = (props) => {
           close
         </span>
       </Header>
-      <Items>
-        {cartItems.size === 0 ? (
-          <Empty
-            image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
-            imageStyle={{
-              height: "50%",
-              marginTop: "10%",
-            }}
-            style={{ color: "#bcbbb4" }}
-            description={<span>Your cart is empty</span>}
-          />
-        ) : (
-          getCartItem()
-        )}
-      </Items>
+      {cartItems.size === 0 ? (
+        <Empty
+          image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+          imageStyle={{
+            height: "50%",
+            marginTop: "10%",
+          }}
+          style={{ color: "#bcbbb4" }}
+          description={<span>Your cart is empty</span>}
+        />
+      ) : (
+        <Items>{getCartItem()}</Items>
+      )}
 
       {cartItems.size === 0 ? (
         ""
