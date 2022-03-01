@@ -197,9 +197,6 @@ const CheckoutPage = (props) => {
     handleAddToEmployee,
   } = props;
 
-
-  console.log(new Date().toString());
-
   useEffect(() => {
     getAllItems();
   }, []);
@@ -208,21 +205,6 @@ const CheckoutPage = (props) => {
     itemsCount;
 
   const { soldItems, stockItems, employeeItems, exceptionItems } = allItems;
-
-  // const hanldeInputChange = (record, index) => (e) => {
-  //   const types = ["sold", "stock", "employee", "exception"];
-  //   const tableData = [soldItems, stockItems, employeeItems, exceptionItems];
-  //   const { qty, cost, type } = record;
-  //   const typeIndex = types.indexOf(type);
-  //   tableData[typeIndex][index].payment = e;
-  //   tableData[typeIndex][index].profits = Number((e - qty * cost).toFixed(2));
-  //   setTableDataState(tableData[typeIndex]);
-  //   allItemsTableData = soldItems.concat(
-  //     stockItems,
-  //     employeeItems,
-  //     exceptionItems
-  //   );
-  // };
 
   const [update, setUpdate] = useState();
 
@@ -340,7 +322,8 @@ const CheckoutPage = (props) => {
             </PopconfirmInputContainer>
           }
           onConfirm={() => {
-            if (record.profits >= 10) {
+            console.log(record.type);
+            if (record.profits >= 10 && record.type !== "employee") {
               handleAddToCart(record);
             } else {
               prepareAddToException(record);
