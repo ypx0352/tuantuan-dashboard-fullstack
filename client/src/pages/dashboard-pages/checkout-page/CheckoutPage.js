@@ -218,7 +218,7 @@ const CheckoutPage = (props) => {
     const destinations = ["stock", "employee"];
     const index = destinations.indexOf(destination);
     if (destination != "cart") {
-      return (
+      return ( 
         <Popconfirm
           placement="topRight"
           title={
