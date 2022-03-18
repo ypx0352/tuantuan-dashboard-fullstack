@@ -12,6 +12,7 @@ const soldItemsSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    qty_in_cart: { type: Number, default: 0, required: true },
     cost: {
       type: Number,
       required: true,
@@ -60,6 +61,7 @@ const stockItemsSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    qty_in_cart: { type: Number, default: 0, required: true },
     cost: {
       type: Number,
       required: true,
@@ -108,6 +110,7 @@ const employeeItemsSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    qty_in_cart: { type: Number, default: 0, required: true },
     cost: {
       type: Number,
       required: true,

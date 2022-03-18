@@ -27,10 +27,13 @@ export const getAllItemsAction = async (dispatch) => {
     const response = await axios.get(serverBaseUrl + "/api/checkout/all_items");
     const allItems = response.data.result;
 
-    // Add data entry in item object to record the updated date
+    // Add date entry in item object to record the updated date
+    // Add qty_available entry
+
     Object.entries(allItems).forEach((entry) => {
       entry[1].forEach((item) => {
         item.dateTime = new Date(item.updatedAt).toLocaleString();
+        item.qty_available = item.qty - item.qty_in_cart;
       });
     });
 
@@ -106,6 +109,7 @@ export const addToCartAction = (record) => {
       );
       const { msg } = response.data;
       message.success(msg);
+      dispatch(getAllItemsAction);
       dispatch(actionCreators.initializeCartAction);
     } catch (error) {
       console.log(error);

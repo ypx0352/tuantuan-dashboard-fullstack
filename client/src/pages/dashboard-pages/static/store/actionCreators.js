@@ -2,6 +2,7 @@ import axios from "axios";
 import { message } from "antd";
 import { actionTypes } from ".";
 import { fromJS } from "immutable";
+import { actionCreators } from "../../checkout-page/store";
 
 const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
 
@@ -31,15 +32,16 @@ export const initializeCartAction = async (dispatch) => {
   }
 };
 
-export const removeFromCartAction = (record_id) => {
+export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
   return async (dispatch) => {
     try {
       const response = await axios.put(
         serverBaseUrl + "/api/cart/remove_item",
-        { record_id: record_id }
+        { record_id, solid_id, type, addToCart }
       );
       const { msg } = response.data;
       message.success(msg);
+      dispatch(actionCreators.getAllItemsAction)
       dispatch(initializeCartAction);
     } catch (error) {
       console.log(error);

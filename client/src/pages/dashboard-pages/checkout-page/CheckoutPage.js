@@ -212,14 +212,15 @@ const CheckoutPage = (props) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   };
 
-  const generateButton = (record, destination,showModal) => {
-    console.log(showModal);
+  const generateButton = (record, destination, showModal) => {
     const methods = [handleAddToStock, handleAddToEmployee];
     const destinations = ["stock", "employee"];
     const index = destinations.indexOf(destination);
+
     if (destination != "cart") {
-      return ( 
+      return (
         <Popconfirm
+          disabled={record.qty_available <= 0 ? true : ""}
           placement="topRight"
           title={
             <>
@@ -228,7 +229,7 @@ const CheckoutPage = (props) => {
                 onClick={() => {
                   //record.addToStock = record.qty;
                   record[`addTo${capitalizeFirstLetter(destination)}`] =
-                    record.qty;
+                    record.qty_available;
                   setUpdate(record);
                 }}
               >
@@ -238,7 +239,7 @@ const CheckoutPage = (props) => {
               <InputNumber
                 size="small"
                 min={1}
-                max={record.qty}
+                max={record.qty_available}
                 defaultValue={null}
                 value={record[`addTo${capitalizeFirstLetter(destination)}`]}
                 onChange={(e) => {
@@ -251,7 +252,10 @@ const CheckoutPage = (props) => {
           okText={`Add to ${destination}`}
           cancelText="Cancel"
         >
-          <StyledButton destination={destination}>
+          <StyledButton
+            destination={destination}
+            disabled={record.qty_available <= 0 ? true : ""}
+          >
             {capitalizeFirstLetter(destination)}
           </StyledButton>
         </Popconfirm>
@@ -260,13 +264,14 @@ const CheckoutPage = (props) => {
       return (
         <Popconfirm
           placement="topRight"
+          disabled={record.qty_available <= 0 ? true : ""}
           title={
             <PopconfirmInputContainer>
               <PopconfirmInputWrapper>
                 <Button
                   size="small"
                   onClick={() => {
-                    record.addToCart = record.qty;
+                    record.addToCart = record.qty_available;
                     setUpdate(record);
                   }}
                 >
@@ -276,7 +281,7 @@ const CheckoutPage = (props) => {
                 <InputNumber
                   size="small"
                   min={1}
-                  max={record.qty}
+                  max={record.qty_available}
                   defaultValue={null}
                   value={record.addToCart}
                   onChange={(e) => {
@@ -323,7 +328,7 @@ const CheckoutPage = (props) => {
                     Profits (￥):
                     <InputNumber
                       style={
-                        record.profits >= 10
+                        record.profits >= 0
                           ? { color: "green" }
                           : { color: "red" }
                       }
@@ -337,7 +342,6 @@ const CheckoutPage = (props) => {
             </PopconfirmInputContainer>
           }
           onConfirm={() => {
-            console.log(record.type);
             if (record.profits >= 10 || record.type === "employee") {
               handleAddToCart(record);
             } else {
@@ -347,7 +351,12 @@ const CheckoutPage = (props) => {
           okText="Add to cart"
           cancelText="Cancel"
         >
-          <StyledButton destination="cart">Cart</StyledButton>
+          <StyledButton
+            destination="cart"
+            disabled={record.qty_available <= 0 ? true : ""}
+          >
+            Cart
+          </StyledButton>
         </Popconfirm>
       );
     }
@@ -365,8 +374,8 @@ const CheckoutPage = (props) => {
         },
         {
           title: "Qty",
-          dataIndex: "qty",
-          key: "qty",
+          dataIndex: "qty_available",
+          key: "qty_available",
         },
         {
           title: "Cost / each (￥)",
@@ -384,7 +393,7 @@ const CheckoutPage = (props) => {
           key: "note",
         },
         {
-          title: "Updated at",
+          title: "Last updated at",
           dataIndex: "dateTime",
           key: "date",
         },
@@ -521,7 +530,6 @@ const CheckoutPage = (props) => {
         <p>Profit is less than ￥10.00.</p>
         <p>Add the item to the exceptions or go back to modifications.</p>
       </Modal>*/}
-      
     </Container>
   );
 };

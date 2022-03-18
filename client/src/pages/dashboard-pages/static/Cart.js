@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import { Empty } from "antd";
 import { actionCreators, actionTypes } from "./store";
 
-
 const CartContainer = styled.div`
   @keyframes display_cart {
     from {
@@ -104,6 +103,15 @@ const CompanyLogo = styled.div`
   align-items: baseline;
   margin-top: 15px;
 `;
+const colors = { stock: "sandybrown", employee: "#18a16d" };
+const Tag = styled.span.attrs((props) => ({
+  style: { backgroundColor: colors[`${props.type}`] },
+}))`
+  box-sizing: border-box;
+  padding: 2px 5px;
+  border-radius: 10px;
+  color: white;
+`;
 
 const Cart = (props) => {
   const { setShowCart, cartItems, initializeCart, cartSubtotal, handleRemove } =
@@ -117,12 +125,26 @@ const Cart = (props) => {
     return cartItems.map((item, index) => {
       return (
         <Record key={index}>
-          <span style={{ width: "50%" }}>{item.get("item")}</span>
+          <span style={{ width: "50%" }}>
+            {item.get("item") + " "}
+            {item.get("type") !== "sold" ? (
+              <Tag type={item.get("type")}>{item.get("type")}</Tag>
+            ) : (
+              ""
+            )}
+          </span>
           <span style={{ width: "23%" }}>{item.get("addToCart")}</span>
           <Remove
             className="remove"
             style={{ width: "20%" }}
-            onClick={() => handleRemove(item.get("_id"))}
+            onClick={() =>
+              handleRemove(
+                item.get("_id"),
+                item.get("solid_id"),
+                item.get("type"),
+                item.get("addToCart")
+              )
+            }
           >
             Remove
           </Remove>
@@ -195,8 +217,10 @@ const mapDispatch = (dispatch) => ({
     dispatch(actionCreators.initializeCartAction);
   },
 
-  handleRemove(value) {
-    dispatch(actionCreators.removeFromCartAction(value));
+  handleRemove(record_id, solid_id, type, addToCart) {
+    dispatch(
+      actionCreators.removeFromCartAction(record_id, solid_id, type, addToCart)
+    );
   },
 });
 

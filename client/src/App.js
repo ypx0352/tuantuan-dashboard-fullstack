@@ -13,7 +13,6 @@ import TestPage from "./pages/dashboard-pages/test-page/TestPage";
 
 function App() {
   const token = localStorage.getItem("token");
-  console.log(token);
 
   return (
     <Provider store={store}>
