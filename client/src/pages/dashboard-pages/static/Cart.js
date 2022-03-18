@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { Empty } from "antd";
 import { actionCreators, actionTypes } from "./store";
-import Item from "antd/lib/list/Item";
+
 
 const CartContainer = styled.div`
   @keyframes display_cart {
@@ -12,14 +12,14 @@ const CartContainer = styled.div`
       height: 0;
     }
     to {
-      height: 35%;
+      height: 50%;
     }
   }
 
   display: flex;
   position: relative;
   flex-direction: column;
-  height: 35%;
+  height: 50%;
   background-color: #363740;
   padding: 20px;
   animation-name: display_cart;
@@ -135,7 +135,7 @@ const Cart = (props) => {
   return (
     <CartContainer className={props.className}>
       <Header>
-        <span style={{ width: "50%" }}>Cart</span>
+        <span style={{ width: "50%" }}>Item</span>
         <span style={{ width: "48%" }}>Quantity</span>
         <span
           className="material-icons-outlined"
