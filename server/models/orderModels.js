@@ -148,6 +148,52 @@ const employeeItemsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const exceptionItemsSchema = new mongoose.Schema(
+  {
+    item: {
+      type: String,
+      required: true,
+    },
+    qty: {
+      type: Number,
+      required: true,
+    },
+    cost: {
+      type: Number,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    weight: {
+      type: Number,
+      required: true,
+    },
+    pk_id: {
+      type: String,
+      required: true,
+    },
+    note: {
+      type: String,
+      required: false,
+    },
+    exchangeRate: {
+      type: Number,
+      required: true,
+    },
+    status: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
 const SoldItemsModel = connection.model("sold_items", soldItemsSchema);
 
 const StockItemsModel = connection.model("stock_items", stockItemsSchema);
@@ -157,4 +203,10 @@ const EmployeeItemsModel = connection.model(
   employeeItemsSchema
 );
 
-module.exports = { SoldItemsModel, StockItemsModel, EmployeeItemsModel };
+const ExceptionItemModel = connection.model(
+  "exception_items",
+  exceptionItemsSchema
+);
+
+
+module.exports = { SoldItemsModel, StockItemsModel, EmployeeItemsModel,ExceptionItemModel };

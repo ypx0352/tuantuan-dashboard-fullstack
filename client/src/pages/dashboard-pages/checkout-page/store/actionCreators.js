@@ -118,3 +118,12 @@ export const addToCartAction = (record) => {
     }
   };
 };
+
+export const addToExceptionAction = (item) =>{
+  return  async (dispatch)=>{
+    const response = await axios.put(
+      serverBaseUrl + "/api/checkout/add_to_exception", item
+    );
+    console.log(response);
+  }
+} 

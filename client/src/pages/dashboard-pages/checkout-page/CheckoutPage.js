@@ -208,6 +208,10 @@ const CheckoutPage = (props) => {
 
   const [update, setUpdate] = useState();
 
+  const [exceptionItem, setExceptionItem] = useState({});
+
+  //const [showModalState, setShowModalState] = useState(false);
+
   const capitalizeFirstLetter = (word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   };
@@ -289,20 +293,23 @@ const CheckoutPage = (props) => {
                     setUpdate(record.addToCart);
                   }}
                 />
-                <Modal
-                  title="Profit exception!  "
-                  visible={showModal}
+                {/*<Modal
+                  title="Profit exception!"
+                  visible={showModalState}
                   okText="Add to exception"
                   cancelText="Back"
                   style={{ top: "20px" }}
                   onOk={addToException}
-                  onCancel={() => setShowModal(false)}
+                  onCancel={() => setShowModalState(false)}
                 >
-                  <p>Profit is less than ￥10.00.</p>
-                  <p>
-                    Add the item to the exceptions or go back to modifications.
-                  </p>
-                </Modal>
+                  <>
+                    <p>Profit is less than ￥0.00</p>
+                    <p>
+                      Add the item to the exceptions or go back to
+                      modifications.
+                    </p>
+                  </>
+                </Modal>*/}
               </PopconfirmInputWrapper>
               {record.type === "employee" ? (
                 ""
@@ -342,10 +349,11 @@ const CheckoutPage = (props) => {
             </PopconfirmInputContainer>
           }
           onConfirm={() => {
-            if (record.profits >= 10 || record.type === "employee") {
+            if (record.profits >= 0 || record.type === "employee") {
               handleAddToCart(record);
             } else {
-              prepareAddToException(record);
+              setExceptionItem(record);
+              setShowModal(true);
             }
           }}
           okText="Add to cart"
@@ -518,18 +526,18 @@ const CheckoutPage = (props) => {
         </ContentWrapper>
       </Right>
 
-      {/*<Modal
+      <Modal
         title="Profit exception!  "
         visible={showModal}
         okText="Add to exception"
         cancelText="Back"
         style={{ top: "20px" }}
-        onOk={addToException}
+        onOk={() => addToException(exceptionItem)}
         onCancel={() => setShowModal(false)}
       >
-        <p>Profit is less than ￥10.00.</p>
+        <p>Profit is less than ￥0.00.</p>
         <p>Add the item to the exceptions or go back to modifications.</p>
-      </Modal>*/}
+      </Modal>
     </Container>
   );
 };
@@ -584,13 +592,13 @@ const mapDispatch = (dispatch) => ({
     dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(value) });
   },
 
-  prepareAddToException(record) {
-    dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(true) });
-    console.log(record);
-  },
+  // prepareAddToException(record) {
+  //   dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(true) });
+  //   console.log(record);
+  // },
 
-  addToException() {
-    console.log("add to exception");
+  addToException(item) {
+    dispatch(actionCreators.addToExceptionAction(item));
   },
 });
 

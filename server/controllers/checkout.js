@@ -219,4 +219,23 @@ const addToEmployee = async (req, res) => {
   }
 };
 
-module.exports = { allItems, addToStock, addToEmployee };
+const addToException = async (req, res) => {
+  const { _id, type, addToCart } = req.body;
+  const types = ["sold", "stock"];
+  const models = [SoldItemsModel, StockItemsModel];
+  const typeIndex = types.indexOf(type);
+
+  // Make sure the item exists
+  const originalRecord = await models[typeIndex].findById(_id);
+  if (originalRecord === null) {
+    return res.status(400).json({
+      msg: "Failed to add to exception. Can not find the item in database.",
+    });
+  }
+
+  // Add the item to exception collection. If the item is already saved in the collection (share the same pk_id, payment amount and cost), add the qty of this item. Otherwise, create a new record of this item in exception collection.
+
+  res.json(req.body);
+};
+
+module.exports = { allItems, addToStock, addToEmployee, addToException };
