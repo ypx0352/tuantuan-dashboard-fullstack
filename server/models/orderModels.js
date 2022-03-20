@@ -4,47 +4,17 @@ const mongoose = require("mongoose");
 // define the schema of the sold collection
 const soldItemsSchema = new mongoose.Schema(
   {
-    item: {
-      type: String,
-      required: true,
-    },
-    qty: {
-      type: Number,
-      required: true,
-    },
+    item: { type: String, required: true },
+    qty: { type: Number, required: true },
     qty_in_cart: { type: Number, default: 0, required: true },
-    cost: {
-      type: Number,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    weight: {
-      type: Number,
-      required: true,
-    },
-    pk_id: {
-      type: String,
-      required: true,
-    },
-    note: {
-      type: String,
-      required: false,
-    },
-    exchangeRate: {
-      type: Number,
-      required: true,
-    },
-    status: {
-      type: String,
-      required: true,
-    },
-    type: {
-      type: String,
-      required: true,
-    },
+    cost: { type: Number, required: true },
+    price: { type: Number, required: true },
+    weight: { type: Number, required: true },
+    pk_id: { type: String, required: true },
+    note: { type: String, required: false },
+    exchangeRate: { type: Number, required: true },
+    status: { type: String, required: true },
+    type: { type: String, required: true },
     log: { type: String, required: true },
   },
   { timestamps: true }
@@ -53,47 +23,17 @@ const soldItemsSchema = new mongoose.Schema(
 // define the schema of the stock collection
 const stockItemsSchema = new mongoose.Schema(
   {
-    item: {
-      type: String,
-      required: true,
-    },
-    qty: {
-      type: Number,
-      required: true,
-    },
+    item: { type: String, required: true },
+    qty: { type: Number, required: true },
     qty_in_cart: { type: Number, default: 0, required: true },
-    cost: {
-      type: Number,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    weight: {
-      type: Number,
-      required: true,
-    },
-    pk_id: {
-      type: String,
-      required: true,
-    },
-    note: {
-      type: String,
-      required: false,
-    },
-    exchangeRate: {
-      type: Number,
-      required: true,
-    },
-    status: {
-      type: String,
-      required: true,
-    },
-    type: {
-      type: String,
-      required: true,
-    },
+    cost: { type: Number, required: true },
+    price: { type: Number, required: true },
+    weight: { type: Number, required: true },
+    pk_id: { type: String, required: true },
+    note: { type: String, required: false },
+    exchangeRate: { type: Number, required: true },
+    status: { type: String, required: true },
+    type: { type: String, required: true },
     log: { type: String, required: true },
   },
   { timestamps: true }
@@ -102,47 +42,17 @@ const stockItemsSchema = new mongoose.Schema(
 // define the schema of the employee collection
 const employeeItemsSchema = new mongoose.Schema(
   {
-    item: {
-      type: String,
-      required: true,
-    },
-    qty: {
-      type: Number,
-      required: true,
-    },
+    item: { type: String, required: true },
+    qty: { type: Number, required: true },
     qty_in_cart: { type: Number, default: 0, required: true },
-    cost: {
-      type: Number,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    weight: {
-      type: Number,
-      required: true,
-    },
-    pk_id: {
-      type: String,
-      required: true,
-    },
-    note: {
-      type: String,
-      required: false,
-    },
-    exchangeRate: {
-      type: Number,
-      required: true,
-    },
-    status: {
-      type: String,
-      required: true,
-    },
-    type: {
-      type: String,
-      required: true,
-    },
+    cost: { type: Number, required: true },
+    price: { type: Number, required: true },
+    weight: { type: Number, required: true },
+    pk_id: { type: String, required: true },
+    note: { type: String, required: false },
+    exchangeRate: { type: Number, required: true },
+    status: { type: String, required: true },
+    type: { type: String, required: true },
     log: { type: String, required: true },
   },
   { timestamps: true }
@@ -150,46 +60,20 @@ const employeeItemsSchema = new mongoose.Schema(
 
 const exceptionItemsSchema = new mongoose.Schema(
   {
-    item: {
-      type: String,
-      required: true,
-    },
-    qty: {
-      type: Number,
-      required: true,
-    },
-    cost: {
-      type: Number,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    weight: {
-      type: Number,
-      required: true,
-    },
-    pk_id: {
-      type: String,
-      required: true,
-    },
-    note: {
-      type: String,
-      required: false,
-    },
-    exchangeRate: {
-      type: Number,
-      required: true,
-    },
-    status: {
-      type: String,
-      required: true,
-    },
-    type: {
-      type: String,
-      required: true,
-    },
+    item: { type: String, required: true },
+    solid_id: { type: String, required: true },
+    cost: { type: Number, required: true },
+    addToException: { type: Number, required: true },
+    type: { type: String, required: true },
+    payAmount: { type: Number, required: true },
+    price: { type: Number, required: true },
+    weight: { type: Number, required: true },
+    pk_id: { type: String, required: true },
+    note: { type: String, required: false },
+    exchangeRate: { type: Number, required: true },
+    status: { type: String, required: true },
+    log:{type:String, required:true},
+    subtotal:{type:Number, required:true}
   },
   { timestamps: true }
 );
@@ -208,5 +92,9 @@ const ExceptionItemModel = connection.model(
   exceptionItemsSchema
 );
 
-
-module.exports = { SoldItemsModel, StockItemsModel, EmployeeItemsModel,ExceptionItemModel };
+module.exports = {
+  SoldItemsModel,
+  StockItemsModel,
+  EmployeeItemsModel,
+  ExceptionItemModel,
+};

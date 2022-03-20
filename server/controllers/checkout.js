@@ -2,6 +2,7 @@ const {
   SoldItemsModel,
   StockItemsModel,
   EmployeeItemsModel,
+  ExceptionItemModel,
 } = require("../models/orderModels");
 
 const allItems = async (req, res) => {
@@ -220,22 +221,80 @@ const addToEmployee = async (req, res) => {
 };
 
 const addToException = async (req, res) => {
-  const { _id, type, addToCart } = req.body;
+  const { _id, type, addToCart, subtotal } = req.body;  
   const types = ["sold", "stock"];
   const models = [SoldItemsModel, StockItemsModel];
   const typeIndex = types.indexOf(type);
 
   // Make sure the item exists
-  const originalRecord = await models[typeIndex].findById(_id);
-  if (originalRecord === null) {
-    return res.status(400).json({
-      msg: "Failed to add to exception. Can not find the item in database.",
+  try {
+    const originalRecord = await models[typeIndex].findById(_id);
+    if (originalRecord === null) {
+      return res.status(400).json({
+        msg: "Failed to add to exception. Can not find the item in database.",
+      });
+    }
+
+    // Add the item to exception collection. Create a new record of this item in exception collection.
+
+    const {
+      item,
+      cost,
+      price,
+      weight,
+      pk_id,
+      note,
+      exchangeRate,
+      status,
+      log,      
+    } = originalRecord;
+
+    // Calculate the amount of payment
+    const payAmount = Number(
+      (cost * addToCart + (subtotal - cost * addToCart) / 2).toFixed(2)
+    );
+
+    // item: { type: String, required: true },
+    // solid_id: { type: String, required: true },
+    // cost: { type: Number, required: true },
+    // addToException: { type: Number, required: true },
+    // type: { type: String, required: true },
+    // payAmount: { type: Number, required: true },
+    // price: { type: Number, required: true },
+    // weight: { type: Number, required: true },
+    // pk_id: { type: String, required: true },
+    // note: { type: String, required: false },
+    // exchangeRate: { type: Number, required: true },
+    // status: { type: String, required: true },
+
+     await ExceptionItemModel.create({
+      item,
+      solid_id: _id,
+      cost,
+      addToException: addToCart,
+      type,
+      payAmount,
+      price,
+      weight,
+      pk_id,
+      note,
+      exchangeRate,
+      status,
+      log,
+      subtotal,
     });
+    
+
+    // Deduct the number of this item in original collection, if the number becomes 0, delete the item from the original collection.
+
+
+    res.json(req.body);
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(400)
+      .json({ msg: "Failed to add to exception. Server error!" });
   }
-
-  // Add the item to exception collection. If the item is already saved in the collection (share the same pk_id, payment amount and cost), add the qty of this item. Otherwise, create a new record of this item in exception collection.
-
-  res.json(req.body);
 };
 
 module.exports = { allItems, addToStock, addToEmployee, addToException };
