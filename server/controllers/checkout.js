@@ -252,20 +252,7 @@ const addToException = async (req, res) => {
     // Calculate the amount of payment
     const payAmount = Number(
       (cost * addToCart + (subtotal - cost * addToCart) / 2).toFixed(2)
-    );
-
-    // item: { type: String, required: true },
-    // solid_id: { type: String, required: true },
-    // cost: { type: Number, required: true },
-    // addToException: { type: Number, required: true },
-    // type: { type: String, required: true },
-    // payAmount: { type: Number, required: true },
-    // price: { type: Number, required: true },
-    // weight: { type: Number, required: true },
-    // pk_id: { type: String, required: true },
-    // note: { type: String, required: false },
-    // exchangeRate: { type: Number, required: true },
-    // status: { type: String, required: true },
+    );    
 
      await ExceptionItemModel.create({
       item,
