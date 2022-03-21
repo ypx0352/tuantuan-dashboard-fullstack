@@ -124,7 +124,17 @@ const antIcon = (
   <LoadingOutlined style={{ fontSize: 48, color: "#3751ff" }} spin />
 );
 
-const colors = { cart: "#3751ff", stock: "sandybrown", employee: "#18a16d" };
+const colors = {
+  //cart: " #189AB4",
+  cart: " #145DA0",
+  sold: "darkgreen",
+  stock: "sandybrown",
+  employee: "#18a16d",
+  recover: "#E8B4B8",
+  recover: "#E8B4B8",
+  exception: "darkred",
+  approve: "#3751ff",
+};
 
 const StyledButton = styled(Button).attrs((props) => ({
   style: { backgroundColor: colors[`${props.destination}`] },
@@ -142,6 +152,18 @@ const StyledButton = styled(Button).attrs((props) => ({
   :active {
     opacity: 1;
   }
+  :disabled {
+    color: grey;
+  }
+`;
+
+const StyledSpan = styled.span.attrs((props) => ({
+  style: { backgroundColor: colors[`${props.type}`] },
+}))`
+  box-sizing: border-box;
+  padding: 5px 10px;
+  border-radius: 10px;
+  color: white;
 `;
 
 const ExpandedRow = (props) => {
@@ -195,6 +217,8 @@ const CheckoutPage = (props) => {
     prepareAddToException,
     addToException,
     handleAddToEmployee,
+    handleRecoverFromException,
+    handleExceptionItemApprove,
   } = props;
 
   useEffect(() => {
@@ -210,19 +234,48 @@ const CheckoutPage = (props) => {
 
   const [exceptionItem, setExceptionItem] = useState({});
 
+  const [modalOkButtonDisabled, setModalOkButtonDisabled] = useState(false);
+
   //const [showModalState, setShowModalState] = useState(false);
 
   const capitalizeFirstLetter = (word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   };
 
-  const generateButton = (record, destination, showModal) => {
-    const methods = [handleAddToStock, handleAddToEmployee];
-    const destinations = ["stock", "employee"];
+  const generateButton = (record, destination) => {
+    const methods = [
+      handleAddToStock,
+      handleAddToEmployee,
+      handleRecoverFromException,
+      handleExceptionItemApprove,
+    ];
+    const destinations = ["stock", "employee", "recover", "approve"];
     const index = destinations.indexOf(destination);
 
     if (destination != "cart") {
-      return (
+      return destination === "approve" ? (
+        <Popconfirm
+          disabled={record.qty_available <= 0 ? true : ""}
+          placement="topRight"
+          title="Do you want to approve it?"
+          onConfirm={() => methods[index](record)}
+          okText={
+            destination === "recover"
+              ? "Recover"
+              : destination === "approve"
+              ? "Approve"
+              : `Add to ${destination}`
+          }
+          cancelText="Cancel"
+        >
+          <StyledButton
+            destination={destination}
+            disabled={record.qty_available <= 0 ? true : ""}
+          >
+            {capitalizeFirstLetter(destination)}
+          </StyledButton>
+        </Popconfirm>
+      ) : (
         <Popconfirm
           disabled={record.qty_available <= 0 ? true : ""}
           placement="topRight"
@@ -253,7 +306,13 @@ const CheckoutPage = (props) => {
             </>
           }
           onConfirm={() => methods[index](record)}
-          okText={`Add to ${destination}`}
+          okText={
+            destination === "recover"
+              ? "Recover"
+              : destination === "approve"
+              ? "Approve"
+              : `Add to ${destination}`
+          }
           cancelText="Cancel"
         >
           <StyledButton
@@ -293,23 +352,6 @@ const CheckoutPage = (props) => {
                     setUpdate(record.addToCart);
                   }}
                 />
-                {/*<Modal
-                  title="Profit exception!"
-                  visible={showModalState}
-                  okText="Add to exception"
-                  cancelText="Back"
-                  style={{ top: "20px" }}
-                  onOk={addToException}
-                  onCancel={() => setShowModalState(false)}
-                >
-                  <>
-                    <p>Profit is less than ￥0.00</p>
-                    <p>
-                      Add the item to the exceptions or go back to
-                      modifications.
-                    </p>
-                  </>
-                </Modal>*/}
               </PopconfirmInputWrapper>
               {record.type === "employee" ? (
                 ""
@@ -354,6 +396,7 @@ const CheckoutPage = (props) => {
             } else {
               setExceptionItem(record);
               setShowModal(true);
+              setModalOkButtonDisabled(false);
             }
           }}
           okText="Add to cart"
@@ -371,61 +414,159 @@ const CheckoutPage = (props) => {
   };
 
   // Set columns
-  const setColumns = (block) => [
-    {
-      title: `${block} items`,
-      children: [
-        {
-          title: "Item",
-          dataIndex: "item",
-          key: "item",
-        },
-        {
-          title: "Qty",
-          dataIndex: "qty_available",
-          key: "qty_available",
-        },
-        {
-          title: "Cost / each (￥)",
-          dataIndex: "cost",
-          key: "cost",
-        },
-        {
-          title: "Type",
-          dataIndex: "type",
-          key: "type",
-        },
-        {
-          title: "Noted",
-          dataIndex: "note",
-          key: "note",
-        },
-        {
-          title: "Last updated at",
-          dataIndex: "dateTime",
-          key: "date",
-        },
-        {
-          title: "Add to",
-          dataIndex: "add",
-          key: "add",
-          render: (text, record, index) => {
-            return (
-              <ButtonWrapper>
-                {generateButton(record, "cart", showModal)}
-                {record.type === "stock"
-                  ? ""
-                  : generateButton(record, "stock", showModal)}
-                {record.type === "employee"
-                  ? ""
-                  : generateButton(record, "employee", showModal)}
-              </ButtonWrapper>
-            );
+  const setColumns = (block) =>
+    block !== "Exception"
+      ? [
+          {
+            title: `${block} items`,
+            children: [
+              {
+                title: "Item",
+                dataIndex: "item",
+                key: "item",
+              },
+              {
+                title: "Qty",
+                dataIndex: "qty_available",
+                key: "qty_available",
+              },
+              {
+                title: "Cost / each (￥)",
+                dataIndex: "cost",
+                key: "cost",
+              },
+              {
+                title: "Type",
+                dataIndex: "type",
+                key: "type",
+                render: (text, record, index) => {
+                  return <StyledSpan type={text}>{text}</StyledSpan>;
+                },
+              },
+              {
+                title: "Noted",
+                dataIndex: "note",
+                key: "note",
+              },
+              {
+                title: "Last updated at",
+                dataIndex: "dateTime",
+                key: "date",
+              },
+              {
+                title: "Add to",
+                dataIndex: "add",
+                key: "add",
+                render: (text, record, index) => {
+                  return (
+                    <ButtonWrapper>
+                      {generateButton(record, "cart")}
+                      {record.type === "sold" && (
+                        <>
+                          {generateButton(record, "employee")}
+                          {generateButton(record, "stock")}
+                        </>
+                      )}
+                      {record.type === "stock" &&
+                        generateButton(record, "employee")}
+                      {record.type === "employee" &&
+                        generateButton(record, "stock")}
+                      {record.type === "exception" && (
+                        <>
+                          {generateButton(record, "recover")}
+                          {generateButton(record, "approve")}
+                        </>
+                      )}
+                    </ButtonWrapper>
+                  );
+                },
+              },
+            ],
           },
-        },
-      ],
-    },
-  ];
+        ]
+      : [
+          {
+            title: `${block} items`,
+            children: [
+              {
+                title: "Item",
+                dataIndex: "item",
+                key: "item",
+              },
+              {
+                title: "Qty",
+                dataIndex: "qty_available",
+                key: "qty_available",
+              },
+              {
+                title: "Cost / each (￥)",
+                dataIndex: "cost",
+                key: "cost",
+              },
+              {
+                title: "Payment / entry (￥)",
+                dataIndex: "subtotal",
+                key: "subtotal",
+              },
+              {
+                title: "Payback / entry (￥)",
+                dataIndex: "payAmount",
+                key: "payAmount",
+              },
+              {
+                title: "Original type",
+                dataIndex: "originalType",
+                key: "originalType",
+              },
+              {
+                title: "Noted",
+                dataIndex: "note",
+                key: "note",
+              },
+              {
+                title: "Approved",
+                dataIndex: "approved",
+                key: "approved",
+                render: (text, record, index) => {
+                  return text ? (
+                    <span
+                      style={{ color: "green" }}
+                      className="material-icons-outlined"
+                    >
+                      check
+                    </span>
+                  ) : (
+                    <span
+                      style={{ color: "red" }}
+                      className="material-icons-outlined"
+                    >
+                      clear
+                    </span>
+                  );
+                },
+              },
+              {
+                title: "Last updated at",
+                dataIndex: "dateTime",
+                key: "date",
+              },
+              {
+                title: "Add to",
+                dataIndex: "add",
+                key: "add",
+                render: (text, record, index) => {
+                  return (
+                    <ButtonWrapper>
+                      {record.approved && generateButton(record, "cart")}
+                      {generateButton(record, "recover")}
+                      {!record.approved && generateButton(record, "approve")}
+                    </ButtonWrapper>
+                  );
+                },
+              },
+            ],
+          },
+        ];
 
   const [columnsState, setColumnsState] = useState();
 
@@ -532,8 +673,12 @@ const CheckoutPage = (props) => {
         okText="Add to exception"
         cancelText="Back"
         style={{ top: "20px" }}
-        onOk={() => addToException(exceptionItem)}
+        onOk={() => {
+          addToException(exceptionItem);
+          setModalOkButtonDisabled(true);
+        }}
         onCancel={() => setShowModal(false)}
+        okButtonProps={{ disabled: modalOkButtonDisabled }}
       >
         <p>Profit is less than ￥0.00.</p>
         <p>Add the item to the exceptions or go back to modifications.</p>
@@ -592,13 +737,16 @@ const mapDispatch = (dispatch) => ({
     dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(value) });
   },
 
-  // prepareAddToException(record) {
-  //   dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(true) });
-  //   console.log(record);
-  // },
-
   addToException(item) {
     dispatch(actionCreators.addToExceptionAction(item));
+  },
+
+  handleRecoverFromException(record) {
+    dispatch(actionCreators.recoverFromExceptionAction(record));
+  },
+
+  handleExceptionItemApprove(record) {
+    dispatch(actionCreators.approveExceptionItemAction(record._id));
   },
 });
 

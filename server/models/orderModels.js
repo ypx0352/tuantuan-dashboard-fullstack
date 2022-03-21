@@ -63,8 +63,9 @@ const exceptionItemsSchema = new mongoose.Schema(
     item: { type: String, required: true },
     solid_id: { type: String, required: true },
     cost: { type: Number, required: true },
-    addToException: { type: Number, required: true },
+    qty: { type: Number, required: true },
     type: { type: String, required: true },
+    originalType: { type: String, required: true },
     payAmount: { type: Number, required: true },
     price: { type: Number, required: true },
     weight: { type: Number, required: true },
@@ -72,8 +73,10 @@ const exceptionItemsSchema = new mongoose.Schema(
     note: { type: String, required: false },
     exchangeRate: { type: Number, required: true },
     status: { type: String, required: true },
-    log:{type:String, required:true},
-    subtotal:{type:Number, required:true}
+    log: { type: String, required: true },
+    subtotal: { type: Number, required: true },
+    qty_in_cart: { type: Number, default: 0, required: true },
+    approved:{type:Boolean, default:false, required:true}
   },
   { timestamps: true }
 );

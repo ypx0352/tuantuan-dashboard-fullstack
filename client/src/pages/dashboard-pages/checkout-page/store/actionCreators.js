@@ -119,12 +119,55 @@ export const addToCartAction = (record) => {
   };
 };
 
-export const addToExceptionAction = (item) =>{
-  console.log(item);
-  return  async (dispatch)=>{
-    const response = await axios.put(
-      serverBaseUrl + "/api/checkout/add_to_exception", item
-    );
-    
-  }
-} 
+export const addToExceptionAction = (item) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.put(
+        serverBaseUrl + "/api/checkout/add_to_exception",
+        item
+      );
+      dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(false) });
+      dispatch(getAllItemsAction);
+      const { msg } = response.data;
+      message.success(msg);
+    } catch (error) {
+      console.log(error);
+      const { msg } = error.response.data;
+      message.error(msg);
+    }
+  };
+};
+
+export const recoverFromExceptionAction = (record) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.put(
+        serverBaseUrl + "/api/checkout/recover_from_exception",
+        record
+      );
+      dispatch(getAllItemsAction);
+      const { msg } = response.data;
+      message.success(msg);
+    } catch (error) {
+      console.log(error);
+      const { msg } = error.response.data;
+      message.error(msg);
+    }
+  };
+};
+
+export const approveExceptionItemAction = (_id) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.put(
+        serverBaseUrl + "/api/checkout/approve_exception_item",
+        { _id }
+      );
+      dispatch(getAllItemsAction);
+      message.success(response.data.msg);
+    } catch (error) {
+      console.log(error);
+      message.error(error.response.data.msg);
+    }
+  };
+};

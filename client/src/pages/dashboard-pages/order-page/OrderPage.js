@@ -665,7 +665,7 @@ const OrderPage = (props) => {
           <SearchContainer>
             <Input
               placeholder="Please enter the package ID"
-              defaultValue="PE6267860CL"
+              defaultValue="PE6488316BB"
               ref={searchInputEl}
               style={{ width: "50%" }}
               onPressEnter={() =>
