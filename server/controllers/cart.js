@@ -2,6 +2,7 @@ const {
   SoldItemsModel,
   StockItemsModel,
   EmployeeItemsModel,
+  ExceptionItemModel,
 } = require("../models/orderModels");
 
 const CartModel = require("../models/cartModels");
@@ -11,12 +12,17 @@ const user_id = "tuantuan";
 const addToCart = async (req, res) => {
   const { addToCart, _id, type } = req.body;
 
-  const types = ["sold", "stock", "employee"];
-  const models = [SoldItemsModel, StockItemsModel, EmployeeItemsModel];
+  const types = ["sold", "stock", "employee", "exception"];
+  const models = [
+    SoldItemsModel,
+    StockItemsModel,
+    EmployeeItemsModel,
+    ExceptionItemModel,
+  ];
   const typeIndex = types.indexOf(type);
 
   try {
-    // Make sure the item exists.
+    // Make sure the item exists in the original collection.
     const originalItem = await models[typeIndex].findById(_id);
     if (originalItem === null) {
       return res
@@ -34,9 +40,13 @@ const addToCart = async (req, res) => {
       var payAmount = 0;
       if (type !== "employee") {
         const { subtotal } = req.body;
-        const profits = subtotal - cost * addToCart;
-        const halfProfits = profits / 2;
-        payAmount = Number((cost * addToCart + halfProfits).toFixed(2));
+        if (type === "exception") {
+          payAmount = Number((req.body.payAmountEach * addToCart).toFixed(2));
+        } else {
+          const profits = subtotal - cost * addToCart;
+          const halfProfits = profits / 2;
+          payAmount = Number((cost * addToCart + halfProfits).toFixed(2));
+        }
       } else {
         payAmount = Number((cost * addToCart).toFixed(2));
       }
@@ -83,8 +93,13 @@ const getCartItems = async (req, res) => {
 
 const removeCartItem = async (req, res) => {
   const { record_id, solid_id, type, addToCart } = req.body;
-  const types = ["sold", "stock", "employee"];
-  const models = [SoldItemsModel, StockItemsModel, EmployeeItemsModel];
+  const types = ["sold", "stock", "employee", "exception"];
+  const models = [
+    SoldItemsModel,
+    StockItemsModel,
+    EmployeeItemsModel,
+    ExceptionItemModel,
+  ];
   const typeIndex = types.indexOf(type);
   try {
     // Update the item's qty in the cart

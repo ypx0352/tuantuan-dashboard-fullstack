@@ -103,7 +103,11 @@ const CompanyLogo = styled.div`
   align-items: baseline;
   margin-top: 15px;
 `;
-const colors = { stock: "sandybrown", employee: "#18a16d" };
+const colors = {
+  stock: "sandybrown",
+  employee: "#18a16d",
+  exception: "#DF362D",
+};
 const Tag = styled.span.attrs((props) => ({
   style: { backgroundColor: colors[`${props.type}`] },
 }))`

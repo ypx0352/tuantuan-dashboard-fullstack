@@ -67,6 +67,7 @@ const exceptionItemsSchema = new mongoose.Schema(
     type: { type: String, required: true },
     originalType: { type: String, required: true },
     payAmount: { type: Number, required: true },
+    payAmountEach: { type: Number, required: true },
     price: { type: Number, required: true },
     weight: { type: Number, required: true },
     pk_id: { type: String, required: true },

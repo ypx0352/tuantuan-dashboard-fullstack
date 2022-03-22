@@ -233,7 +233,7 @@ const addToException = async (req, res) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   };
 
-  // Make sure the item exists
+  // Make sure the item exists in the original collection.
   try {
     const originalRecord = await models[typeIndex].findById(_id);
     if (originalRecord === null) {
@@ -242,7 +242,6 @@ const addToException = async (req, res) => {
       });
     }
 
-    // Add the item to exception collection. Create a new record of this item in exception collection.
     const {
       item,
       cost,
@@ -255,32 +254,57 @@ const addToException = async (req, res) => {
       log,
     } = originalRecord;
 
+    // Add the item to exception collection. If the same item (share the same pk_id, cost, payAmountEach (amount reimbursed)) exists in the exception collection, increase the qty, payAmount and subtotal of the item, resetting the approved status to false. Otherwise, create a new record of this item in exception collection.
+
     // Calculate the amount of payment
     const payAmount = Number(
       (cost * addToCart + (subtotal - cost * addToCart) / 2).toFixed(2)
     );
 
-    await ExceptionItemModel.create({
-      item,
-      solid_id: _id,
-      cost,
-      qty: addToCart,
-      type: "exception",
-      originalType: type,
-      payAmount,
-      price,
-      weight,
-      pk_id,
-      note,
-      exchangeRate,
-      status,
-      log:
-        log +
-        `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
-          type
-        )}]* `,
-      subtotal,
+    const payAmountEach = Number((payAmount / addToCart).toFixed(2));
+
+    const recordInException = await ExceptionItemModel.findOne({
+      pk_id: pk_id,
+      item: item,
+      cost: cost,
+      payAmountEach: payAmountEach,
     });
+    if (recordInException !== null) {
+      await ExceptionItemModel.findByIdAndUpdate(recordInException._id, {
+        $inc: { qty: addToCart, payAmount: payAmount, subtotal:subtotal },
+        $set: {
+          approved: false,
+          log:
+            recordInException.log +
+            `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
+              type
+            )}; The item is reset to unapproved]* `,
+        },
+      });
+    } else {
+      await ExceptionItemModel.create({
+        item,
+        solid_id: _id,
+        cost,
+        qty: addToCart,
+        type: "exception",
+        originalType: type,
+        payAmount,
+        payAmountEach,
+        price,
+        weight,
+        pk_id,
+        note,
+        exchangeRate,
+        status,
+        log:
+          log +
+          `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
+            type
+          )}]* `,
+        subtotal,
+      });
+    }
 
     // Deduct the number of this item in original collection. If the number becomes 0, delete the item from the original collection.
     const newQty = originalRecord.qty - addToCart;
@@ -383,12 +407,18 @@ const recoverFromException = async (req, res) => {
       });
     }
 
-    // Decrease the qty of the item in the exception collection, if the new qty does not become 0. Otherwise, deelete the record in the exception collection.
+    // Decrease the qty and the payAmount of the item in the exception collection, if the new qty does not become 0. Otherwise, deelete the record in the exception collection.
     const newQty = recordInException.qty - addToRecover;
+    const newPayAmount = Number(
+      (recordInException.payAmountEach * newQty).toFixed(2)
+    );
+    const newSubtotal = Number((recordInException.subtotal / recordInException.qty * newQty).toFixed(2))
     if (newQty > 0) {
       await ExceptionItemModel.findByIdAndUpdate(_id, {
         $set: {
           qty: newQty,
+          payAmount: newPayAmount,
+          subtotal:newSubtotal,
           log:
             recordInException.log +
             `*[${dateTime} Exception - ${addToRecover} => ${firstLetterToUpperCase(
@@ -425,7 +455,8 @@ const approveExceptionItem = async (req, res) => {
     await ExceptionItemModel.findByIdAndUpdate(_id, {
       $set: {
         approved: true,
-        log: recordInException.log + `*[${dateTime} Exception item approved]* `,
+        log:
+          recordInException.log + `*[${dateTime} Exception item is approved]* `,
       },
     });
     res.status(200).json({ msg: "The item has been approved successfully." });

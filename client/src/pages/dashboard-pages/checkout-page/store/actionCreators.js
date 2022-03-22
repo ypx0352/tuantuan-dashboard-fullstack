@@ -99,8 +99,13 @@ export const addToCartAction = (record) => {
     const { addToCart, _id, type } = record;
     var payload = { addToCart, _id, type };
     if (type !== "employee") {
-      const { subtotal } = record;
-      payload = { addToCart, _id, type, subtotal };
+      if (type === "exception") {
+        const { subtotal, payAmountEach } = record;
+        payload = { addToCart, _id, type, subtotal, payAmountEach };
+      } else {
+        const { subtotal } = record;
+        payload = { addToCart, _id, type, subtotal };
+      }
     }
     try {
       const response = await axios.post(

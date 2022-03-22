@@ -132,7 +132,7 @@ const colors = {
   employee: "#18a16d",
   recover: "#E8B4B8",
   recover: "#E8B4B8",
-  exception: "darkred",
+  exception: "#DF362D",
   approve: "#3751ff",
 };
 
@@ -353,7 +353,7 @@ const CheckoutPage = (props) => {
                   }}
                 />
               </PopconfirmInputWrapper>
-              {record.type === "employee" ? (
+              {record.type === "employee" || record.type === "exception" ? (
                 ""
               ) : (
                 <>
@@ -391,7 +391,11 @@ const CheckoutPage = (props) => {
             </PopconfirmInputContainer>
           }
           onConfirm={() => {
-            if (record.profits >= 0 || record.type === "employee") {
+            if (
+              record.profits >= 0 ||
+              record.type === "employee" ||
+              record.type === "exception"
+            ) {
               handleAddToCart(record);
             } else {
               setExceptionItem(record);
@@ -460,21 +464,31 @@ const CheckoutPage = (props) => {
                 render: (text, record, index) => {
                   return (
                     <ButtonWrapper>
-                      {generateButton(record, "cart")}
                       {record.type === "sold" && (
                         <>
+                          {generateButton(record, "cart")}
                           {generateButton(record, "employee")}
                           {generateButton(record, "stock")}
                         </>
                       )}
-                      {record.type === "stock" &&
-                        generateButton(record, "employee")}
-                      {record.type === "employee" &&
-                        generateButton(record, "stock")}
+                      {record.type === "stock" && (
+                        <>
+                          {generateButton(record, "cart")}
+                          {generateButton(record, "employee")}
+                        </>
+                      )}
+                      {record.type === "employee" && (
+                        <>
+                          {generateButton(record, "cart")}
+                          {generateButton(record, "stock")}
+                        </>
+                      )}
                       {record.type === "exception" && (
                         <>
+                          {record.approved && generateButton(record, "cart")}
                           {generateButton(record, "recover")}
-                          {generateButton(record, "approve")}
+                          {!record.approved &&
+                            generateButton(record, "approve")}
                         </>
                       )}
                     </ButtonWrapper>
@@ -680,8 +694,12 @@ const CheckoutPage = (props) => {
         onCancel={() => setShowModal(false)}
         okButtonProps={{ disabled: modalOkButtonDisabled }}
       >
-        <p>Profit is less than ￥0.00.</p>
-        <p>Add the item to the exceptions or go back to modifications.</p>
+        <h3 style={{ color: "darkred" }}>Profit is less than ￥0.00.</h3>
+        <p>
+          Add the item to the exceptions or go back to modifications. The item
+          in the exception collection needs to be comfirmed by the administrator
+          before being added to the cart.
+        </p>
       </Modal>
     </Container>
   );
