@@ -49,7 +49,7 @@ const SearchContainer = styled.div`
 `;
 
 const StyledInput = styled(Input).attrs({
-  placeholder: "Please enter the receiver's name",
+  placeholder: "To search an address, please enter the receiver's name",
 })`
   width: 50%;
   ::placeholder {
@@ -213,10 +213,6 @@ const AddressPage = (props) => {
 
   const [optionCode, setOptionCode] = useState({});
 
-  const [defaultCity, setDefaultCity] = useState("City1");
-
-  const [defaultDistrict, setDefaultDistrict] = useState("District");
-
   const [form] = Form.useForm();
 
   const [tableData, setTableData] = useState();
@@ -226,7 +222,7 @@ const AddressPage = (props) => {
   }, []);
 
   useEffect(() => {
-    setTableData(allAddress.toJS());
+    setTableData(allAddress);
   }, [allAddress]);
 
   const onReset = () => {
@@ -268,6 +264,7 @@ const AddressPage = (props) => {
     { title: "District", dataIndex: "district", key: "district" },
     { title: "Address", dataIndex: "address", key: "address" },
     { title: "Created at", dataIndex: "createdAtLocale", key: "createAt" },
+    { title: "Note", dataIndex: "note", key: "note" },
     {
       title: "Operation",
       dataIndex: "operation",
@@ -371,7 +368,7 @@ const AddressPage = (props) => {
         });
       default:
         const newData = { ...addressInput };
-        newData[entry] = value;
+        newData[entry] = value.trim();
         setAddressInput(newData);
     }
   };
@@ -387,10 +384,20 @@ const AddressPage = (props) => {
         labelAlign="right"
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 12, offset: 1 }}
-        onFinish={() =>
+        // onFinish={() =>
+        //   record === undefined
+        //     ? submitNewAddress(addressInput)
+        //     : updateAddress(addressInput)
+        // }
+        onFinish={
           record === undefined
-            ? submitNewAddress(addressInput)
-            : updateAddress(addressInput)
+            ? () => {
+                submitNewAddress(addressInput);
+                onReset();
+              }
+            : () => {
+                updateAddress(addressInput);
+              }
         }
       >
         <Form.Item
@@ -529,7 +536,14 @@ const AddressPage = (props) => {
     );
   };
 
-  console.log(addressInput);
+  const handleSearch = (searchWord) => {
+    if (searchWord === "") {
+      setTableData(allAddress);
+    } else {
+      const searchPatten = new RegExp(`\W*${searchWord.trim()}\W*`);
+      setTableData(allAddress.filter((item) => searchPatten.test(item.name)));
+    }
+  };
 
   return (
     <Container>
@@ -545,14 +559,14 @@ const AddressPage = (props) => {
         />
         <ContentWrapper>
           <SearchContainer>
-            <StyledInput></StyledInput>
-            <StyledButton type="search">Search</StyledButton>
+            <StyledInput onChange={(e) => handleSearch(e.target.value)} />
+
             <StyledButton
               type="add"
               style={{ background: "#18a16d" }}
               onClick={displayAddForm}
             >
-              Add
+              New address
             </StyledButton>
           </SearchContainer>
           <FormWrapper className={addFormDisplayed ? "" : "hide"}>
@@ -593,7 +607,7 @@ const AddressPage = (props) => {
 
 const mapState = (state) => ({
   addFormDisplayed: state.getIn(["address", "addFormDisplayed"]),
-  allAddress: state.getIn(["address", "allAddress"]),
+  allAddress: state.getIn(["address", "allAddress"]).toJS(),
   tableSpinning: state.getIn(["address", "tableSpinning"]),
   showModal: state.getIn(["address", "showModal"]),
 });

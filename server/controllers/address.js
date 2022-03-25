@@ -42,14 +42,16 @@ const deleteAddress = async (req, res) => {
 };
 
 const updateAddress = async (req, res) => {
-  const { _id, ...updatedAddress } = req.body;
-  
+  const { name, phone, province, city, district, address, note, _id } =
+    req.body;
 
   try {
-    const result = await AddressModel.findByIdAndUpdate(_id, { $set: { name:updatedAddress.name } });
+    const result = await AddressModel.findByIdAndUpdate(_id, {
+      $set: { name, phone, province, city, district, address, note },
+    });
     console.log(result);
     return res.status(200).json({
-      msg: `${updatedAddress.name}'s address has been updated successfully.`,
+      msg: `${name}'s address has been updated successfully.`,
     });
   } catch (error) {
     console.log(error);

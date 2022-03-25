@@ -86,6 +86,7 @@ export const updateAddressAction = (updatedAddress) => {
       );
       message.success(response.data.msg);
       dispatch(initializeAddressAction);
+      dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(false) });
     } catch (error) {
       console.log(error);
       message.error(error.response.data.msg);
