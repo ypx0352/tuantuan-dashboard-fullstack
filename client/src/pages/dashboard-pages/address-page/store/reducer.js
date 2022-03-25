@@ -4,7 +4,8 @@ import { actionTypes } from ".";
 const defaultState = fromJS({
   allAddress: [],
   addFormDisplayed: false,
-  tableSpinning: true,
+  tableSpinning: false,
+  showModal: false,
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -17,6 +18,9 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.TABLE_SPINNING:
       return state.set("tableSpinning", action.value);
+
+    case actionTypes.SHOW_MODAL:
+      return state.set("showModal", action.value);
 
     default:
       return state;

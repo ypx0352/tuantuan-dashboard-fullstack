@@ -236,6 +236,14 @@ const CheckoutPage = (props) => {
 
   const [modalOkButtonDisabled, setModalOkButtonDisabled] = useState(false);
 
+  const [columnsState, setColumnsState] = useState();
+
+  useEffect(() => {
+    setColumnsState(setColumns(blockSelected));
+  }, [countSpinning]);
+
+  const [tableDataState, setTableDataState] = useState([]);
+
   //const [showModalState, setShowModalState] = useState(false);
 
   const capitalizeFirstLetter = (word) => {
@@ -582,20 +590,12 @@ const CheckoutPage = (props) => {
           },
         ];
 
-  const [columnsState, setColumnsState] = useState();
-
-  useEffect(() => {
-    setColumnsState(setColumns(blockSelected));
-  }, [countSpinning]);
-
   // Default table data (all items)
   var allItemsTableData = soldItems.concat(
     stockItems,
     employeeItems,
     exceptionItems
   );
-
-  const [tableDataState, setTableDataState] = useState([]);
 
   // Set table data
   const setTableData = (block) => {

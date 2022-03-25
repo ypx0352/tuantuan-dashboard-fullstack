@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { Table, Input, Button, Form, Select, Spin } from "antd";
+import {
+  Table,
+  Input,
+  Button,
+  Form,
+  Select,
+  Spin,
+  Popconfirm,
+  Modal,
+} from "antd";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
@@ -54,6 +63,7 @@ const colors = {
   submit: "#145DA0",
   reset: "#DF362D",
   cancel: "#189AB4",
+  update: "#145DA0",
 };
 
 const StyledButton = styled(Button).attrs((props) => ({
@@ -85,79 +95,105 @@ const FormWrapper = styled.div`
   }
 `;
 
-const tableColumns = [
-  { title: "Name", dataIndex: "name", key: "name" },
-  { title: "Phone", dataIndex: "phone", key: "phone" },
-  { title: "Province", dataIndex: "province", key: "province" },
-  { title: "City", dataIndex: "city", key: "city" },
-  { title: "District", dataIndex: "district", key: "district" },
-  { title: "Address", dataIndex: "address", key: "address" },
-  { title: "Created at", dataIndex: "createdAtLocale", key: "createAt" },
-  { title: "Operation", dataIndex: "operation", key: "operation" },
-];
+// const generateButton = (record,name) => {
+//   return name === "Update" ? (
+//     <Popconfirm>
+//       <Button size="small" type="primary" ghost>
+//         {name}
+//       </Button>
+//     </Popconfirm>
+//   ) : (
+//     <Popconfirm title={<p>Delete this address?</p>} onConfirm={()=>deleteAddress(record._id)}>
+//       <Button size="small" danger ghost>
+//         {name}
+//       </Button>
+//     </Popconfirm>
+//   );
+// };
 
-const generateOption = (provinceCode, cityCode) => {
-  if (provinceCode === undefined) {
-    return province.map((item, index) => (
-      <Option value={item.name} provincecode={item.province}>
-        {item.name}
-      </Option>
-    ));
-  } else {
-    if (cityCode === undefined) {
-      switch (provinceCode) {
-        case "11":
-          return (
-            <Option value="北京市" citycode={0}>
-              北京市
-            </Option>
-          );
-        case "12":
-          return (
-            <Option value="天津市" citycode={0}>
-              天津市
-            </Option>
-          );
-        case "31":
-          return (
-            <Option value="上海市" citycode={0}>
-              上海市
-            </Option>
-          );
-        case "50":
-          return (
-            <Option value="重庆市" citycode={0}>
-              重庆市
-            </Option>
-          );
-        default:
-          const cityPatten = new RegExp(`${provinceCode}[0-9][0-9]00`);
-          return city
-            .filter((item) => cityPatten.exec(item.code))
-            .map((item) => (
-              <Option value={item.name} citycode={item.city}>
-                {item.name}
-              </Option>
-            ));
-      }
-    } else {
-      const districtPatten =
-        cityCode === 0
-          ? new RegExp(`${provinceCode}01[0-9][0-9]`)
-          : new RegExp(`${provinceCode}${cityCode}[0-9][0-9]`);
+// const tableColumns = [
+//   { title: "Name", dataIndex: "name", key: "name" },
+//   { title: "Phone", dataIndex: "phone", key: "phone" },
+//   { title: "Province", dataIndex: "province", key: "province" },
+//   { title: "City", dataIndex: "city", key: "city" },
+//   { title: "District", dataIndex: "district", key: "district" },
+//   { title: "Address", dataIndex: "address", key: "address" },
+//   { title: "Created at", dataIndex: "createdAtLocale", key: "createAt" },
+//   {
+//     title: "Operation",
+//     dataIndex: "operation",
+//     key: "operation",
+//     render: (text, record, index) => {
+//       return (
+//         <>
+//           {generateButton(record,"Update")} {generateButton(record,"Delete")}
+//         </>
+//       );
+//     },
+//   },
+// ];
 
-      return area
-        .filter((item) => districtPatten.exec(item.code))
-        .map((item) => (
-          <Option value={item.name} areacode={item.area}>
-            {item.name}
-          </Option>
-        ));
-    }
-  }
-};
+// const generateOption = (provinceCode, cityCode) => {
+//   if (provinceCode === undefined) {
+//     return province.map((item, index) => (
+//       <Option value={item.name} provincecode={item.province}>
+//         {item.name}
+//       </Option>
+//     ));
+//   } else {
+//     if (cityCode === undefined) {
+//       switch (provinceCode) {
+//         case "11":
+//           return [
+//             <Option key="北京市" value="北京市" citycode={0}>
+//               北京市
+//             </Option>,
+//           ];
+//         case "12":
+//           return [
+//             <Option key="天津市" value="天津市" citycode={0}>
+//               天津市
+//             </Option>,
+//           ];
+//         case "31":
+//           return [
+//             <Option key="上海市" value="上海市" citycode={0}>
+//               上海市
+//             </Option>,
+//           ];
+//         case "50":
+//           return [
+//             <Option key="重庆市" value="重庆市" citycode={0}>
+//               重庆市
+//             </Option>,
+//           ];
+//         default:
+//           const cityPatten = new RegExp(`${provinceCode}[0-9][0-9]00`);
+//           return city
+//             .filter((item) => cityPatten.exec(item.code))
+//             .map((item) => (
+//               <Option key={item.name} value={item.name} citycode={item.city}>
+//                 {item.name}
+//               </Option>
+//             ));
+//       }
+//     } else {
+//       const districtPatten =
+//         cityCode === 0
+//           ? new RegExp(`${provinceCode}01[0-9][0-9]`)
+//           : new RegExp(`${provinceCode}${cityCode}[0-9][0-9]`);
 
-console.log(generateOption());
+//       return area
+//         .filter((item) => districtPatten.exec(item.code))
+//         .map((item) => (
+//           <Option value={item.name} areacode={item.area}>
+//             {item.name}
+//           </Option>
+//         ));
+//     }
+//   }
+// };
+
 const AddressPage = (props) => {
   const {
     submitNewAddress,
@@ -167,19 +203,19 @@ const AddressPage = (props) => {
     initializeAddress,
     allAddress,
     tableSpinning,
+    deleteAddress,
+    showModal,
+    handleShowModal,
+    updateAddress,
   } = props;
 
-  const [addressInput, setAddressInput] = useState({
-    province: "",
-    city: "",
-    district: "",
-  });
+  const [addressInput, setAddressInput] = useState({});
 
   const [optionCode, setOptionCode] = useState({});
 
-  const [provinceCode, setProvinceCode] = useState("");
+  const [defaultCity, setDefaultCity] = useState("City1");
 
-  const [cityCode, setCityCode] = useState("");
+  const [defaultDistrict, setDefaultDistrict] = useState("District");
 
   const [form] = Form.useForm();
 
@@ -192,6 +228,121 @@ const AddressPage = (props) => {
   useEffect(() => {
     setTableData(allAddress.toJS());
   }, [allAddress]);
+
+  const onReset = () => {
+    form.resetFields();
+    setAddressInput({});
+  };
+
+  const generateButton = (record, name) => {
+    return name === "Update" ? (
+      <Button
+        size="small"
+        type="primary"
+        ghost
+        onClick={() => {
+          setAddressInput(record);
+          onCancel();
+          handleShowModal(true);
+        }}
+      >
+        {name}
+      </Button>
+    ) : (
+      <Popconfirm
+        title={<p>Delete this address?</p>}
+        onConfirm={() => deleteAddress(record._id)}
+      >
+        <Button size="small" danger ghost>
+          {name}
+        </Button>
+      </Popconfirm>
+    );
+  };
+
+  const tableColumns = [
+    { title: "Name", dataIndex: "name", key: "name" },
+    { title: "Phone", dataIndex: "phone", key: "phone" },
+    { title: "Province", dataIndex: "province", key: "province" },
+    { title: "City", dataIndex: "city", key: "city" },
+    { title: "District", dataIndex: "district", key: "district" },
+    { title: "Address", dataIndex: "address", key: "address" },
+    { title: "Created at", dataIndex: "createdAtLocale", key: "createAt" },
+    {
+      title: "Operation",
+      dataIndex: "operation",
+      key: "operation",
+      render: (text, record, index) => {
+        return (
+          <>
+            {generateButton(record, "Update")}{" "}
+            {generateButton(record, "Delete")}
+          </>
+        );
+      },
+    },
+  ];
+
+  const generateOption = (provinceCode, cityCode) => {
+    if (provinceCode === undefined) {
+      return province.map((item, index) => (
+        <Option value={item.name} provincecode={item.province}>
+          {item.name}
+        </Option>
+      ));
+    } else {
+      if (cityCode === undefined) {
+        switch (provinceCode) {
+          case "11":
+            return [
+              <Option key="北京市" value="北京市" citycode={0}>
+                北京市
+              </Option>,
+            ];
+          case "12":
+            return [
+              <Option key="天津市" value="天津市" citycode={0}>
+                天津市
+              </Option>,
+            ];
+          case "31":
+            return [
+              <Option key="上海市" value="上海市" citycode={0}>
+                上海市
+              </Option>,
+            ];
+          case "50":
+            return [
+              <Option key="重庆市" value="重庆市" citycode={0}>
+                重庆市
+              </Option>,
+            ];
+          default:
+            const cityPatten = new RegExp(`${provinceCode}[0-9][0-9]00`);
+            return city
+              .filter((item) => cityPatten.exec(item.code))
+              .map((item) => (
+                <Option key={item.name} value={item.name} citycode={item.city}>
+                  {item.name}
+                </Option>
+              ));
+        }
+      } else {
+        const districtPatten =
+          cityCode === 0
+            ? new RegExp(`${provinceCode}01[0-9][0-9]`)
+            : new RegExp(`${provinceCode}${cityCode}[0-9][0-9]`);
+
+        return area
+          .filter((item) => districtPatten.exec(item.code))
+          .map((item) => (
+            <Option value={item.name} areacode={item.area}>
+              {item.name}
+            </Option>
+          ));
+      }
+    }
+  };
 
   const handleInputChange = (entry, value) => {
     switch (entry) {
@@ -225,17 +376,9 @@ const AddressPage = (props) => {
     }
   };
 
-  const onReset = () => {
-    form.resetFields();
-    setAddressInput({
-      province: "",
-      city: "",
-      district: "",
-    });
-  };
+  const generateForm = (record) => {
+    form.setFieldsValue(addressInput);
 
-  const generateForm = () => {
-    const value = "111";
     return (
       <Form
         form={form}
@@ -244,7 +387,11 @@ const AddressPage = (props) => {
         labelAlign="right"
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 12, offset: 1 }}
-        onFinish={() => submitNewAddress(addressInput)}
+        onFinish={() =>
+          record === undefined
+            ? submitNewAddress(addressInput)
+            : updateAddress(addressInput)
+        }
       >
         <Form.Item
           label="Name"
@@ -262,7 +409,15 @@ const AddressPage = (props) => {
         </Form.Item>
 
         <Form.Item label="Area" name="area" wrapperCol={{ offset: 1 }}>
-          <h3>{`${addressInput.province} ${addressInput.city} ${addressInput.district} `}</h3>
+          <h3>
+            {addressInput["province"] === undefined
+              ? ""
+              : addressInput["province"]}{" "}
+            {addressInput["city"] === undefined ? "" : addressInput["city"]}{" "}
+            {addressInput["district"] === undefined
+              ? ""
+              : addressInput["district"]}
+          </h3>
           <Input.Group compact>
             <Form.Item
               name="province"
@@ -300,7 +455,6 @@ const AddressPage = (props) => {
                 }}
                 showSearch
                 style={{ width: "23%" }}
-                defaultOpen={true}
               >
                 {generateOption(optionCode.provinceCode)}
               </Select>
@@ -342,20 +496,40 @@ const AddressPage = (props) => {
           <Input onChange={(e) => handleInputChange("note", e.target.value)} />
         </Form.Item>
 
-        <Form.Item wrapperCol={{ offset: 10 }}>
+        <Form.Item
+          wrapperCol={{ offset: 10 }}
+          hidden={record === undefined ? false : true}
+        >
           <StyledButton type="submit" htmlType="submit">
             Submit
           </StyledButton>
           <StyledButton type="reset" htmlType="button" onClick={onReset}>
             Reset
           </StyledButton>
-          <StyledButton type="cancel" htmlType="button" onClick={onCancel}>
+          <StyledButton
+            type="cancel"
+            htmlType="button"
+            onClick={() => {
+              onCancel();
+              onReset();
+            }}
+          >
             Cancel
+          </StyledButton>
+        </Form.Item>
+        <Form.Item
+          wrapperCol={{ offset: 11 }}
+          hidden={record === undefined ? true : false}
+        >
+          <StyledButton type="update" htmlType="submit" onClick={onCancel}>
+            Update
           </StyledButton>
         </Form.Item>
       </Form>
     );
   };
+
+  console.log(addressInput);
 
   return (
     <Container>
@@ -392,13 +566,27 @@ const AddressPage = (props) => {
                 columns={tableColumns}
                 rowKey={(record) => record._id}
                 dataSource={tableData}
-                bordered
-                spin={true}
               />
             </TableWrapper>
           </Spin>
         </ContentWrapper>
       </Right>
+
+      <Modal
+        visible={showModal}
+        onCancel={() => {
+          handleShowModal(false);
+          onReset();
+        }}
+        okText="Finish"
+        width={"50%"}
+        onOk={() => {
+          handleShowModal(false);
+          onReset();
+        }}
+      >
+        {generateForm(addressInput)}
+      </Modal>
     </Container>
   );
 };
@@ -407,6 +595,7 @@ const mapState = (state) => ({
   addFormDisplayed: state.getIn(["address", "addFormDisplayed"]),
   allAddress: state.getIn(["address", "allAddress"]),
   tableSpinning: state.getIn(["address", "tableSpinning"]),
+  showModal: state.getIn(["address", "showModal"]),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -424,6 +613,22 @@ const mapDispatch = (dispatch) => ({
 
   displayAddForm() {
     dispatch({ type: actionTypes.SHOW_ADD_FORM, value: fromJS(true) });
+  },
+
+  deleteAddress(_id) {
+    dispatch(actionCreators.deleteAddressAction(_id));
+  },
+
+  handleShowModal(value) {
+    dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(value) });
+  },
+
+  setRecordToBeUpdated(value) {
+    dispatch({ type: actionTypes.RECORD_TO_BE_UPDATED, value: fromJS(value) });
+  },
+
+  updateAddress(address) {
+    dispatch(actionCreators.updateAddressAction(address));
   },
 });
 

@@ -26,4 +26,37 @@ const getAllAddress = async (req, res) => {
   }
 };
 
-module.exports = { addAddress, getAllAddress };
+const deleteAddress = async (req, res) => {
+  try {
+    const { _id } = req.body;
+    await AddressModel.findByIdAndRemove(_id);
+    return res
+      .status(200)
+      .json({ msg: "This address has been deleted successfully." });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(400)
+      .json({ msg: "Failed to delete this address. Server error." });
+  }
+};
+
+const updateAddress = async (req, res) => {
+  const { _id, ...updatedAddress } = req.body;
+  
+
+  try {
+    const result = await AddressModel.findByIdAndUpdate(_id, { $set: { name:updatedAddress.name } });
+    console.log(result);
+    return res.status(200).json({
+      msg: `${updatedAddress.name}'s address has been updated successfully.`,
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(400)
+      .json({ msg: "Failed to update this address. Server error" });
+  }
+};
+
+module.exports = { addAddress, getAllAddress, deleteAddress, updateAddress };
