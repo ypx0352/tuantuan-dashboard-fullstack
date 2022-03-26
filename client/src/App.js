@@ -11,6 +11,7 @@ import CheckoutPage from "./pages/dashboard-pages/checkout-page/CheckoutPage";
 import AddressPage from "./pages/dashboard-pages/address-page/AddressPage";
 import SettingPage from "./pages/dashboard-pages/setting-page/SettingPage";
 import TestPage from "./pages/dashboard-pages/test-page/TestPage";
+import PackagePage from "./pages/dashboard-pages/package-page/PackagePage";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -25,7 +26,8 @@ function App() {
           <Route path="/dashboard/overview" element={<OverviewPage />} />
           <Route path="/dashboard/order" element={<OrderPage />} />
           <Route path="/dashboard/checkout" element={<CheckoutPage />} />
-          <Route path="/dashboard/address" element={<AddressPage/>} />
+          <Route path="/dashboard/address" element={<AddressPage />} />
+          <Route path="/dashboard/package" element={<PackagePage />} />
           <Route path="/dashboard/setting" element={<SettingPage />} />
           <Route path="/dashboard/test" element={<TestPage />} />
         </Routes>

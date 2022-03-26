@@ -384,11 +384,6 @@ const AddressPage = (props) => {
         labelAlign="right"
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 12, offset: 1 }}
-        // onFinish={() =>
-        //   record === undefined
-        //     ? submitNewAddress(addressInput)
-        //     : updateAddress(addressInput)
-        // }
         onFinish={
           record === undefined
             ? () => {
