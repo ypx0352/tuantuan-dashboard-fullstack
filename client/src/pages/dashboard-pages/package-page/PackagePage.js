@@ -5,6 +5,7 @@ import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
 import { Button, Input } from "antd";
+import { actionCreators } from "./store";
 
 const Container = styled.div`
   display: flex;
@@ -79,6 +80,7 @@ const TableWrapper = styled.div`
 
 
 const PackagePage = (props) => {
+  const {searchPackage} = props;
   const [searchInput, setSearchInput]=useState()
 
   return (
@@ -95,8 +97,8 @@ const PackagePage = (props) => {
         />
         <ContentWrapper>
           <SearchContainer>
-            <StyledInput onChange={""} />
-            <StyledButton type="search" onClick={""}>
+            <StyledInput onChange={(e)=>setSearchInput(e.target.value)} />
+            <StyledButton type="search" onClick={()=>searchPackage(searchInput)}>
               Search
             </StyledButton>
           </SearchContainer>
@@ -108,6 +110,10 @@ const PackagePage = (props) => {
 
 const mapState = (state)=>({})
 
-const mapDispatch = (dispatch)=>({})
+const mapDispatch = (dispatch)=>({
+  searchPackage(pk_id){
+    dispatch(actionCreators.searchPackageAction(pk_id))
+  }
+})
 
 export default connect(mapState,mapDispatch) (PackagePage);

@@ -8,6 +8,7 @@ const settingRouter = require("./routers/setting");
 const registerRouter = require("./routers/register");
 const loginRouter = require("./routers/login");
 const addressRouter = require("./routers/address");
+const packageRouter = require("./routers/package")
 
 const app = express();
 app.use(express.json());
@@ -38,6 +39,8 @@ app.use("/api/setting", settingRouter);
 app.use("/api/login", loginRouter);
 
 app.use("/api/address", addressRouter);
+
+app.use("/api/package", packageRouter)
 
 app.listen(1100, () => {
   console.log("server listening on port 1100.");
