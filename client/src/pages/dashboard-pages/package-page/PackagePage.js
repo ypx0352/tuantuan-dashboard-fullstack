@@ -1,8 +1,10 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
+import {connect} from "react-redux"
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
+import { Button, Input } from "antd";
 
 const Container = styled.div`
   display: flex;
@@ -27,7 +29,58 @@ const ContentWrapper = styled.div`
   justify-content: center;
 `;
 
-const PackagePage = () => {
+const SearchContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 60px;
+`;
+
+const StyledInput = styled(Input).attrs({
+  placeholder: "Please enter package ID",
+})`
+  width: 50%;
+  ::placeholder {
+    color: grey;
+  }
+`;
+
+const colors = {
+  search: "#3751ff",
+  add: "#18a16d",
+  submit: "#145DA0",
+  reset: "#DF362D",
+  cancel: "#189AB4",
+  update: "#145DA0",
+};
+
+const StyledButton = styled(Button).attrs((props) => ({
+  style: {
+    width: "10%",
+    "min-width": "65px",
+    height: "50px",
+    padding: "12px",
+    "margin-left": "10px",
+    "border-radius": "8px",
+    border: "none",
+    "text-align": "center",
+    "background-color": colors[props.type],
+    color: "white",
+  },
+}))``;
+
+const TableWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 50px 0;
+  justify-content: center;
+  align-items: center;
+`;
+
+
+
+const PackagePage = (props) => {
+  const [searchInput, setSearchInput]=useState()
+
   return (
     <Container>
       <Left>
@@ -40,9 +93,21 @@ const PackagePage = () => {
           userImage={userImage}
           cartCount="hide"
         />
+        <ContentWrapper>
+          <SearchContainer>
+            <StyledInput onChange={""} />
+            <StyledButton type="search" onClick={""}>
+              Search
+            </StyledButton>
+          </SearchContainer>
+        </ContentWrapper>
       </Right>
     </Container>
   );
 };
 
-export default PackagePage;
+const mapState = (state)=>({})
+
+const mapDispatch = (dispatch)=>({})
+
+export default connect(mapState,mapDispatch) (PackagePage);
