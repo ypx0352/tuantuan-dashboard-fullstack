@@ -1,6 +1,6 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import {connect} from "react-redux"
+import { connect } from "react-redux";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
@@ -77,11 +77,13 @@ const TableWrapper = styled.div`
   align-items: center;
 `;
 
-
-
 const PackagePage = (props) => {
-  const {searchPackage} = props;
-  const [searchInput, setSearchInput]=useState()
+  const { searchPackage } = props;
+  const [searchInput, setSearchInput] = useState();
+
+  const tableData = []
+  const tableColumns = []
+
 
   return (
     <Container>
@@ -97,23 +99,35 @@ const PackagePage = (props) => {
         />
         <ContentWrapper>
           <SearchContainer>
-            <StyledInput onChange={(e)=>setSearchInput(e.target.value)} />
-            <StyledButton type="search" onClick={()=>searchPackage(searchInput)}>
+            <StyledInput onChange={(e) => setSearchInput(e.target.value)} />
+            <StyledButton
+              type="search"
+              onClick={() => searchPackage(searchInput)}
+            >
               Search
             </StyledButton>
           </SearchContainer>
+          <TableWrapper>
+            <Table
+              style={{ width: "100%" }}
+              tableLayout="auto"
+              columns={tableColumns}
+              rowKey={(record) => record._id}
+              dataSource={tableData}
+            />
+          </TableWrapper>
         </ContentWrapper>
       </Right>
     </Container>
   );
 };
 
-const mapState = (state)=>({})
+const mapState = (state) => ({});
 
-const mapDispatch = (dispatch)=>({
-  searchPackage(pk_id){
-    dispatch(actionCreators.searchPackageAction(pk_id))
-  }
-})
+const mapDispatch = (dispatch) => ({
+  searchPackage(pk_id) {
+    dispatch(actionCreators.searchPackageAction(pk_id));
+  },
+});
 
-export default connect(mapState,mapDispatch) (PackagePage);
+export default connect(mapState, mapDispatch)(PackagePage);

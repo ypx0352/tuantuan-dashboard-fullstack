@@ -277,7 +277,7 @@ const OrderPage = (props) => {
                 prefix="$"
                 bordered={false}
                 value={text}
-                onChange={(e) => setPostage(e.target.value)}
+                onChange={(e) => setPostage(Number(e.target.value))}
               />
             );
           },
@@ -705,6 +705,7 @@ const OrderPage = (props) => {
                 dataSource={packageData}
                 pagination={{ position: ["none", "none"] }}
                 bordered
+                summary={(current)=>{console.log(current)}}
               />
             </TableWrapper>
 
@@ -715,6 +716,7 @@ const OrderPage = (props) => {
                 dataSource={receiverData}
                 pagination={{ position: ["none", "none"] }}
                 bordered
+                summary={(currentData)=>{console.log(currentData)}}
               />
             </TableWrapper>
 
