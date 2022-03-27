@@ -4,7 +4,7 @@ import {connect} from "react-redux"
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
-import { Button, Input } from "antd";
+import { Button, Input, Table } from "antd";
 import { actionCreators } from "./store";
 
 const Container = styled.div`
