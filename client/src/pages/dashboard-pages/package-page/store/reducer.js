@@ -1,11 +1,14 @@
 import { fromJS } from "immutable";
+import { actionTypes } from ".";
 
 const defaultState = fromJS({
-  test: "123",
+  tableData: {},
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
   switch (action.type) {
+    case actionTypes.SET_TABLE_DATA:
+      return state.set("tableData", action.value);
     default:
       return state;
   }

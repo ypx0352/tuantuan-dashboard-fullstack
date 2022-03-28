@@ -5,7 +5,10 @@ const {
   SoldItemsModel,
   StockItemsModel,
   EmployeeItemsModel,
+  ExceptionItemModel,
 } = require("../models/orderModels");
+
+const PackageModel = require("../models/packageModel");
 
 var cookies = [];
 // login the account of the post office and get cookies
@@ -209,10 +212,23 @@ const submitOrder = async (req, res) => {
 };
 
 const confirmOrder = async (req, res) => {
-  const { pk_id, stock, employee, sold } = req.body;
+  const { pk_id, stock, employee, sold } = req.body.confirmationData;
+  const { packageData, receiverData } = req.body;
 
   // To avoid duplicate saves, check duplicates first.
-  const models = [SoldItemsModel, StockItemsModel, EmployeeItemsModel];
+  const models = [
+    SoldItemsModel,
+    StockItemsModel,
+    EmployeeItemsModel,
+    ExceptionItemModel,
+  ];
+
+  const result = await PackageModel.findOne({ id: pk_id });
+  if (result !== null) {
+    return res.status(400).json({
+      msg: "Failed! This package has already been saved! ",
+    });
+  }
 
   for (const model of models) {
     const result = await model.findOne({ pk_id });
@@ -224,7 +240,6 @@ const confirmOrder = async (req, res) => {
   }
 
   // Insert data to three data collections
-
   const itemsCollections = [sold, stock, employee];
   const types = ["Sold", "Stock ", "employee"];
   for (let index = 0; index < itemsCollections.length; index++) {
@@ -246,7 +261,15 @@ const confirmOrder = async (req, res) => {
     }
   }
 
-  res.status(200).json({ msg: "Data saved to database successfully!" });
+  // Save package information to package collection.
+  delete packageData.key;
+  delete receiverData.key;
+
+  await PackageModel.create(Object.assign(packageData, receiverData));
+
+  res
+    .status(200)
+    .json({ msg: "Data have been saved to database successfully!" });
 };
 
 module.exports = { getOrder, getExchangeRate, submitOrder, confirmOrder };

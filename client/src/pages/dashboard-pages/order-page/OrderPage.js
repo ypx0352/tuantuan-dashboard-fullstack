@@ -158,17 +158,7 @@ const OrderPage = (props) => {
           title: "Phone",
           dataIndex: "phone",
           key: "phone",
-          render: (text, record, index) => {
-            return (
-              <Input
-                type="text"
-                prefix="+86"
-                size="small"
-                value={text}
-                bordered={false}
-              />
-            );
-          },
+          render: (text) => "+86 " + text,
         },
         {
           title: "Address",
@@ -181,7 +171,6 @@ const OrderPage = (props) => {
 
   // fetch package data from store
   const [postage, setPostage] = useState(null);
-  //const [exchangeRateState, setExchangeRatState] = useState(null);
 
   const calculatePostage = (packageType) => {
     switch (packageType) {
@@ -207,7 +196,6 @@ const OrderPage = (props) => {
 
   useEffect(() => {
     calculatePostage(originalOrder.get("item_type"));
-    //setExchangeRateState(exchangeRateInSetting);
   }, [originalOrder]);
 
   const packageData = [
@@ -243,17 +231,7 @@ const OrderPage = (props) => {
           title: "Weight",
           dataIndex: "weight",
           key: "weight",
-          render: (text, record, index) => {
-            return (
-              <Input
-                type="number"
-                suffix="Kg"
-                value={text}
-                size="small"
-                bordered={false}
-              />
-            );
-          },
+          render: (text) => text + " Kg",
         },
         {
           title: "Count",
@@ -269,7 +247,7 @@ const OrderPage = (props) => {
           title: "Postage",
           dataIndex: "postage",
           key: "postage",
-          render: (text, record, index) => {
+          render: (text) => {
             return (
               <Input
                 type="number"
@@ -705,7 +683,6 @@ const OrderPage = (props) => {
                 dataSource={packageData}
                 pagination={{ position: ["none", "none"] }}
                 bordered
-                summary={(current)=>{console.log(current)}}
               />
             </TableWrapper>
 
@@ -716,7 +693,6 @@ const OrderPage = (props) => {
                 dataSource={receiverData}
                 pagination={{ position: ["none", "none"] }}
                 bordered
-                summary={(currentData)=>{console.log(currentData)}}
               />
             </TableWrapper>
 
@@ -817,7 +793,13 @@ const OrderPage = (props) => {
                       color: "white",
                     }}
                     loading={confirmLoading}
-                    onClick={() => handleConfirm(confirmationData)}
+                    onClick={() =>
+                      handleConfirm(
+                        confirmationData,
+                        packageData[0],
+                        receiverData[0]
+                      )
+                    }
                   >
                     Confirm
                   </Button>
@@ -883,8 +865,14 @@ const mapDispatch = (dispatch) => ({
     dispatch(actionCreators.submitTableDataAction(tableData));
   },
 
-  handleConfirm(confirmationData) {
-    dispatch(actionCreators.saveConfirmationDataAction(confirmationData));
+  handleConfirm(confirmationData, packageData, receiverData) {
+    dispatch(
+      actionCreators.saveConfirmationDataAction(
+        confirmationData,
+        packageData,
+        receiverData
+      )
+    );
   },
 
   setShowConfirmation(value) {

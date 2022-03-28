@@ -244,8 +244,6 @@ const CheckoutPage = (props) => {
 
   const [tableDataState, setTableDataState] = useState([]);
 
-  //const [showModalState, setShowModalState] = useState(false);
-
   const capitalizeFirstLetter = (word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   };

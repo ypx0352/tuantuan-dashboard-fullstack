@@ -133,16 +133,21 @@ export const submitTableDataAction = (tableData) => {
   };
 };
 
-export const saveConfirmationDataAction = (confirmationData) => {
+export const saveConfirmationDataAction = (
+  confirmationData,
+  packageData,
+  receiverData
+) => {
   return async (dispatch) => {
     dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(true) });
 
     const confirmResult = {};
     try {
-      const response = await axios.post(
-        serverBaseUrl + "/api/order/confirm",
-        confirmationData
-      );
+      const response = await axios.post(serverBaseUrl + "/api/order/confirm", {
+        confirmationData,
+        packageData,
+        receiverData,
+      });
       // TODO need a customised alert and reset data
       const { msg } = response.data;
       confirmResult.title = "Success";
