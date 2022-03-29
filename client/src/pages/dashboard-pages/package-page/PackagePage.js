@@ -4,10 +4,11 @@ import { connect } from "react-redux";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
-import { Button, Input, Table, Steps } from "antd";
+import { Button, Input, Table, Steps, Spin, message, Select } from "antd";
 import { actionCreators } from "./store";
 const { TextArea } = Input;
-const {Step} = Steps;
+const { Step } = Steps;
+const { Option } = Select;
 
 const Container = styled.div`
   display: flex;
@@ -31,12 +32,14 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 100%;
   padding: 10px;
 `;
 
 const SearchContainer = styled.div`
   display: flex;
   justify-content: center;
+  width: 100%;
   margin-bottom: 60px;
 `;
 
@@ -49,12 +52,30 @@ const StyledInput = styled(Input).attrs({
   }
 `;
 
+const PackageTagContainer = styled.div`
+  width: 55%;
+  margin: 0 auto 20px auto;
+`;
+
+const PackageTagHeaderWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const PackageTagWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const colors = {
   search: "#3751ff",
   sold: "darkgreen",
   stock: "sandybrown",
   employee: "#18a16d",
   exception: "#DF362D",
+  奶粉: "#E8B4B8",
+  非奶粉: "#189AB4",
 };
 
 const StyledButton = styled(Button).attrs((props) => ({
@@ -81,28 +102,61 @@ const StyledSpan = styled.span.attrs((props) => ({
   color: white;
 `;
 
+const PackageTag = styled.span.attrs((props) => ({
+  style: { backgroundColor: colors[`${props.type}`] },
+}))`
+  color: white;
+  border-radius: 8px;
+  padding: 5px;
+  margin: 5px;
+  cursor: pointer;
+`;
+
 const TableWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  &.hide {
+    display: none;
+  }
 `;
 
 const StepWrapper = styled.div`
-  /* display: flex;
-  flex-direction: column; */
-  /* justify-content: center; */
-  /* align-items: center; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  &.hide {
+    display: none;
+  }
 `;
 
 const PackagePage = (props) => {
-  const { searchPackage, tableData } = props;
+  const {
+    searchPackage,
+    tableData,
+    tablesDisplayed,
+    tableSpinning,
+    getLatestPackages,
+    latestPackagesSpinning,
+    latestPackages,
+  } = props;
   const [searchInput, setSearchInput] = useState();
   const [tableDataState, setTableDataState] = useState({});
+  const [latestPackagesState, setLatestPackagesState] = useState([]);
+
+  useEffect(() => {
+    getLatestPackages();
+  }, []);
 
   useEffect(() => {
     setTableDataState(tableData);
   }, [tableData]);
+
+  useEffect(() => setLatestPackagesState(latestPackages), [latestPackages]);
 
   const packageColumns = [
     {
@@ -228,6 +282,30 @@ const PackagePage = (props) => {
     },
   ];
 
+  const generateStep = () => {
+    return tableDataState.trackData?.length === 0 ? (
+      <span>Loading...</span>
+    ) : (
+      <Steps
+        current={tableDataState.trackData?.length - 1}
+        direction="vertical"
+        size="small"
+      >
+        {tableDataState.trackData?.map((item) => (
+          <Step title={item.message} description={item.time} />
+        ))}
+      </Steps>
+    );
+  };
+
+  const generatePackageTag = () => {
+    return latestPackagesState.map((item) => (
+      <PackageTag type={item.type} onClick={() => searchPackage(item.id)}>
+        {item.id} {item.receiver}
+      </PackageTag>
+    ));
+  };
+
   return (
     <Container>
       <Left>
@@ -240,66 +318,86 @@ const PackagePage = (props) => {
           userImage={userImage}
           cartCount="hide"
         />
+
         <ContentWrapper>
           <SearchContainer>
-            <StyledInput onChange={(e) => setSearchInput(e.target.value)} />
+            <span>PE6420948BB</span>
+            <StyledInput
+              onChange={(e) => setSearchInput(e.target.value)}
+              onPressEnter={() => searchPackage(searchInput.trim())}
+            />
             <StyledButton
               type="search"
-              onClick={() => searchPackage(searchInput)}
+              onClick={() => searchPackage(searchInput.trim())}
+              loading={tableSpinning}
             >
               Search
             </StyledButton>
           </SearchContainer>
-          <TableWrapper>
-            <Table
-              style={{ width: "100%" }}
-              tableLayout="auto"
-              columns={packageColumns}
-              rowKey={(record) => record.id}
-              dataSource={tableDataState.packageData}
-              pagination={false}
-              bordered
-            />
-          </TableWrapper>
-          <TableWrapper>
-            <Table
-              style={{ width: "100%" }}
-              tableLayout="auto"
-              columns={receiverColumns}
-              rowKey={(record) => record.receiver}
-              dataSource={tableDataState.receiverData}
-              pagination={false}
-              bordered
-            />
-          </TableWrapper>
-          <TableWrapper>
-            <Table
-              style={{ width: "100%" }}
-              tableLayout="auto"
-              columns={itemColumns}
-              rowKey={(record) => record._id}
-              dataSource={tableDataState.itemData}
-              bordered
-            />
-          </TableWrapper>
-          <StepWrapper>
-            <Steps  current={4} direction="vertical">
-              <Step
-                title="Finished"
-                description="This is a description. This is a description."
+          <Spin spinning={latestPackagesSpinning} tip="Loading...">
+            <PackageTagContainer>
+              <PackageTagHeaderWrapper>
+                <h3>
+                  Recently added packages: last{" "}
+                  <Select
+                    defaultValue={10}
+                    onChange={(e) => getLatestPackages(e)}
+                  >
+                    <Option key="10" value="10">
+                      10
+                    </Option>
+                    <Option key="20" value="20">
+                      20
+                    </Option>
+                    <Option key="30" value="30">
+                      30
+                    </Option>
+                  </Select>{" "}
+                  packages
+                </h3>
+              </PackageTagHeaderWrapper>
+
+              <PackageTagWrapper>{generatePackageTag()}</PackageTagWrapper>
+            </PackageTagContainer>
+          </Spin>
+          <Spin spinning={tableSpinning} tip="Loading...">
+            <TableWrapper className={tablesDisplayed ? "" : "hide"}>
+              <Table
+                style={{ width: "100%" }}
+                tableLayout="auto"
+                columns={packageColumns}
+                rowKey={(record) => record.id}
+                dataSource={tableDataState.packageData}
+                pagination={false}
+                bordered
               />
-              <Step
-                title="Finished"
-                description="This is a description. This is a description."
+            </TableWrapper>
+            <TableWrapper className={tablesDisplayed ? "" : "hide"}>
+              <Table
+                style={{ width: "100%" }}
+                tableLayout="auto"
+                columns={receiverColumns}
+                rowKey={(record) => record.receiver}
+                dataSource={tableDataState.receiverData}
+                pagination={false}
+                bordered
               />
-              <Step
-                title="In Progress"
-                description="This is a description. This is a description."
+            </TableWrapper>
+            <TableWrapper className={tablesDisplayed ? "" : "hide"}>
+              <Table
+                style={{ width: "100%" }}
+                tableLayout="auto"
+                columns={itemColumns}
+                rowKey={(record) => record._id}
+                dataSource={tableDataState.itemData}
+                bordered
               />
-              <Step title="Waiting" description="This is a description." />
-              <Step title="Waiting" description="This is a description." />
-            </Steps>
-          </StepWrapper>
+            </TableWrapper>
+            <StepWrapper className={tablesDisplayed ? "" : "hide"}>
+              <h3>Track</h3>
+              {generateStep()}
+            </StepWrapper>
+          </Spin>
         </ContentWrapper>
       </Right>
     </Container>
@@ -308,11 +406,22 @@ const PackagePage = (props) => {
 
 const mapState = (state) => ({
   tableData: state.getIn(["package", "tableData"]).toJS(),
+  tablesDisplayed: state.getIn(["package", "tablesDisplayed"]),
+  tableSpinning: state.getIn(["package", "tableSpinning"]),
+  latestPackagesSpinning: state.getIn(["package", "latestPackagesSpinning"]),
+  latestPackages: state.getIn(["package", "latestPackages"]).toJS(),
 });
 
 const mapDispatch = (dispatch) => ({
   searchPackage(pk_id) {
+    if (pk_id === undefined) {
+      return message.warn("Input must not be null.");
+    }
     dispatch(actionCreators.searchPackageAction(pk_id));
+  },
+
+  getLatestPackages(limit) {
+    dispatch(actionCreators.getLatestPackagesAction(limit));
   },
 });
 

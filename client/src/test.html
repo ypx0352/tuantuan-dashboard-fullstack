@@ -1,2025 +1,678 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>包裹管理</title>
-    <meta name="keywords" content="" />
-    <meta name="description" content="" />
-    <script type="text/javascript">
-      //初始化JS
-      var GS_SITEURL = "https://www.polarexpress.com.au/";
-      var GS_STATICURL = "/";
-      var GS_CUR = "$AU";
-      var GS_WHT = "KGs";
-    </script>
-
-    <link rel="stylesheet" href="/static/css/sui.min.css" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>物流追踪</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="full-screen" content="yes" />
+    <meta name="x5-fullscreen" content="true" />
     <link
       rel="stylesheet"
-      href="/static/common/js/select2/css/select2.min.css"
+      href="//cdn.bootcss.com/weui/0.4.3/style/weui.min.css"
     />
 
-    <link rel="stylesheet" href="/static/css/poladmin.css" />
-
-    <script
-      type="text/javascript"
-      src="/static/common/js/layui/layui.js"
-    ></script>
-    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/js/sui.min.js"></script>
-    <script
-      type="text/javascript"
-      src="/static/common/js/select2/js/select2.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/static/js/function.js?1636970473"
-    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.bootcss.com/jquery-weui/1.2.0/css/jquery-weui.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/static/weui/css/filter.css" />
+    <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
   </head>
-
   <body>
-    <div class="screen_black">
-      <div class="lock_box">
-        <div class="touxiang">
-          <span
-            ><img
-              src="http://thirdwx.qlogo.cn/mmopen/Q3auHgzwzM4BarMCrOU2XhYIZDvhsiaCcN75YjI2nNpJoZJtoFF3s8yjdvslWc7J6VpK0RUkp91kVU0LwhS5lhA/132"
-              class="img-circle tx"
-          /></span>
-        </div>
-        <div style="margin: 20px 0">
-          <input
-            type="password"
-            name=""
-            id="psw"
-            placeholder="请输入登录密码解锁"
-          /><button id="lock_btn">解锁</button>
-          <input type="hidden" name="" id="lock" value="2" />
-        </div>
-        <p style="color: red">请输入正确密码！</p>
+    <style>
+      #about .close-popup {
+        width: 90%;
+        margin: 0.5rem auto;
+        background: #ef4f4f;
+        color: #fff;
+        border-radius: 3px;
+        text-align: center;
+        line-height: 40px;
+        font-size: 14px;
+      }
+
+      .history-data ul {
+        border-top: 1px solid #ddd;
+      }
+
+      .history-data ul li {
+        float: left;
+        list-style-type: none;
+        background: #fff;
+        padding: 2%;
+        border-bottom: 1px dashed #ddd;
+        font-size: 0.7rem;
+        color: #333;
+      }
+
+      .history-data ul li a {
+        color: #ef4f4f;
+      }
+
+      .history-data ul .li1 {
+        width: 40%;
+      }
+
+      .history-data ul .li2 {
+        width: 28%;
+      }
+
+      .history-data ul .li3 {
+        width: 20%;
+        text-align: right;
+      }
+
+      .cl {
+        clear: both;
+      }
+
+      .fr {
+        float: right;
+      }
+
+      .fl {
+        float: left;
+      }
+
+      .trackFormSubmitBtn {
+        border-radius: 0;
+      }
+
+      .weui_btn + .weui_btn {
+        margin-top: 0;
+      }
+
+      .trankbtn {
+        margin: 0.5rem 0;
+        width: 40%;
+      }
+
+      .sf_tracknum {
+        display: block;
+        width: 90%;
+        margin: 0.5rem auto;
+        background: #ef4f4f;
+        color: #fff;
+        border-radius: 3px;
+        text-align: center;
+        line-height: 40px;
+      }
+
+      .track-time {
+        float: left;
+        width: 21%;
+        text-align: center;
+        color: #333;
+        font-size: 0.65rem;
+        padding: 15px 0 0;
+      }
+
+      .track-text {
+        float: left;
+        width: 70%;
+        color: #333;
+        font-size: 0.65rem;
+        margin-left: 12px;
+        border-left: 1px dashed #ddd;
+        min-height: 2rem;
+        padding: 15px 0 10px 15px;
+        position: relative;
+        line-height: 1.4;
+      }
+
+      .weui_media_box .weui_media_title {
+        font-size: 0.7rem;
+      }
+
+      .gaxis1 span {
+        position: absolute;
+        display: block;
+        width: 0.6rem;
+        height: 0.6rem;
+        background: #ddd;
+        border-radius: 0.6rem;
+        top: 0;
+        left: -6.5px;
+      }
+
+      .gaxis2 span {
+        position: absolute;
+        display: block;
+        width: 0.6rem;
+        height: 0.6rem;
+        background: #ddd;
+        border-radius: 0.6rem;
+        top: 1rem;
+        left: -6.5px;
+      }
+
+      .gaxis3 span {
+        position: absolute;
+        display: block;
+        width: 0.6rem;
+        height: 0.6rem;
+        background: #ef4f4f;
+        border-radius: 0.6rem;
+        bottom: 0;
+        left: -6.5px;
+      }
+
+      .sf_track .gaxis1 span {
+        position: absolute;
+        display: block;
+        width: 0.6rem;
+        height: 0.6rem;
+        background: #ddd;
+        border-radius: 0.6rem;
+        bottom: 0;
+        top: 100%;
+        left: -6.5px;
+      }
+
+      .sf_track .gaxis2 span {
+        position: absolute;
+        display: block;
+        width: 0.6rem;
+        height: 0.6rem;
+        background: #ddd;
+        border-radius: 0.6rem;
+        top: 1rem;
+        left: -6.5px;
+      }
+
+      .sf_track .gaxis3 span {
+        position: absolute;
+        display: block;
+        width: 0.6rem;
+        height: 0.6rem;
+        background: #ef4f4f;
+        border-radius: 0.6rem;
+        top: 0;
+        left: -6.5px;
+      }
+
+      .weui_media_box:before {
+        border-top: none;
+      }
+
+      .weui_media_box {
+        padding: 0 10px;
+      }
+
+      .weui_panel:after {
+        border: none;
+      }
+      .weui-select {
+        -webkit-appearance: none;
+        border: 0;
+        outline: 0;
+        background-color: transparent;
+        width: 100%;
+        font-size: inherit;
+        height: 45px;
+        line-height: 45px;
+        position: relative;
+        z-index: 1;
+        padding-left: 15px;
+      }
+      .weui-cell_select .weui-cell__bd:after {
+        content: " ";
+        display: inline-block;
+        height: 6px;
+        width: 6px;
+        border-width: 0 2px 2px 0;
+        border-color: #c8c8cd;
+        border-style: solid;
+        -webkit-transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
+        transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
+        position: relative;
+        top: -2px;
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        margin-top: -4px;
+      }
+    </style>
+    <script type="text/javascript" src="/static/js/jweixin-1.2.0.js"></script>
+    <div id="about" class="weui-popup__container" style="background: #fff">
+      <div class="weui-popup__modal" style="background: #fbf9fe">
+        <a href="javascript:;" class="weui_btn weui_btn_warn close-popup"
+          >关闭</a
+        >
+        <div class="history-data"></div>
       </div>
     </div>
-    <div class="topbar row" style="margin: 0">
-      <div class="col-md-2 col-xs-2">
-        <div class="fl topbar-logo">
-          <a href="/index"><img src="/static/imgs/index/logo.png" /></a>
-        </div>
-      </div>
-      <div class="col-md-3 col-xs-3 h22">
-        <div class="fl topbar_menu" id="">
-          <div class="topbar_menu1"></div>
-          <div class="topbar_menu2"></div>
-          <div class="topbar_menu1"></div>
-        </div>
-        <input type="hidden" name="" id="falg" value="true" />
-        <div class="fr">会员数据管理中心</div>
-      </div>
-      <div class="topbar_nav col-md-7 col-xs-7">
-        <a href="/"><img src="/static/imgs/poladmin/home.png" />首页</a>
-        <a href="/track" target="_blank"
-          ><img src="/static/imgs/poladmin/car.png" />物流追踪</a
-        >
-        <a href="/icard" target="_blank"
-          ><img src="/static/imgs/poladmin/card.png" />证件上传</a
-        >
-        <a href="/page/alist/11" target="_blank"
-          ><img src="/static/imgs/poladmin/help.png" />帮助中心</a
-        >
-        <a href="http://www.polarpost.com.au/" target="_blank"
-          ><img src="/static/imgs/poladmin/12.png" />极运-中澳集运</a
-        >
-        <a href="javascript:;"
-          ><span class="lock"
-            ><img src="/static/imgs/poladmin/lock.png" />锁屏</span
-          ></a
-        >
-      </div>
-      <div class="cl"></div>
-    </div>
-    <div class="m_container">
-      <script type="text/javascript">
-        window.onload = function () {
-          var topbar_menu = document.querySelector(".topbar_menu");
-          var cont_left = document.querySelector(".cont_left");
-          var cont_right = document.querySelector(".cont_right");
-          var topbar_menu2 = document.querySelector(".topbar_menu2");
-          var screen_black = document.querySelector(".screen_black");
-          var lock = document.querySelector(".lock");
-          var lock_btn = document.getElementById("lock_btn");
-          var lock_d = document.getElementById("lock").value;
-          var w = screen.width;
-          var h = screen.height;
-          var falg = document.getElementById("falg").value;
-          screen_black.style.width = w + "px";
-          screen_black.style.height = h + "px";
-
-          topbar_menu.addEventListener("click", function () {
-            $.ajax({
-              url: "/lock_screen/hide_show/",
-              type: "post",
-              data: { falg: falg },
-              dataType: "json",
-              success: function (data) {
-                if (data.sts == "1") {
-                  if (data.msg == "false") {
-                    cont_left.style.transform = "translateX(-250px)";
-                    cont_right.style.padding = "20px 20px 5px 0";
-                    topbar_menu2.style.width = "20px";
-                    falg = "false";
-                  } else {
-                    cont_left.style.display = "block";
-                    cont_left.style.transform = "translateX(0px)";
-                    cont_right.style.padding = "20px 20px 5px 250px";
-                    topbar_menu2.style.width = "15px";
-                    falg = "true";
-                  }
-                } else {
-                  alert(data.msg);
-                }
-              },
-              error: function (data) {
-                alert("失败");
-              },
-            });
-          }),
-            //1.鼠标点击事件
-
-            (document.onmousedown = function mdClick(event) {
-              if (lock_d == 1) {
-                var e =
-                  event || window.event || arguments.callee.caller.arguments[0];
-                //2. 禁用浏览器 默认右键菜单
-                document.oncontextmenu = new Function("return false;");
-                if (e.button == 2 || e.button == 3) {
-                  mAlert();
-                }
-              } else {
-                return true;
-              }
-            });
-
-          //3.监听键盘事件
-
-          document.onkeydown =
-            document.onkeyup =
-            document.onkeypress =
-              function (event) {
-                if (lock_d == 1) {
-                  var e =
-                    event ||
-                    window.event ||
-                    arguments.callee.caller.arguments[0];
-                  if (e && e.keyCode == 123) {
-                    e.returnValue = false;
-                    mAlert();
-                    return false;
-                  }
-                }
-              };
-          function mAlert() {
-            alert("禁止操作控制台");
+    <script type="text/javascript">
+      var storage = window.localStorage;
+      //storage.clear();//清空localStorage
+      //获取storage
+      function getstorage() {
+        var c = JSON.parse(storage.getItem("data"));
+        var html = "<ul>";
+        if (c != null) {
+          for (var i = 0; i < c.length; i++) {
+            html += '<li class="li1">' + c[i][0] + "</li>";
+            html += '<li class="li2">' + c[i][1] + "</li>";
+            html +=
+              '<li class="li3"><a href="/wechat/track?s=' +
+              c[i][0] +
+              '">查看</a></li>';
           }
+        } else {
+          html += "<li>暂无历史信息</li>";
+        }
+        html += '<div class="cl"></div></ul>';
+        $(".history-data").html(html);
+      }
 
-          block();
-          function block() {
-            var lock_d = document.getElementById("lock").value;
-            if (lock_d == 1) {
-              screen_black.style.display = "block";
-            }
-
-            if (falg == "false") {
-              // cont_left.style.display = "none";
-              cont_left.style.transform = "translateX(-250px)";
-              cont_right.style.padding = "20px 20px 5px 0";
-              topbar_menu2.style.width = "20px";
-              falg = "false";
-            } else {
-              cont_left.style.display = "block";
-              cont_left.style.transform = "translateX(0px)";
-              cont_right.style.padding = "20px 20px 5px 250px";
-              topbar_menu2.style.width = "15px";
-              falg = "true";
-            }
+      //写入
+      function setstorage(sn, recever) {
+        var list = [];
+        var arr = [sn, recever];
+        console.log(storage.getItem("data"));
+        if (storage.getItem("data") != null) {
+          var list = JSON.parse(storage.getItem("data"));
+          //验证重复
+          for (var i = 0; i < list.length; i++) {
+            if (list[i][0] == sn) return;
           }
-          lock.addEventListener("click", function () {
-            $.ajax({
-              url: "/lock_screen/lock/",
-              type: "post",
-              dataType: "json",
-              success: function (data) {
-                if (data.sts == "1") {
-                  screen_black.style.display = "block";
-                }
-              },
-              error: function (data) {
-                alert("失败");
-              },
-            });
-          }),
-            lock_btn.addEventListener("click", function () {
-              var psw = document.getElementById("psw").value;
-              $.ajax({
-                url: "/lock_screen/unlock/",
-                type: "post",
-                data: { psw: psw },
-                dataType: "json",
-                success: function (data) {
-                  alert(data.msg);
-                  if (data.sts == "1") {
-                    window.location.reload();
-                    screen_black.style.display = "none";
-                  }
-                },
-                error: function (data) {
-                  alert("失败");
-                },
-              });
-            }),
-            function $e(ele) {
-              return;
-            };
-        };
-      </script>
-      <link
-        href="/static/css/jquery-accordion-menu.css"
-        rel="stylesheet"
-        type="text/css"
-      />
-      <script src="/static/js/dist/clipboard.js"></script>
-      <script src="/static/js/dist/clipboard.min.js"></script>
-      <script>
-        $(function () {
-          $("#left_package").addClass("active");
-          $("#package_list_a").addClass("submenu-indicator-minus");
-          $("#package_list_u").css("display", "block");
-        });
-        $(document).ready(function () {
-          $("#clickmore").click(function () {
-            $("#vip-more").fadeToggle("fast");
-          });
-        });
-      </script>
-      <style type="text/css">
-        .jquery-accordion-menu #demo-list li a img {
-          width: 22px;
-          margin-right: 10px;
-          margin-left: 5px;
+          //最新的插入头部，大于的弹出最后一个再插入头部
+          if (list.length >= 20) {
+            list.pop();
+            list.unshift(arr);
+          } else {
+            list.unshift(arr);
+          }
+        } else {
+          list.push(arr);
         }
-
-        .jquery-accordion-menu #demo-list li.active > a {
-          background: #30395f !important;
-          border-left-color: #ed5565;
-        }
-
-        .tipsfr {
-          position: absolute;
-          right: 22px;
-          font-size: 12px;
-        }
-
-        .m_container .cont_left .website {
-          position: absolute;
-          top: -13px;
-          left: 0;
-        }
-
-        .website .circle-dot {
-          width: 20px;
-          height: 20px;
-          border-radius: 20px;
-          background: #e70618;
-          color: #fff;
-          font-size: 12px;
-          position: absolute;
-          top: -5px;
-          left: 10px;
-        }
-      </style>
-      <div class="cont_left">
-        <div class="left_of">
-          <div class="vip">
-            <div class="touxiang">
-              <a class="website" href="/poladmin/website_mail">
-                <img
-                  src="/static/imgs/poladmin/website.png"
-                  style="width: 16px"
-                />
-                <div class="circle-dot">0</div>
-              </a>
-              <span>
-                <img
-                  src="http://thirdwx.qlogo.cn/mmopen/Q3auHgzwzM4BarMCrOU2XhYIZDvhsiaCcN75YjI2nNpJoZJtoFF3s8yjdvslWc7J6VpK0RUkp91kVU0LwhS5lhA/132"
-                  class="img-circle tx"
-                />
-              </span>
-              <a
-                class="exit big_box_r_t_sign"
-                href="javascript:void();"
-                onclick="if($.gconfirm('确认退出么?')){window.location.href='/member/login_out'}"
-                ><img
-                  src="/static/imgs/poladmin/exit.png"
-                  title="退出系统"
-                />退出</a
-              >
-            </div>
-            <div class="vip-txt">
-              <label id="wechat_message_btn" class="tag tag_modify active"
-                >电脑微信<span class="tag_modify_span unread_wechat_tip"
-                  >0</span
-                ></label
-              >
-              <input type="hidden" id="is_wechat_bind" value="1" />
-              <label
-                class="tag tag_modify"
-                onclick="icardUploadShow();"
-                style="width: 78px; margin: 0 5px"
-                >身份未上传<span class="tag_modify_span uploads_icard_tip"
-                  >0</span
-                ></label
-              >
-              <label class="tag tag_modify" onclick="change_pwd();"
-                >修改密码</label
-              >
-            </div>
-            <div class="vip-btn">
-              <button id="clickmore">查看更多信息</button>
-            </div>
-            <div class="vip-more" id="vip-more">
-              <p><span>编号：PE556689</span> 等级：会员_VIC</p>
-              <p>手机：0452370352</p>
-              <p>昵称：px</p>
-              <p>您已邮寄包裹总重量：149.58KGs</p>
-            </div>
-          </div>
-          <div id="jquery-accordion-menu" class="jquery-accordion-menu">
-            <ul id="demo-list">
-              <li id="left_index">
-                <a href="/poladmin/index"
-                  ><img src="/static/imgs/poladmin/1.png" />数据中心</a
-                >
-              </li>
-              <li id="package">
-                <a id="package_a" href="#"
-                  ><img src="/static/imgs/poladmin/2.png" />包裹填写</a
-                >
-                <ul id="package_u" class="submenu">
-                  <li id="package_jd">
-                    <a id="package_jd_a" href="#"
-                      >极地线路<img
-                        src="/static/imgs/poladmin/jd1.png"
-                        class="left_lit"
-                        style="width: 20px; margin-top: -4px"
-                    /></a>
-                    <ul id="package_jd_u" class="submenu submenu_child">
-                      <li id="left_pol_torder">
-                        <a href="/poladmin/pol_torder">
-                          在线填单
-                          <span
-                            class="tipsfr"
-                            class="preview-tootik"
-                            id="topPin3"
-                            data-tootik="按照要求的格式逐单提交包裹信息，由门店管理员或会员自行处理（会员自行处理需由后台开通权限）"
-                            data-tootik-conf="right"
-                            ><img
-                              style="width: 14px; margin: 4px 2px 0 0"
-                              src="/static/imgs/poladmin/11.png"
-                          /></span>
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li id="package_sf">
-                    <a id="package_sf_a" href="#"
-                      >顺丰线路<img
-                        src="/static/imgs/poladmin/sf1.png"
-                        class="left_lit"
-                        style="width: 20px; margin-top: -4px"
-                    /></a>
-                    <ul id="package_sf_u" class="submenu submenu_child">
-                      <li id="left_torder_sf">
-                        <a href="/poladmin/torder_sf">
-                          在线填单
-                          <span
-                            class="tipsfr"
-                            class="preview-tootik"
-                            id="topPin6"
-                            data-tootik="按照要求的格式逐单提交包裹信息，由门店管理员或会员自行处理（会员自行处理需由后台开通权限）"
-                            data-tootik-conf="right"
-                            ><img
-                              style="width: 14px; margin: 4px 2px 0 0"
-                              src="/static/imgs/poladmin/11.png"
-                          /></span>
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li id="package_tw">
-                    <a id="package_tw_a" href="#"
-                      >臺灣線路<img
-                        src="/static/imgs/poladmin/tw1.png"
-                        class="left_lit"
-                        style="width: 20px; margin-top: -4px"
-                    /></a>
-                    <ul id="package_tw_u" class="submenu submenu_child">
-                      <li id="left_torder_taiwan">
-                        <a href="/poladmin/torder_taiwan">
-                          門市填單
-                          <span
-                            class="tipsfr"
-                            class="preview-tootik"
-                            id="topPin11"
-                            data-tootik="享受門市價格，需準備好收件人身份證號碼，提交的包裹由門市店員幫助處理"
-                            data-tootik-conf="right"
-                            ><img
-                              style="width: 14px; margin: 4px 2px 0 0"
-                              src="/static/imgs/poladmin/11.png"
-                          /></span>
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li id="package_mas">
-                    <a id="package_mas_a" href="#"
-                      >馬來西亞線路<img
-                        src="/static/imgs/poladmin/mas1.png"
-                        class="left_lit"
-                        style="width: 20px; margin-top: -4px"
-                    /></a>
-                    <ul id="package_mas_u" class="submenu submenu_child">
-                      <li id="left_torder_mas">
-                        <a href="/poladmin/torder_mas">
-                          門市填單
-                          <span
-                            class="tipsfr"
-                            class="preview-tootik"
-                            id="topPin14"
-                            data-tootik="享受門市價格，需準備好收件人身份證號碼，提交的包裹由門市店員幫助處理"
-                            data-tootik-conf="right"
-                            ><img
-                              style="width: 14px; margin: 4px 2px 0 0"
-                              src="/static/imgs/poladmin/11.png"
-                          /></span>
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li id="left_au_order">
-                    <a href="/poladmin/au_order">
-                      澳洲邮局<img
-                        src="/static/imgs/poladmin/az1.png"
-                        class="left_lit"
-                        style="width: 20px; margin-top: -4px"
-                      />
-                      <span
-                        class="tipsfr"
-                        class="preview-tootik"
-                        id="topPin15"
-                        data-tootik="使用澳洲邮局的ECI服务，邮寄全球"
-                        data-tootik-conf="right"
-                        ><img
-                          style="width: 14px; margin: 4px 2px 0 0"
-                          src="/static/imgs/poladmin/11.png"
-                      /></span>
-                    </a>
-                  </li>
-                  <li id="left_sf_order">
-                    <a href="/poladmin/sf_order">
-                      顺丰商业件<img
-                        src="/static/imgs/poladmin/sf1.png"
-                        class="left_lit"
-                        style="width: 20px; margin-top: -4px"
-                      />
-                      <span
-                        class="tipsfr"
-                        class="preview-tootik"
-                        id="topPin16"
-                        data-tootik="使用顺丰邮寄业务，邮寄全球"
-                        data-tootik-conf="right"
-                        ><img
-                          style="width: 14px; margin: 4px 2px 0 0"
-                          src="/static/imgs/poladmin/11.png"
-                      /></span>
-                    </a>
-                  </li>
-                  <li id="package_tcwl">
-                    <a id="package_tcwl_a" href="#">同城物流（墨尔本）</a>
-                    <ul id="package_tcwl_u" class="submenu submenu_child">
-                      <li id="left_city_logistic">
-                        <a href="/poladmin/city_logistic"> 同城物流填单 </a>
-                      </li>
-                      <li id="left_import_ciyt_package">
-                        <a href="/poladmin/import_ciyt_package">
-                          同城物流导入填单
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </li>
-              <li id="package_list">
-                <a id="package_list_a" package_list href="#"
-                  ><img src="/static/imgs/poladmin/4.png" />我的包裹</a
-                >
-                <ul id="package_list_u" class="submenu submenu_child">
-                  <li id="left_package">
-                    <a href="/poladmin/package">包裹列表</a>
-                  </li>
-                  <li id="left_au_order_list">
-                    <a href="/poladmin/au_order_list">澳洲邮局订单</a>
-                  </li>
-                  <li id="left_sf_order_list">
-                    <a href="/poladmin/sf_order_list">顺丰商业件</a>
-                  </li>
-                  <li id="left_citylog_list">
-                    <a href="/poladmin/citylog_list">同城物流订单</a>
-                  </li>
-                  <li id="left_ivprint_front_history">
-                    <a href="/poladmin/ivprint_front_history">我的打印队列</a>
-                  </li>
-                  <li id="left_system_pick_log">
-                    <a href="/poladmin/system_pick_log">提货日志</a>
-                  </li>
-                </ul>
-              </li>
-              <li id="tool">
-                <a id="tool_a" href="#"
-                  ><img src="/static/imgs/poladmin/5.png" />地址管理</a
-                >
-                <ul id="tool_u" class="submenu">
-                  <li id="left_addr_receive">
-                    <a href="/poladmin/addr_receive">我的收件人</a>
-                  </li>
-                  <li id="left_addr_receive_group">
-                    <a href="/poladmin/addr_receive_group">我的收件人组</a>
-                  </li>
-                  <li id="left_addr_send">
-                    <a href="/poladmin/addr_send">我的发件人</a>
-                  </li>
-                </ul>
-              </li>
-              <li id="left_index_preview">
-                <a href="/poladmin/index_preview"
-                  ><img src="/static/imgs/poladmin/3.png" />分箱测试</a
-                >
-              </li>
-              <li id="left_member_coupon">
-                <a href="/poladmin/member_coupon"
-                  ><img src="/static/imgs/poladmin/8.png" />我的优惠券</a
-                >
-              </li>
-            </ul>
+        var obj = JSON.stringify(list);
+        storage.setItem("data", obj);
+      }
+    </script>
+    <script type="text/javascript">
+      setstorage("PE6420948BB", "");
+    </script>
+    <div class="weui_panel" style="background: none">
+      <div
+        class="weui_panel_hd"
+        style="border-top: 1px solid #dddddd; background: #fff"
+      >
+        <span style="float: left; color: #000; font-size: 0.7rem"
+          >运单号：PE6420948BB</span
+        >
+        <div style="clear: both"></div>
+      </div>
+      <div
+        class="weui_panel_bd"
+        style="
+          background: #fff;
+          margin-top: 0.5rem;
+          border-top: 1px solid #dddddd;
+          padding: 1.5rem 0;
+        "
+      >
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-02-14 16:12:40</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis1"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              身份证上传并匹配成功
+            </h4>
           </div>
           <div class="cl"></div>
         </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-02-14 19:14:29</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              阿德莱德 分店已经收货，等待发往总部
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-02-16 21:06:43</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              阿德莱德总仓已揽收，正在发往极地包裹处理中心
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-02-18 14:51:31</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              仓库处理中
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-02-18 14:51:31</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              墨尔本总部已经收货，等待处理
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-02-18 15:53:55</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              已发往墨尔本 Tullamarine 机场仓库，等待安检
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-02-20 12:12:55</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              机场安检结束，包裹已运上飞机
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-02-22 11:32:33</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              包裹已抵达海关，清关中
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-01 17:59:40</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              【郁南营业部】已收寄,揽投员:莫灿林,电话:18688573224转接国内物流，单号：9766937666293
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-01 21:51:48</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              离开【郁南营业部】,下一站【云浮邮件处理班】
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-01 22:05:00</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              到达【云浮邮件处理班】
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-02 01:24:39</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              离开【云浮邮件处理班】,下一站【机场北邮件处理班】
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-02 04:49:19</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              到达【机场北邮件处理班】（经转）
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-02 12:17:00</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              离开【机场北邮件处理班】,下一站【山西寄递太原邮区中心局邮件处理中心】（经转）
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-03 18:22:44</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              到达【山西寄递太原邮区中心局邮件处理中心】（经转）
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-04 05:45:48</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              离开【山西寄递太原邮区中心局邮件处理中心】,下一站【大同市寄递事业部网路运营中心邮件处理班】（经转）
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-04 10:55:40</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              到达【大同市寄递事业部网路运营中心邮件处理班】
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-04 16:16:19</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              离开【大同市寄递事业部网路运营中心邮件处理班】,下一站【大同市寄递事业部新泉揽投部】
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-04 16:49:04</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              到达【大同市寄递事业部新泉揽投部】
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-04 18:33:37</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              【大同市寄递事业部新泉揽投部】安排投递,投递员:王江宾,电话:15525554436,揽投部电话:0352-2108886
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time">2022-03-04 20:27:59</div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis2"><span></span></div>
+            <h4 class="weui_media_title" style="white-space: inherit">
+              邮件投递到大同邮政快递站龙翔园店易邮自提,投递员:王江宾,电话:15525554436
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+        <div class="weui_media_box weui_media_text">
+          <div class="weui-media-box__hd track-time" style="color: #ef4f4f">
+            2022-03-07 17:26:09
+          </div>
+          <div class="weui-media-box__bd track-text">
+            <div class="gaxis3"><span></span></div>
+            <h4
+              class="weui_media_title"
+              style="white-space: inherit; color: #ef4f4f"
+            >
+              收件人已取走邮件
+            </h4>
+          </div>
+          <div class="cl"></div>
+        </div>
+      </div>
+    </div>
+    <div class="weui_opr_area">
+      <div class="weui_btn_area">
+        <a
+          href="/wechat/track"
+          class="weui_btn weui_btn_primary fl"
+          style="
+            background: #fff;
+            color: #ef4f4f;
+            width: 48%;
+            border-radius: 3px;
+            border: 1px solid #ef4f4f;
+          "
+          >继续查询</a
+        >
+        <button
+          type="button"
+          onclick="getstorage()"
+          class="weui_btn weui_btn_warn open-popup fr"
+          style="
+            width: 48%;
+            background: #ef4f4f;
+            color: #fff;
+            border-radius: 3px;
+          "
+          data-target="#about"
+        >
+          历史查询
+        </button>
         <div class="cl"></div>
       </div>
-
-      <div class="modal" id="modalBox">
-        <div class="modal-dialog modal-lg" style="width: 1000px; height: 545px">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-              <h5 class="modal-title"><span id="modalTitle">标题</span></h5>
-            </div>
-            <div class="modal-body" id="modalContent"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal" id="modalBox2">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-              <h5 class="modal-title"><span id="modalTitle2">标题</span></h5>
-            </div>
-            <div class="modal-body" id="modalContent2"></div>
-          </div>
-        </div>
-      </div>
-      <script
-        type="text/javascript"
-        src="/static/common/js/g.common.js"
-        charset="utf-8"
-      ></script>
-      <script
-        type="text/javascript"
-        src="/static/js/poladmin_left.js?1636970473"
-        charset="utf-8"
-      ></script>
-      <script
-        src="/static/js/jquery-accordion-menu.js"
-        type="text/javascript"
-      ></script>
-      <script type="text/javascript">
-        jQuery(document).ready(function () {
-          jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
-        });
-
-        $("#topPin1").hover(function () {
-          var topPin1 = $("#topPin1").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin1::after",
-            "top:" + topPin1 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin1::before",
-            "top:" + topPin1 + "px;"
-          );
-        });
-        $("#topPin2").hover(function () {
-          var topPin2 = $("#topPin2").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin2::after",
-            "top:" + topPin2 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin2::before",
-            "top:" + topPin2 + "px;"
-          );
-        });
-        $("#topPin3").hover(function () {
-          var topPin3 = $("#topPin3").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin3::after",
-            "top:" + topPin3 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin3::before",
-            "top:" + topPin3 + "px;"
-          );
-        });
-        $("#topPin4").hover(function () {
-          var topPin4 = $("#topPin4").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin4::after",
-            "top:" + topPin4 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin4::before",
-            "top:" + topPin4 + "px;"
-          );
-        });
-        $("#topPin5").hover(function () {
-          var topPin5 = $("#topPin5").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin5::after",
-            "top:" + topPin5 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin5::before",
-            "top:" + topPin5 + "px;"
-          );
-        });
-        $("#topPin6").hover(function () {
-          var topPin6 = $("#topPin6").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin6::after",
-            "top:" + topPin6 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin6::before",
-            "top:" + topPin6 + "px;"
-          );
-        });
-        $("#topPin7").hover(function () {
-          var topPin7 = $("#topPin7").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin7::after",
-            "top:" + topPin7 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin7::before",
-            "top:" + topPin7 + "px;"
-          );
-        });
-        $("#topPin8").hover(function () {
-          var topPin8 = $("#topPin8").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin8::after",
-            "top:" + topPin8 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin8::before",
-            "top:" + topPin8 + "px;"
-          );
-        });
-        $("#topPin9").hover(function () {
-          var topPin9 = $("#topPin9").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin9::after",
-            "top:" + topPin9 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin9::before",
-            "top:" + topPin9 + "px;"
-          );
-        });
-        $("#topPin10").hover(function () {
-          //var topScroll = jQuery(window).scrollTop();
-          var topPin10 = $("#topPin10").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin10::after",
-            "top:" + topPin10 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin10::before",
-            "top:" + topPin10 + "px;"
-          );
-        });
-        $("#topPin11").hover(function () {
-          //var topScroll = jQuery(window).scrollTop();
-          var topPin11 = $("#topPin11").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin11::after",
-            "top:" + topPin11 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin11::before",
-            "top:" + topPin11 + "px;"
-          );
-        });
-        $("#topPin12").hover(function () {
-          //var topScroll = jQuery(window).scrollTop();
-          var topPin12 = $("#topPin12").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin12::after",
-            "top:" + topPin12 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin12::before",
-            "top:" + topPin12 + "px;"
-          );
-        });
-        $("#topPin13").hover(function () {
-          //var topScroll = jQuery(window).scrollTop();
-          var topPin13 = $("#topPin13").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin13::after",
-            "top:" + topPin13 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin13::before",
-            "top:" + topPin13 + "px;"
-          );
-        });
-        $("#topPin14").hover(function () {
-          //var topScroll = jQuery(window).scrollTop();
-          var topPin14 = $("#topPin14").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin14::after",
-            "top:" + topPin14 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin14::before",
-            "top:" + topPin14 + "px;"
-          );
-        });
-        $("#topPin15").hover(function () {
-          //var topScroll = jQuery(window).scrollTop();
-          var topPin15 = $("#topPin15").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin15::after",
-            "top:" + topPin15 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin15::before",
-            "top:" + topPin15 + "px;"
-          );
-        });
-        $("#topPin16").hover(function () {
-          //var topScroll = jQuery(window).scrollTop();
-          var topPin16 = $("#topPin16").offset().top + 8;
-          document.styleSheets[0].addRule(
-            "#topPin16::after",
-            "top:" + topPin16 + "px;"
-          );
-          document.styleSheets[0].addRule(
-            "#topPin16::before",
-            "top:" + topPin16 + "px;"
-          );
-        });
-
-        // $(function() {
-        //   //列表项背景颜色切换
-        //   $("#demo-list li").click(function() {
-        //     $("#demo-list li.active").removeClass("active")
-        //     $(this).addClass("active");
-        //   })
-        // })
-      </script>
-      <script type="text/javascript">
-        (function ($) {
-          $.expr[":"].Contains = function (a, i, m) {
-            return (
-              (a.textContent || a.innerText || "")
-                .toUpperCase()
-                .indexOf(m[3].toUpperCase()) >= 0
-            );
-          };
-
-          function filterList(header, list) {
-            //@header 头部元素
-            //@list 无序列表
-            //创建一个搜素表单
-            var form = $("<form>").attr({
-                class: "filterform",
-                action: "#",
-              }),
-              input = $("<input>").attr({
-                class: "filterinput",
-                type: "text",
-              });
-            $(form).append(input).appendTo(header);
-            $(input)
-              .change(function () {
-                var filter = $(this).val();
-                if (filter) {
-                  $matches = $(list)
-                    .find("a:Contains(" + filter + ")")
-                    .parent();
-                  $("li", list).not($matches).slideUp();
-                  $matches.slideDown();
-                } else {
-                  $(list).find("li").slideDown();
-                }
-                return false;
-              })
-              .keyup(function () {
-                $(this).change();
-              });
-          }
-          $(function () {
-            filterList($("#form"), $("#demo-list"));
-          });
-        })(jQuery);
-      </script>
-      <link rel="stylesheet" href="/static/common/css/sui-grid.css" />
-      <script
-        type="text/javascript"
-        src="/static/common/js/laydate/laydate.js"
-      ></script>
-      <script
-        type="text/javascript"
-        src="/static/common/editor/kindeditor-min.js"
-      ></script>
-      <script
-        type="text/javascript"
-        src="/static/common/editor/lang/zh_CN.js"
-      ></script>
-      <link
-        rel="stylesheet"
-        href="/static/common/editor/themes/default/default.css"
-      />
-      <style>
-        #list_topstr_ul_box .dropdown-menu > li > a {
-          line-height: 0;
-          padding: 2px 16px;
-        }
-
-        .search_more_width {
-          width: 150px;
-        }
-
-        #mytab {
-          margin-bottom: 10px;
-        }
-
-        #mytab li a {
-          font-size: 12px;
-        }
-
-        #list-msearch .form-group {
-          float: left;
-          width: 50%;
-          margin: 0 0 15px;
-        }
-
-        #list-msearch .form-group .col-md-3 {
-          font-weight: bold;
-        }
-
-        #list-msearch .form-group .col-md-1,
-        #list-msearch .form-group .col-md-3,
-        #list-msearch .form-group .col-md-4,
-        #list-msearch .form-group .col-md-8 {
-          padding-left: 10px;
-          padding-right: 10px;
-          line-height: 2;
-        }
-      </style>
-      <div class="cont_right">
-        <nav class="navbar navbar-default" role="navigation" id="alert123">
-          <div class="container-fluid" style="padding-left: 0px">
-            <div class="collapse navbar-collapse" style="padding-left: 0px">
-              <div class="navbar-brand">包裹管理</div>
-              <form
-                class="navbar-form navbar-left"
-                id="list-nav-form"
-                action="https://www.polarexpress.com.au/poladmin/package"
-                method="post"
-              >
-                <div class="form-group">
-                  <select
-                    name="msearch_text"
-                    class="form-control input-lg"
-                    style="width: 130px"
-                  >
-                    <option value="search_all">模糊搜索</option>
-                    <option value="idnum">物流单号</option>
-                    <option value="send_name">发件人</option>
-                    <option value="receive_name">收件人</option>
-                    <option value="receive_mobile">收件电话</option>
-                    <option value="member_num">客户编码</option>
-                    <option value="pdf_remark">预录入面单备注</option>
-                  </select>
-                  <input type="hidden" name="sm_search" value="1" />
-                  <input
-                    id="msearch_keyword"
-                    style="width: 200px"
-                    data-rule-required="true"
-                    type="text"
-                    name="msearch_keyword"
-                    class="input-lg form-control"
-                    placeholder="多搜索查询，逗号分割"
-                  />
-                  <button
-                    type="submit"
-                    class="btn btn-default btn-lg search_header"
-                  >
-                    搜索
-                  </button>
-                  <a
-                    type="text"
-                    class="btn btn-default btn-lg mearch_button"
-                    href="javascript:;"
-                    data-toggle="modal"
-                    data-target="#list-msearch"
-                    >高级搜索</a
-                  >
-                </div>
-              </form>
-              <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                  <a
-                    href="javascript:;"
-                    class="dropdown-toggle"
-                    data-toggle="dropdown"
-                    role="button"
-                    aria-expanded="false"
-                    >单页数量<span class="caret"></span
-                  ></a>
-                  <ul class="dropdown-menu" role="menu">
-                    <li>
-                      <a
-                        href="javascript:;"
-                        class="btn_pagenum"
-                        url="https://www.polarexpress.com.au/poladmin/"
-                        data="10"
-                      >
-                        10
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="javascript:;"
-                        class="btn_pagenum"
-                        url="https://www.polarexpress.com.au/poladmin/"
-                        data="50"
-                      >
-                        <span style="color: #ff0000">*</span> 50
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="javascript:;"
-                        class="btn_pagenum"
-                        url="https://www.polarexpress.com.au/poladmin/"
-                        data="100"
-                      >
-                        100
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="javascript:;"
-                        class="btn_pagenum"
-                        url="https://www.polarexpress.com.au/poladmin/"
-                        data="500"
-                      >
-                        500
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                <li id="list_topstr_ul_box" class="dropdown">
-                  <a
-                    href="javascript:;"
-                    class="dropdown-toggle"
-                    data-toggle="dropdown"
-                    aria-expanded="false"
-                    >总数量<span class="all_rows_top">(1)</span></a
-                  >
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
-        <div id="alert_seach">
-          <div class="alert" role="alert">
-            <button
-              type="button"
-              class="btn btn-xs pull-left"
-              style="margin-right: 6px"
-              onclick="$.href('https://www.polarexpress.com.au/poladmin/package')"
-            >
-              清空搜索结果</button
-            >&nbsp;
-            <span
-              class="label label-danger pull-left"
-              style="
-                max-width: 400px;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                margin-right: 6px;
-              "
-              >物流单号：PE6205693CL</span
-            >
-          </div>
-        </div>
-
-        <div class="package_cont">
-          <table class="table table-primary table-bordered">
-            <thead>
-              <tr>
-                <th class="wid10">
-                  <div class="checkbox" style="margin: 0">
-                    <span style="display: block; width: 50px; float: left"
-                      >1</span
-                    >
-                    <label style="display: block"
-                      ><input
-                        name="ids[]"
-                        type="checkbox"
-                        value="6205693"
-                        class="dr_select"
-                      />
-                      <b>标签</b></label
-                    >
-                  </div>
-                </th>
-                <th class="wid20">
-                  <a
-                    href="javascript:;"
-                    onclick="showPk('PE6205693CL')"
-                    style="color: #fff"
-                    >PE6205693CL</a
-                  >
-                  （系统录入）
-                </th>
-                <th class="wid10"><span style="margin-left: 15px"></span></th>
-                <th class="wid10">身份证已上传</th>
-                <th class="wid10">2.10KGs</th>
-                <th class="wid30">最新动态：2021-11-14 16:51:03(系统录入)</th>
-                <th class="wid10" style="text-align: center">操作</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr>
-                <td>
-                  <span class="tag-group"><label class="tag"></label></span
-                  >&nbsp;&nbsp;
-                </td>
-                <td colspan="2">
-                  <p>
-                    <img
-                      src="/static/imgs/poladmin/send.png"
-                      style="margin-top: -4px; width: 24px; height: auto"
-                    />：px&nbsp;/&nbsp;0452370352
-                  </p>
-                  <p>
-                    <img
-                      src="/static/imgs/poladmin/get.png"
-                      style="margin-top: -4px; width: 24px; height: auto"
-                    />：张亚楠&nbsp;/&nbsp;18561510937
-                  </p>
-                  <p>山东青岛胶州绿城朗月苑南区9号楼1单元401</p>
-                  <p style="background: #f5f5f5"></p>
-                </td>
-                <td>
-                  <p>包裹已打印</p>
-
-                  <p>
-                    <img
-                      src="/static/imgs/poladmin/p_jdx.png"
-                      title="极地线"
-                      style="width: 25px"
-                    />
-                  </p>
-                </td>
-                <td>
-                  <p>内件数：8</p>
-                  <p>包裹类型：非奶粉</p>
-                  <p>CL</p>
-                </td>
-                <td>
-                  <p class="cp_title">Bubs 果泥 120克 * 3;</p>
-                </td>
-                <td>
-                  <div class="manage">
-                    <a
-                      href="/poladmin/torder_manage/4564177"
-                      class="btn btn-warning"
-                      >管理</a
-                    >
-                  </div>
-                  <div class="print">
-                    <a
-                      href="/poladmin/package_ivprint/6205693"
-                      target="_blank"
-                      class="btn btn-primary"
-                      >打印</a
-                    >
-                  </div>
-                  <div class="void">
-                    <a
-                      href="/poladmin/package_to_torder/4564177"
-                      class="btn btn-success"
-                      >下单</a
-                    >
-                  </div>
-                  <div class="void">
-                    <a href="javascript:;" class="btn btn-default">作废</a>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="gawie-sui-grid-pager">
-          <div class="pull-right">
-            <span class="all_rows">
-              共 <font color="red" class="all_rows_count">1</font> 条</span
-            >
-          </div>
-          <div class="ajax_submit_box pull-left" style="width: 330px">
-            <div
-              class="checkbox"
-              style="margin: 5px 10px 5px 0; float: left; color: #333"
-            >
-              <label style="display: block"
-                ><input
-                  name="dr_select"
-                  id="dr_select"
-                  type="checkbox"
-                  class="dr_select"
-                />
-                当前页面全选</label
-              >
-            </div>
-            <select
-              id="list_select"
-              class="form-control"
-              style="width: 160px; float: left; padding: 1px 4px; height: 28px"
-            >
-              <option value="">--批量操作--</option>
-              <option value="/batch_tags">添加标签</option>
-              <option value="/batch_export">批量导出</option>
-              <option value="/batch_ivprint">批量打印</option></select
-            >&nbsp;
-            <button
-              type="button"
-              id="list_select_button"
-              class="btn btn-primary btn-lg"
-            >
-              确认
-            </button>
-            <input
-              type="hidden"
-              name="list_tr_referrer"
-              value="aHR0cHM6Ly93d3cucG9sYXJleHByZXNzLmNvbS5hdS9wb2xhZG1pbi9wYWNrYWdlPyZpZG51bT1QRTYyMDU2OTNDTA=="
-            />
-            <div class="cl"></div>
-          </div>
-          <input type="hidden" class="page_now" value="1" />
-        </div>
-      </div>
-
-      <div class="modal" id="modalBox">
-        <div class="modal-dialog modal-lg" style="width: 1000px; height: 545px">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="false">&times;</span>
-              </button>
-              <h5 class="modal-title"><span id="modalTitle">标题</span></h5>
-            </div>
-            <div class="modal-body" id="modalContent"></div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="modal fade"
-        id="list-msearch"
-        style="z-index: 9"
-        role="dialog"
-        aria-labelledby="msearchLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <form
-              id="list-msearch-form"
-              class="form-horizontal"
-              action="https://www.polarexpress.com.au/poladmin/package"
-              method="post"
-            >
-              <div class="modal-header">
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">&times;</span>
-                </button>
-                <h5 class="modal-title" id="exampleModalLabel">
-                  包裹列表高级搜索：
-                </h5>
-              </div>
-              <div class="modal-body">
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">物流单号</div>
-                  <div class="col-md-8">
-                    <input
-                      name="msearch_text[idnum]"
-                      type="text"
-                      class="form-control input-lg"
-                      id="fid_msearch_text[idnum]|diy"
-                      value=""
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">发件人</div>
-                  <div class="col-md-8">
-                    <input
-                      name="msearch_text[send_name]"
-                      type="text"
-                      class="form-control input-lg"
-                      id="fid_msearch_text[send_name]|diy"
-                      value=""
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">发件电话</div>
-                  <div class="col-md-8">
-                    <input
-                      name="msearch_text[send_phone]"
-                      type="text"
-                      class="form-control input-lg"
-                      id="fid_msearch_text[send_phone]|diy"
-                      value=""
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">收件人</div>
-                  <div class="col-md-8">
-                    <input
-                      name="msearch_text[receive_name]"
-                      type="text"
-                      class="form-control input-lg"
-                      id="fid_msearch_text[receive_name]|diy"
-                      value=""
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">收件电话</div>
-                  <div class="col-md-8">
-                    <input
-                      name="msearch_text[receive_mobile]"
-                      type="text"
-                      class="form-control input-lg"
-                      id="fid_msearch_text[receive_mobile]|diy"
-                      value=""
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">客户编码</div>
-                  <div class="col-md-8">
-                    <input
-                      name="msearch_text[member_num]"
-                      type="text"
-                      class="form-control input-lg"
-                      id="fid_msearch_text[member_num]|diy"
-                      value=""
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">面单备注</div>
-                  <div class="col-md-8">
-                    <input
-                      name="msearch_text[pdf_remark]"
-                      type="text"
-                      class="form-control input-lg"
-                      id="fid_msearch_text[pdf_remark]|diy"
-                      value=""
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">内件详情</div>
-                  <div class="col-md-8">
-                    <input
-                      name="msearch_text[pkg_info_cn]"
-                      type="text"
-                      class="form-control input-lg"
-                      id="fid_msearch_text[pkg_info_cn]|diy"
-                      value=""
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">包裹状态</div>
-                  <div class="col-md-8">
-                    <select
-                      id="fid_msearch_enum[status]|diy"
-                      name="msearch_enum[status]"
-                      class="form-control input-lg"
-                    >
-                      <option value="0">请选择</option>
-                      <option value="1100">待处理</option>
-                      <option value="1500">系统录入</option>
-                      <option value="2000">仓库处理中</option>
-                      <option value="3000">已发货</option>
-                      <option value="3100">清关中</option>
-                      <option value="4000">转单国内</option>
-                      <option value="4500">签收完成</option>
-                      <option value="5000">作废</option>
-                      <option value="6000">签收问题件</option>
-                      <option value="7000">已退回</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">身份证</div>
-                  <div class="col-md-8">
-                    <select
-                      id="fid_msearch_enum[is_icard]|diy"
-                      name="msearch_enum[is_icard]"
-                      class="form-control input-lg"
-                    >
-                      <option value="0">请选择</option>
-                      <option value="1">未上传</option>
-                      <option value="2">已上传</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">线路</div>
-                  <div class="col-md-8">
-                    <select
-                      id="fid_msearch_enum[haiwai_type]|diy"
-                      name="msearch_enum[haiwai_type]"
-                      class="form-control input-lg"
-                    >
-                      <option value="0">请选择</option>
-                      <option value="1">极地</option>
-                      <option value="2">顺丰</option>
-                      <option value="3">台湾</option>
-                      <option value="4">马来西亚线</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">提货状态</div>
-                  <div class="col-md-8">
-                    <select
-                      id="fid_msearch_enum[pda_th]|diy"
-                      name="msearch_enum[pda_th]"
-                      class="form-control input-lg"
-                    >
-                      <option value="0">请选择</option>
-                      <option value="1">未提货</option>
-                      <option value="2">已提货</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">是否打印</div>
-                  <div class="col-md-8">
-                    <select
-                      id="fid_msearch_enum[is_print]|diy"
-                      name="msearch_enum[is_print]"
-                      class="form-control input-lg"
-                    >
-                      <option value="0">请选择</option>
-                      <option value="1">未打印</option>
-                      <option value="2">已打印</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">包裹类型</div>
-                  <div class="col-md-8">
-                    <select
-                      id="fid_msearch_enum[rate_milk]|diy"
-                      name="msearch_enum[rate_milk]"
-                      class="form-control input-lg"
-                    >
-                      <option value="0">请选择</option>
-                      <option value="1">奶粉</option>
-                      <option value="2">非奶粉</option>
-                      <option value="3">BC</option>
-                      <option value="4">轻奢</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">下单时间</div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[ptime][msearch_time_s]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="开始时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[ptime][msearch_time_e]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="结束时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">系统录入时间</div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[instore_time][msearch_time_s]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="开始时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[instore_time][msearch_time_e]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="结束时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">PDA提货时间</div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[pda_th_time][msearch_time_s]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="开始时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[pda_th_time][msearch_time_e]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="结束时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">总部收货时间</div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[zbsh_time][msearch_time_s]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="开始时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[zbsh_time][msearch_time_e]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="结束时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">发货时间</div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[yfh_time][msearch_time_s]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="开始时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                  <div class="col-md-4">
-                    <input
-                      name="msearch_time[yfh_time][msearch_time_e]"
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="结束时间"
-                      onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-1"></div>
-                  <div class="col-md-3">标签</div>
-                  <div class="col-md-8">
-                    <select
-                      id="fid_msearch_omtype[tags]|diy"
-                      name="msearch_omtype[tags]"
-                      class="form-control input-lg"
-                    >
-                      <option value="">请选择</option>
-                      <option value="1">待审核</option>
-                      <option value="2">待处理</option>
-                      <option value="3">待门店处理</option>
-                      <option value="4">已发账单</option>
-                      <option value="5">已收账</option>
-                      <option value="6">遗失</option>
-                      <option value="7">异常件</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="cl"></div>
-              </div>
-              <div class="modal-footer">
-                <button type="reset" class="btn btn-lg">重置</button>
-                <button type="submit" class="btn btn-primary btn-lg">
-                  提交
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <script type="text/javascript">
-        //查询物流单号
-        function showPk(id) {
-          console.log(id);
-          var html = "/wechat/track/?s=" + id;
-          window.open(
-            html,
-            "newwindow",
-            "height=500, width=800, top=0,left=0, toolbar=no,menubar=no, scrollbars=no, resizable=no,location=no, status=no"
-          );
-        }
-
-        /*菜单全部选择*/
-        $(document).on("click", "#dr_select", function () {
-          $(this)
-            .parent()
-            .parent()
-            .parent()
-            .parent()
-            .parent()
-            .parent()
-            .parent()
-            .parent()
-            .find("input[type='checkbox']")
-            .prop("checked", $(this).is(":checked"));
-        });
-
-        //单页数量
-        $(document).on("click", ".btn_pagenum", function () {
-          $.ajax({
-            url:
-              $(this).attr("url") +
-              "/index_set_page_num?num=" +
-              $(this).attr("data") +
-              "&type=package",
-            type: "GET",
-            success: function () {
-              window.location.reload();
-            },
-          });
-        });
-
-        //批量选择
-        $(document).on("click", "#list_select_button", function () {
-          var thisvar = $("#list_select").val();
-          if (thisvar == "") {
-            alert("请选择操作内容");
-            return false;
-          }
-          var pkg_ids = "";
-          $('input[name="ids[]"]:checked').each(function () {
-            pkg_ids += $(this).val() + ",";
-          });
-          if (pkg_ids == "") {
-            alert("请选择包裹");
-            return false;
-          }
-          if (thisvar == "/batch_tags") {
-            var initLetter = "a";
-            $.loading("show");
-            $.ajax({
-              type: "GET",
-              url: "/poladmin/batch_tags?ids=" + pkg_ids,
-              dataTyple: "html",
-              success: function (html) {
-                $.loading("hide");
-                clearmodal();
-                $("#modalBox").modal({
-                  keyboard: false,
-                });
-                $("#modalTitle").html("添加标签");
-                $("#modalContent").html(html);
-                $("#myList").listnav({
-                  includeAll: false,
-                  includeOther: true,
-                  initLetter: initLetter,
-                  removeDisabled: true,
-                  noMatchText: "没有内容",
-                  prefixes: ["the", "a"],
-                });
-              },
-            });
-          } else {
-            window.open(
-              "https://www.polarexpress.com.au/poladmin" +
-                thisvar +
-                "?pkg_ids=" +
-                pkg_ids
-            );
-          }
-        });
-
-        var getWindowSize = function () {
-          return ["Height", "Width"].map(function (name) {
-            return (
-              window["inner" + name] ||
-              (document.compatMode === "CSS1Compat" &&
-                document.documentElement["client" + name]) ||
-              document.body["client" + name]
-            );
-          });
-        };
-
-        $(function () {
-          reset_listht();
-
-          function reset_listht() {
-            var alert123 = document.getElementById("alert123").offsetHeight;
-            var alert_seach =
-              document.getElementById("alert_seach").offsetHeight;
-            //重置列表高度
-            var str123 = getWindowSize();
-            var strs123 = new Array(); //定义一数组
-            strs123 = str123.toString().split(","); //字符分割
-            var heights = strs123[0] - 170;
-            var heights1 = heights - alert123 - alert_seach;
-            if (heights1 == 0) {
-              heights1 = 30;
-            }
-            $(".package_cont").css("max-height", heights1 + "px");
-          }
-          //状态搜索
-          $(document).on("change", "#search_ltype", function () {
-            var index = $(this);
-            if ($(this).val()) {
-              //清空前任
-              $.toast({
-                text: "加载中...[关闭]",
-                type: "danger",
-                position: "center",
-                timeout: "2000",
-              }).show();
-              $.ajax({
-                type: "GET",
-                url:
-                  "https://www.polarexpress.com.au/poladmin/msearch_ltype/" +
-                  $(this).val(),
-                dataTyple: "html",
-                success: function (html) {
-                  $(".toast").hide();
-                  //$('#search_ltype_box').html('');
-                  $("#search_ltype_box").append(html);
-                  index.val("");
-                },
-              });
-            }
-          });
-          //关联表搜索
-          $(document).on("change", "#search_otype", function () {
-            //清空前任
-            if ($(this).val()) {
-              $.toast({
-                text: "加载中...[关闭]",
-                type: "danger",
-                position: "center",
-                timeout: "2000",
-              }).show();
-              $.ajax({
-                type: "GET",
-                url:
-                  "https://www.polarexpress.com.au/poladmin/msearch_otype/" +
-                  $(this).val(),
-                dataTyple: "html",
-                success: function (html) {
-                  $(".toast").hide();
-                  //$('#search_otype_box').html('');
-                  $("#search_otype_box").append(html);
-                },
-              });
-            }
-          });
-          //关联表搜索2[复杂多数据搜索]
-          $(document).on("change", "#search_omtype", function () {
-            //清空前任
-            $.toast({
-              text: "加载中...[关闭]",
-              type: "danger",
-              position: "center",
-              timeout: "2000",
-            }).show();
-            $.ajax({
-              type: "GET",
-              url:
-                "https://www.polarexpress.com.au/poladmin/msearch_omtype/" +
-                $(this).val(),
-              dataTyple: "html",
-              success: function (html) {
-                $(".toast").hide();
-                $("#search_omtype_box").html("");
-                $("#search_omtype_box").html(html);
-              },
-            });
-          });
-
-          //标签[复杂多数据搜索]
-          $(document).on("change", "#search_tags", function () {
-            //清空前任
-            if ($(this).val()) {
-              $.toast({
-                text: "加载中...[关闭]",
-                type: "danger",
-                position: "center",
-                timeout: "2000",
-              }).show();
-              $.ajax({
-                type: "GET",
-                url: "https://www.polarexpress.com.au/poladmin/msearch_tags/",
-                dataTyple: "html",
-                success: function (html) {
-                  $(".toast").hide();
-                  //$('#search_otype_box').html('');
-                  $("#search_tags_box").append(html);
-                  $("#search_tags").val("1");
-                },
-              });
-            }
-          });
-
-          //排序
-          $(document).on("change", "#msearch_orderby", function () {
-            $("#msearch_orderby_val").show();
-          });
-          //移除状态选择
-          $(document).on("click", ".search_ltype_p_remove", function () {
-            $(this).parent().remove();
-            $(this).remove();
-          });
-          $(document).on(
-            "click",
-            ".ajax_html_msearch_otype_remove",
-            function () {
-              $(this).parent().remove();
-              $(this).remove();
-            }
-          );
-          $(document).on(
-            "click",
-            ".ajax_html_msearch_tags_remove",
-            function () {
-              $(this).parent().remove();
-              $(this).remove();
-            }
-          );
-          //移除列表字段显示dropdown a标签效果
-          $(document).on("click", "#list_topstr_ul li a", function (e) {
-            e.stopPropagation();
-          });
-          //列表字段显示提交
-          $(document).on("click", "#list_topstr_submit", function () {
-            var getstr = "";
-            $(".list_topstr_check").each(function () {
-              if ($(this).prop("checked")) {
-                getstr += "&" + $(this).attr("data") + "=1";
-              }
-            });
-            $.ajax({
-              type: "GET",
-              url:
-                "https://www.polarexpress.com.au/poladmin/index_set_field/?" +
-                getstr,
-              dataTyple: "html",
-              success: function (html) {
-                window.location.reload();
-              },
-            });
-          });
-
-          //列表字段显示全选
-          $(document).on("click", "#list_topstr_all", function () {
-            $(".list_topstr_check").each(function () {
-              if (!$(this).prop("checked")) {
-                $(this).prop("checked", true);
-              }
-            });
-          });
-
-          $(document).on("change", "#op_type", function () {
-            if ($(this).val() == "import") {
-              $("#insertfile").show();
-              var editor = KindEditor.editor({
-                uploadJson: "/api/upload/attach",
-              });
-              KindEditor("#insertfile").click(function () {
-                editor.loadPlugin("insertfile", function () {
-                  editor.plugin.fileDialog({
-                    fileUrl: $("#xlsurl").val(),
-                    clickFn: function (url, title) {
-                      $("#xlsurl").val(url);
-                      editor.hideDialog();
-                    },
-                  });
-                });
-              });
-            } else {
-              $("#insertfile").hide();
-            }
-          });
-        });
-
-        //清空弹出层
-        function clearmodal() {
-          $("#modalBox").modal("hide");
-          $("#modalContent").html("");
-          $("#modalTitle").html("");
-        }
-
-        //高级搜索
-        $(document).on("click", ".mearch_button", function () {
-          // var btn = $(this).button('loading');
-          // gprompt_layer = $.layer({
-          //     zIndex : 5,
-          //     type : 1,
-          //     area : ['902px' , '620px'],
-          //     shade: [0.3, '#000'],
-          //     title : "操作提示：",
-          //     border : [0],
-          //     offset: ['80px', ''],
-          //     closeBtn: [0, true],
-          //     fix: true,
-          //     page : {dom  : '#msearch'},
-          //     close : function(index){
-          //         layer.close(gprompt_layer);
-          //         if (btn) {btn.button('reset')};
-          //     }
-          // });
-        });
-
-        $(document).on("click", ".search_header", function () {
-          var value = $("#msearch_keyword").val();
-          if (value == "") {
-            alert("请先填写搜索字符");
-            return false;
-          }
-        });
-        /**
-         * 包裹作废
-         * @param  {[type]} pkg_id [description]
-         * @return {[type]}        [description]
-         */
-        function del(pkg_id) {
-          $.ajax({
-            url: "/torder_manage/cancel_pkg_auth/" + pkg_id,
-            type: "GET",
-            dataType: "json",
-            success: function (rst) {
-              if (rst.sts == 1) {
-                clearmodal();
-
-                var html =
-                  '<div class="container-fluid">' +
-                  '<form id="cancel_pkg" name="cancel_pkg" action="/torder_manage/ajax_del_pkg" method="post">' +
-                  '<input name="type" type="hidden" value="1">' +
-                  '<input name="pkg_id" type="hidden" value="' +
-                  pkg_id +
-                  '">' +
-                  '<input name="torder_id" type="hidden" value="' +
-                  rst.torder_id +
-                  '">' +
-                  '<table width="100%" class="table table-vstriped table-bordered" border="0" cellspacing="0" cellpadding="0">' +
-                  "<tbody>" +
-                  "<tr>" +
-                  '<td width="100" align="right" class="td_tt">作废原因： </td>' +
-                  "<td>" +
-                  '<textarea name="reason" required="true" id="reason" style="width: 100%"></textarea>' +
-                  "</td>" +
-                  "</tr>" +
-                  "<tr>" +
-                  "<td></td>" +
-                  "<td>" +
-                  '<button type="submit" class="btn btn-primary btn-xl" onclick="cancel()">保存</button>' +
-                  "</td>" +
-                  "</tr>" +
-                  "</tbody>" +
-                  "</table>" +
-                  "</form>" +
-                  "</div>" +
-                  '<script type="text/javascript">' +
-                  "function cancel() {" +
-                  'var reason = $("#reason").val();' +
-                  "reason = reason.trim();" +
-                  'if (reason == "") {' +
-                  'alert("作废原因必须填写");' +
-                  "return;" +
-                  "}" +
-                  'if (confirm("作废是不可恢复的，你确认要作废吗?")) {' +
-                  'ajax_post($("#cancel_pkg"), 1);' +
-                  "}" +
-                  "}" +
-                  "<\/script>;";
-                $("#modalBox2").modal({
-                  keyboard: false,
-                  hide: function (e) {},
-                });
-                $("#modalTitle2").html("作废包裹");
-                $("#modalContent2").html(html);
-              } else {
-                alert(rst.msg);
-              }
-            },
-          });
-        }
-      </script>
     </div>
+    <div
+      style="
+        background: #fff;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #dddddd;
+        border-top: 1px solid #dddddd;
+        margin-top: 0.5rem;
+      "
+    >
+      <div style="padding: 10px">
+        <a href="" class="view_ad"><img width="100%" src="" /></a>
+        <div class="cl"></div>
+      </div>
+    </div>
+    <div id="sf_track" class="weui-popup__container">
+      <div class="weui-popup__overlay"></div>
+      <div class="weui-popup__modal">
+        <a href="javascript:;" class="sf_tracknum close-popup">关闭</a>
+        <div
+          class="weui_panel_bd"
+          id="asd"
+          style="
+            background: #fff;
+            margin-top: 0.5rem;
+            border-top: 1px solid #dddddd;
+            padding: 1.5rem 0;
+          "
+        >
+          <script>
+            function track_sf(obj) {
+              var trans_num = $(obj).data("transnum");
+              $.ajax({
+                type: "get",
+                url: "/index/track_sf?postnum=" + trans_num,
+                dataType: "html",
+                success: function (html) {
+                  console.log(html);
+                  $("#asd").empty();
+                  $("#asd").append(html);
+                },
+              });
+            }
+          </script>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      $(function () {
+        $(".view_ad").click(function () {
+          $.ajax({
+            type: "POST",
+            url: "/index/clickad/",
+            data: {
+              ad_banner: 145,
+              view_page: "1",
+            },
+            dataType: "json",
+            success: function (data) {},
+          });
+        });
+      });
+      $("#track_type").change(function () {
+        var type = this.options[this.options.selectedIndex].value;
+        if (type == "2") {
+          window.location.href = "/wechat/track_city";
+        }
+      });
+    </script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.0/js/jquery-weui.min.js"></script>
+    <script src="//cdn.bootcss.com/fastclick/1.0.6/fastclick.js"></script>
+    <script
+      type="text/javascript"
+      src="/static/weui/localresize_js/lrz.bundle.js"
+    ></script>
+    <script type="text/javascript" src="/static/weui/js/gcommon.js"></script>
+
+    <script>
+      (function (i, s, o, g, r, a, m) {
+        i["GoogleAnalyticsObject"] = r;
+        (i[r] =
+          i[r] ||
+          function () {
+            (i[r].q = i[r].q || []).push(arguments);
+          }),
+          (i[r].l = 1 * new Date());
+        (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m);
+      })(
+        window,
+        document,
+        "script",
+        "https://www.google-analytics.com/analytics.js",
+        "ga"
+      );
+
+      ga("create", "UA-107071305-1", "auto");
+      ga("send", "pageview");
+    </script>
   </body>
 </html>
