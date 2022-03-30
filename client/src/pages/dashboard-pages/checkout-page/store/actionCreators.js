@@ -34,6 +34,7 @@ export const getAllItemsAction = async (dispatch) => {
       entry[1].forEach((item) => {
         item.dateTime = new Date(item.updatedAt).toLocaleString();
         item.qty_available = item.qty - item.qty_in_cart;
+        item.sendTimeLocale = new Date(item.sendTimeISO).toLocaleString()
       });
     });
 
@@ -127,6 +128,7 @@ export const addToCartAction = (record) => {
 export const addToExceptionAction = (item) => {
   return async (dispatch) => {
     try {
+      console.log(item);
       const response = await axios.put(
         serverBaseUrl + "/api/checkout/add_to_exception",
         item

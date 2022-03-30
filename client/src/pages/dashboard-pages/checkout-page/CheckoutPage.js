@@ -125,12 +125,10 @@ const antIcon = (
 );
 
 const colors = {
-  //cart: " #189AB4",
   cart: " #145DA0",
   sold: "darkgreen",
   stock: "sandybrown",
   employee: "#18a16d",
-  recover: "#E8B4B8",
   recover: "#E8B4B8",
   exception: "#DF362D",
   approve: "#3751ff",
@@ -214,7 +212,6 @@ const CheckoutPage = (props) => {
     cartItemsCount,
     showModal,
     setShowModal,
-    prepareAddToException,
     addToException,
     handleAddToEmployee,
     handleRecoverFromException,
@@ -240,7 +237,7 @@ const CheckoutPage = (props) => {
 
   useEffect(() => {
     setColumnsState(setColumns(blockSelected));
-  }, [countSpinning]);
+  }, [blockSelected]);
 
   const [tableDataState, setTableDataState] = useState([]);
 
@@ -258,7 +255,7 @@ const CheckoutPage = (props) => {
     const destinations = ["stock", "employee", "recover", "approve"];
     const index = destinations.indexOf(destination);
 
-    if (destination != "cart") {
+    if (destination !== "cart") {
       return destination === "approve" ? (
         <Popconfirm
           disabled={record.qty_available <= 0 ? true : ""}
@@ -454,14 +451,23 @@ const CheckoutPage = (props) => {
                 },
               },
               {
-                title: "Noted",
+                title: "Note",
                 dataIndex: "note",
                 key: "note",
               },
               {
-                title: "Last updated at",
-                dataIndex: "dateTime",
-                key: "date",
+                title: "Parcel",
+                dataIndex: "parcel",
+                key: "parcel",
+                render: (text, record, index) => {
+                  return (
+                    <>
+                      <div>{record.receiver}</div>
+                      <div>{record.pk_id}</div>
+                      <div>{record.sendTimeLocale}</div>
+                    </>
+                  );
+                },
               },
               {
                 title: "Add to",

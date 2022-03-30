@@ -16,6 +16,8 @@ const soldItemsSchema = new mongoose.Schema(
     status: { type: String, required: true },
     type: { type: String, required: true },
     log: { type: String, required: true },
+    receiver: { type: String, required: true },
+    sendTimeISO: { type: Date, required: true },
   },
   { timestamps: true }
 );
@@ -35,6 +37,8 @@ const stockItemsSchema = new mongoose.Schema(
     status: { type: String, required: true },
     type: { type: String, required: true },
     log: { type: String, required: true },
+    receiver: { type: String, required: true },
+    sendTimeISO: { type: Date, required: true },
   },
   { timestamps: true }
 );
@@ -54,6 +58,8 @@ const employeeItemsSchema = new mongoose.Schema(
     status: { type: String, required: true },
     type: { type: String, required: true },
     log: { type: String, required: true },
+    receiver: { type: String, required: true },
+    sendTimeISO: { type: Date, required: true },
   },
   { timestamps: true }
 );
@@ -77,7 +83,9 @@ const exceptionItemsSchema = new mongoose.Schema(
     log: { type: String, required: true },
     subtotal: { type: Number, required: true },
     qty_in_cart: { type: Number, default: 0, required: true },
-    approved:{type:Boolean, default:false, required:true}
+    approved: { type: Boolean, default: false, required: true },
+    receiver: { type: String, required: true },
+    sendTimeISO: { type: Date, required: true },
   },
   { timestamps: true }
 );

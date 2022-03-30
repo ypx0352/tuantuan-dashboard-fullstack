@@ -252,6 +252,8 @@ const addToException = async (req, res) => {
       exchangeRate,
       status,
       log,
+      receiver,
+      sendTimeISO,
     } = originalRecord;
 
     // Add the item to exception collection. If the same item (share the same pk_id, cost, payAmountEach (amount reimbursed)) exists in the exception collection, increase the qty, payAmount and subtotal of the item, resetting the approved status to false. Otherwise, create a new record of this item in exception collection.
@@ -271,7 +273,7 @@ const addToException = async (req, res) => {
     });
     if (recordInException !== null) {
       await ExceptionItemModel.findByIdAndUpdate(recordInException._id, {
-        $inc: { qty: addToCart, payAmount: payAmount, subtotal:subtotal },
+        $inc: { qty: addToCart, payAmount: payAmount, subtotal: subtotal },
         $set: {
           approved: false,
           log:
@@ -297,6 +299,8 @@ const addToException = async (req, res) => {
         note,
         exchangeRate,
         status,
+        receiver,
+        sendTimeISO,
         log:
           log +
           `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
@@ -412,13 +416,15 @@ const recoverFromException = async (req, res) => {
     const newPayAmount = Number(
       (recordInException.payAmountEach * newQty).toFixed(2)
     );
-    const newSubtotal = Number((recordInException.subtotal / recordInException.qty * newQty).toFixed(2))
+    const newSubtotal = Number(
+      ((recordInException.subtotal / recordInException.qty) * newQty).toFixed(2)
+    );
     if (newQty > 0) {
       await ExceptionItemModel.findByIdAndUpdate(_id, {
         $set: {
           qty: newQty,
           payAmount: newPayAmount,
-          subtotal:newSubtotal,
+          subtotal: newSubtotal,
           log:
             recordInException.log +
             `*[${dateTime} Exception - ${addToRecover} => ${firstLetterToUpperCase(

@@ -23,6 +23,7 @@ export const searchAction = (pk_id) => {
         serverBaseUrl + `/api/order/${pk_id.trim()}`
       );
       const { result } = response.data;
+      result.sendTimeLocale = new Date(result.sendTimeISO).toLocaleString();
 
       dispatch({
         type: actionTypes.INITIAL_ORDER,
@@ -138,10 +139,12 @@ export const saveConfirmationDataAction = (
   packageData,
   receiverData
 ) => {
+  console.log(confirmationData);
   return async (dispatch) => {
     dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(true) });
 
     const confirmResult = {};
+    delete packageData.sendTimeLocale
     try {
       const response = await axios.post(serverBaseUrl + "/api/order/confirm", {
         confirmationData,
@@ -150,7 +153,7 @@ export const saveConfirmationDataAction = (
       });
       // TODO need a customised alert and reset data
       const { msg } = response.data;
-      confirmResult.title = "Success";
+      confirmResult.success = true;
       confirmResult.msg = msg;
 
       dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(false) });
@@ -162,7 +165,7 @@ export const saveConfirmationDataAction = (
     } catch (error) {
       console.log(error);
       const { msg } = error.response.data;
-      confirmResult.title = "Error";
+      confirmResult.success = false;
       confirmResult.msg = msg;
 
       dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(false) });

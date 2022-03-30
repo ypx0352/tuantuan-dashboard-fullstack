@@ -127,24 +127,47 @@ const parseHtml = (data) => {
   return package_msg;
 };
 
+const parseTrackHtml = (data) => {
+  const $ = cheerio.load(data);
+  const sendTime = $(".track-time").eq(0).text();
+  return new Date(sendTime);
+};
+
+const getSendTime = async (pk_id) => {
+  const url = `https://www.polarexpress.com.au/wechat/track/?s=${pk_id}`;
+  const response = await axios.get(url);
+  const sendTime = await parseTrackHtml(response.data);
+  return sendTime;
+};
+
 const getOrder = async (req, res) => {
   const { pk_id } = req.params;
-  var result = await getOnePackage(pk_id);
-  // try to relogin when cookies expire
-  for (let index = 0; index <= 3; index++) {
-    if (result != "false") {
-      res.status(200).json({ result: result });
-      break;
-    } else {
-      if (index !== 3) {
-        await login();
-        result = await getOnePackage(pk_id);
+  try {
+    var result = await getOnePackage(pk_id);
+    const sendTimeISO = await getSendTime(pk_id);
+
+    // try to login again when cookies expire
+    for (let index = 0; index <= 3; index++) {
+      if (result != "false") {
+        result.sendTimeISO = sendTimeISO;
+        res.status(200).json({ result: result });
+        break;
       } else {
-        res
-          .status(400)
-          .json({ msg: "Can not find the package, please check your input!" });
+        if (index !== 3) {
+          await login();
+          result = await getOnePackage(pk_id);
+        } else {
+          res.status(400).json({
+            msg: "Can not find the package, please check your input!",
+          });
+        }
       }
     }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(400)
+      .json({ msg: "Can not find the package. Server error." });
   }
 };
 
@@ -166,7 +189,9 @@ const getExchangeRate = async (req, res) => {
 const submitOrder = async (req, res) => {
   const dataTime = new Date().toLocaleString();
   const tableData = req.body;
-  const { id, exchangeRate } = tableData.package;
+
+  const { id, exchangeRate, sendTimeISO } = tableData.package;
+  const { receiver } = tableData;
   try {
     const items = [[], [], []];
     tableData.items.forEach((element) => {
@@ -186,7 +211,9 @@ const submitOrder = async (req, res) => {
             ...element,
             qty: count,
             pk_id: id,
-            exchangeRate: exchangeRate,
+            exchangeRate,
+            sendTimeISO,
+            receiver,
             type: types[index],
             status: "Order placed",
             log: `*[${dataTime} ${firstLetterToUpperCase(
@@ -223,53 +250,61 @@ const confirmOrder = async (req, res) => {
     ExceptionItemModel,
   ];
 
-  const result = await PackageModel.findOne({ id: pk_id });
-  if (result !== null) {
-    return res.status(400).json({
-      msg: "Failed! This package has already been saved! ",
-    });
-  }
-
-  for (const model of models) {
-    const result = await model.findOne({ pk_id });
+  try {
+    const result = await PackageModel.findOne({ id: pk_id });
     if (result !== null) {
       return res.status(400).json({
         msg: "Failed! This package has already been saved! ",
       });
     }
-  }
 
-  // Insert data to three data collections
-  const itemsCollections = [sold, stock, employee];
-  const types = ["Sold", "Stock ", "employee"];
-  for (let index = 0; index < itemsCollections.length; index++) {
-    const itemCollection = itemsCollections[index];
-    if (itemCollection.length > 0) {
-      try {
-        await models[index].insertMany(
-          itemCollection.map((item) => {
-            delete item.key;
-            return item;
-          })
-        );
-      } catch (error) {
-        console.log(error);
-        return res
-          .status(400)
-          .json({ msg: `Failed to save ${types[index]} items.` });
+    for (const model of models) {
+      const result = await model.findOne({ pk_id });
+      if (result !== null) {
+        return res.status(400).json({
+          msg: "Failed! This package has already been saved! ",
+        });
       }
     }
+
+    // Insert data to three data collections
+    const itemsCollections = [sold, stock, employee];
+    const types = ["Sold", "Stock ", "employee"];
+    for (let index = 0; index < itemsCollections.length; index++) {
+      const itemCollection = itemsCollections[index];
+      if (itemCollection.length > 0) {
+        try {
+          await models[index].insertMany(
+            itemCollection.map((item) => {
+              console.log(item);
+              delete item.key;
+              return item;
+            })
+          );
+        } catch (error) {
+          console.log(error);
+          return res
+            .status(400)
+            .json({ msg: `Failed to save ${types[index]} items.` });
+        }
+      }
+    }
+
+    // Save package information to package collection.
+    delete packageData.key;
+    delete receiverData.key;
+
+    await PackageModel.create(Object.assign(packageData, receiverData));
+
+    res
+      .status(200)
+      .json({ msg: "Data have been saved to database successfully!" });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(400)
+      .json({ msg: "Failed to save this order. Server error." });
   }
-
-  // Save package information to package collection.
-  delete packageData.key;
-  delete receiverData.key;
-
-  await PackageModel.create(Object.assign(packageData, receiverData));
-
-  res
-    .status(200)
-    .json({ msg: "Data have been saved to database successfully!" });
 };
 
 module.exports = { getOrder, getExchangeRate, submitOrder, confirmOrder };

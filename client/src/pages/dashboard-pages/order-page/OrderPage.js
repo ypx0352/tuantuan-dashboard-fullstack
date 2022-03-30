@@ -202,11 +202,13 @@ const OrderPage = (props) => {
     {
       key: "packageData",
       id: originalOrder.get("package_id"),
+      sendTimeLocale: originalOrder.get("sendTimeLocale"),
       type: originalOrder.get("item_type"),
       weight: originalOrder.get("package_weight"),
       count: originalOrder.get("item_count"),
       postage: postage,
       exchangeRate: exchangeRateInSetting,
+      sendTimeISO: originalOrder.get("sendTimeISO"),
     },
   ];
 
@@ -220,6 +222,11 @@ const OrderPage = (props) => {
           title: "ID",
           dataIndex: "id",
           key: "id",
+        },
+        {
+          title: "Date",
+          dataIndex: "sendTimeLocale",
+          key: "sendTimeLocale",
         },
         {
           title: "Type",
@@ -622,10 +629,6 @@ const OrderPage = (props) => {
       confirmationRef.current.scrollIntoView({ behavior: "smooth" });
     }, 100);
 
-  // Fetch confirm result from store
-  const confirmResultTitle = confirmResult.get("title");
-  const confirmResultMessage = confirmResult.get("msg");
-
   return (
     <Container>
       <Left>
@@ -714,6 +717,7 @@ const OrderPage = (props) => {
                   handleSubmit({
                     items: itemTableData,
                     package: packageData[0],
+                    receiver: receiverData[0]["receiver"],
                   });
                   scrollToConfirmation();
                 }}
@@ -812,15 +816,25 @@ const OrderPage = (props) => {
       <BackTop />
 
       <Modal
-        title={confirmResultTitle}
+        title={
+          confirmResult.get("success") ? (
+            <span class="material-icons-outlined" style={{ color: "#18a16d" }}>
+              thumb_up_off_alt
+            </span>
+          ) : (
+            <span class="material-icons-outlined" style={{ color: "#DF362D" }}>
+              error
+            </span>
+          )
+        }
         visible={showConfirmationResultDialog}
-        okText="Place new order"
+        okText="Place a new order"
         cancelText="Close"
         style={{ top: "20px" }}
         onOk={handleOnOk}
         onCancel={() => setShowConfirmationResultDialog(false)}
       >
-        <p>{confirmResultMessage}</p>
+        <p>{confirmResult.get("msg")}</p>
       </Modal>
     </Container>
   );

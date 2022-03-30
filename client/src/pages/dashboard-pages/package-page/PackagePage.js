@@ -146,7 +146,6 @@ const PackagePage = (props) => {
   } = props;
   const [searchInput, setSearchInput] = useState();
   const [tableDataState, setTableDataState] = useState({});
-  const [latestPackagesState, setLatestPackagesState] = useState([]);
 
   useEffect(() => {
     getLatestPackages();
@@ -155,8 +154,6 @@ const PackagePage = (props) => {
   useEffect(() => {
     setTableDataState(tableData);
   }, [tableData]);
-
-  useEffect(() => setLatestPackagesState(latestPackages), [latestPackages]);
 
   const packageColumns = [
     {
@@ -299,7 +296,7 @@ const PackagePage = (props) => {
   };
 
   const generatePackageTag = () => {
-    return latestPackagesState.map((item) => (
+    return latestPackages.map((item) => (
       <PackageTag type={item.type} onClick={() => searchPackage(item.id)}>
         {item.id} {item.receiver}
       </PackageTag>
@@ -324,11 +321,11 @@ const PackagePage = (props) => {
             <span>PE6420948BB</span>
             <StyledInput
               onChange={(e) => setSearchInput(e.target.value)}
-              onPressEnter={() => searchPackage(searchInput.trim())}
+              onPressEnter={() => searchPackage(searchInput)}
             />
             <StyledButton
               type="search"
-              onClick={() => searchPackage(searchInput.trim())}
+              onClick={() => searchPackage(searchInput)}
               loading={tableSpinning}
             >
               Search
@@ -417,7 +414,7 @@ const mapDispatch = (dispatch) => ({
     if (pk_id === undefined) {
       return message.warn("Input must not be null.");
     }
-    dispatch(actionCreators.searchPackageAction(pk_id));
+    dispatch(actionCreators.searchPackageAction(pk_id.trim()));
   },
 
   getLatestPackages(limit) {
