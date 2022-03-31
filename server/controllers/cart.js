@@ -11,7 +11,6 @@ const user_id = "tuantuan";
 
 const addToCart = async (req, res) => {
   const { addToCart, _id, type } = req.body;
-
   const types = ["sold", "stock", "employee", "exception"];
   const models = [
     SoldItemsModel,
@@ -29,12 +28,13 @@ const addToCart = async (req, res) => {
         .status(400)
         .json({ msg: "Failed to add to cart. Item does not exist!" });
     } else {
-      // Add the qty in the cart
+      // Add the qty_in_cart of the item in the original collection
       await models[typeIndex].findByIdAndUpdate(_id, {
         $inc: { qty_in_cart: addToCart },
       });
 
-      const { item, cost, type } = originalItem;
+      const { item, cost, type, receiver, pk_id } = originalItem;
+
       solid_id = _id;
       const user_id = "tuantuan";
       var payAmount = 0;
@@ -50,7 +50,16 @@ const addToCart = async (req, res) => {
       } else {
         payAmount = Number((cost * addToCart).toFixed(2));
       }
-      cartItem = { item, solid_id, cost, addToCart, type, payAmount };
+      cartItem = {
+        item,
+        solid_id,
+        cost,
+        addToCart,
+        type,
+        payAmount,
+        receiver,
+        pk_id,
+      };
 
       const result = await CartModel.findOne({ user_id: user_id });
       if (result === null) {
@@ -102,8 +111,15 @@ const removeCartItem = async (req, res) => {
   ];
   const typeIndex = types.indexOf(type);
   try {
+    // Make sure the item exists in the original collection.
+
+    const result = await models[typeIndex].findById(solid_id);
+    if (result === null) {
+      return res.status(400).json({ msg: "The item does not exist." });
+    }
+
     // Update the item's qty in the cart
-    const result = await models[typeIndex].findByIdAndUpdate(solid_id, {
+    await models[typeIndex].findByIdAndUpdate(solid_id, {
       $inc: { qty_in_cart: -addToCart },
     });
 

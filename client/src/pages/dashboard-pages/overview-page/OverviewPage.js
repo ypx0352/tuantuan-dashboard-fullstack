@@ -67,7 +67,7 @@ const OverviewPage = () => {
   return (
     <Container>
       <Left>
-        <Sidebar />
+        <Sidebar selected="overview" />
       </Left>
       <Right>
         <Header

@@ -632,7 +632,7 @@ const OrderPage = (props) => {
   return (
     <Container>
       <Left>
-        <Sidebar />
+        <Sidebar selected="order" />
       </Left>
       <Right>
         <Header

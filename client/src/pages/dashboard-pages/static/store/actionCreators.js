@@ -10,12 +10,14 @@ export const initializeCartAction = async (dispatch) => {
   try {
     const response = await axios.get(serverBaseUrl + "/api/cart/items");
     const { result } = response.data;
+
     var cartItemsCount = 0;
     var cartSubtotal = 0;
     result.forEach((element) => {
       cartItemsCount += element.addToCart;
       cartSubtotal += element.payAmount;
     });
+
     dispatch({ type: actionTypes.GET_CART_ITEMS, value: fromJS(result) });
     dispatch({
       type: actionTypes.CART_ITEMS_COUNT,
@@ -41,7 +43,7 @@ export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
       );
       const { msg } = response.data;
       message.success(msg);
-      dispatch(actionCreators.getAllItemsAction)
+      dispatch(actionCreators.getAllItemsAction);
       dispatch(initializeCartAction);
     } catch (error) {
       console.log(error);

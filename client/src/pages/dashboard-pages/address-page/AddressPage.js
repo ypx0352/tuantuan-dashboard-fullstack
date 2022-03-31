@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import {
   Table,
@@ -14,7 +15,7 @@ import {
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
-import { data, province, city, area } from "province-city-china/data";
+import { province, city, area } from "province-city-china/data";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
 const { Option } = Select;
@@ -110,6 +111,9 @@ const AddressPage = (props) => {
     updateAddress,
   } = props;
 
+  const [params] = useSearchParams();
+  const receiverFromUrl = params.get("receiver");
+
   const [addressInput, setAddressInput] = useState({});
 
   const [optionCode, setOptionCode] = useState({});
@@ -126,6 +130,12 @@ const AddressPage = (props) => {
     setTableData(allAddress);
   }, [allAddress]);
 
+  useEffect(() => {
+    if (receiverFromUrl !== null) {
+      handleSearch(receiverFromUrl);
+    }
+  }, [tableSpinning]);
+
   const onReset = () => {
     form.resetFields();
     setAddressInput({});
@@ -137,6 +147,7 @@ const AddressPage = (props) => {
         size="small"
         type="primary"
         ghost
+        style={{ margin: "1px", width: "70px" }}
         onClick={() => {
           setAddressInput(record);
           onCancel();
@@ -150,7 +161,12 @@ const AddressPage = (props) => {
         title={<p>Delete this address?</p>}
         onConfirm={() => deleteAddress(record._id)}
       >
-        <Button size="small" danger ghost>
+        <Button
+          size="small"
+          style={{ margin: "1px", width: "70px" }}
+          danger
+          ghost
+        >
           {name}
         </Button>
       </Popconfirm>
@@ -173,8 +189,8 @@ const AddressPage = (props) => {
       render: (text, record, index) => {
         return (
           <>
-            {generateButton(record, "Update")}{" "}
-            {generateButton(record, "Delete")}
+            <div>{generateButton(record, "Update")}</div>
+            <div> {generateButton(record, "Delete")}</div>
           </>
         );
       },
@@ -433,7 +449,8 @@ const AddressPage = (props) => {
   };
 
   const handleSearch = (searchWord) => {
-    if (searchWord === "") {
+    console.log(1);
+    if (searchWord.trim() === "") {
       setTableData(allAddress);
     } else {
       const searchPatten = new RegExp(`\W*${searchWord.trim()}\W*`);
@@ -444,7 +461,7 @@ const AddressPage = (props) => {
   return (
     <Container>
       <Left>
-        <Sidebar />
+        <Sidebar selected="address" />
       </Left>
       <Right>
         <Header
@@ -455,8 +472,10 @@ const AddressPage = (props) => {
         />
         <ContentWrapper>
           <SearchContainer>
-            <StyledInput onChange={(e) => handleSearch(e.target.value)} />
-
+            <StyledInput
+              onChange={(e) => handleSearch(e.target.value)}
+              defaultValue={receiverFromUrl}
+            />
             <StyledButton
               type="add"
               style={{ background: "#18a16d" }}
@@ -465,6 +484,7 @@ const AddressPage = (props) => {
               New address
             </StyledButton>
           </SearchContainer>
+
           <FormWrapper className={addFormDisplayed ? "" : "hide"}>
             {generateForm()}
           </FormWrapper>

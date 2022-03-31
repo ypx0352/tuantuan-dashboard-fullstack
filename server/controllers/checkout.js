@@ -78,6 +78,8 @@ const addToStock = async (req, res) => {
         exchangeRate,
         status,
         log,
+        receiver,
+        sendTimeISO
       } = originalSoldOrEmployeeResult;
 
       await StockItemsModel.create({
@@ -91,6 +93,7 @@ const addToStock = async (req, res) => {
         exchangeRate,
         type: "stock",
         status,
+        receiver,sendTimeISO,
         log:
           log +
           `*[${dateTime} Stock + ${addToStock} <= ${firstLetterToUpperCase(
@@ -155,6 +158,7 @@ const addToEmployee = async (req, res) => {
         exchangeRate,
         status,
         log,
+        receiver,sendTimeISO
       } = originalRecord;
 
       const employeeRecord = await EmployeeItemsModel.findOne({
@@ -175,6 +179,7 @@ const addToEmployee = async (req, res) => {
           exchangeRate,
           type: "employee",
           status,
+          receiver,sendTimeISO,
           log:
             log +
             `*[${dateTime} Employee + ${addToEmployee} <= ${firstLetterToUpperCase(
@@ -352,6 +357,8 @@ const recoverFromException = async (req, res) => {
     exchangeRate,
     status,
     log,
+    receiver,
+    sendTimeISO
   } = req.body;
 
   const types = ["sold", "stock"];
@@ -403,6 +410,8 @@ const recoverFromException = async (req, res) => {
         exchangeRate,
         status,
         type: originalType,
+        receiver,
+        sendTimeISO,
         log:
           log +
           `*[${dateTime} ${firstLetterToUpperCase(

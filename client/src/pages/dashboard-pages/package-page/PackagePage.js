@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useSearchParams } from "react-router-dom";
 import { connect } from "react-redux";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
@@ -144,16 +145,24 @@ const PackagePage = (props) => {
     latestPackagesSpinning,
     latestPackages,
   } = props;
-  const [searchInput, setSearchInput] = useState();
+
+  const [params] = useSearchParams();
+  const pk_idFromUrl = params.get("pk_id");
+
+  const [searchInput, setSearchInput] = useState(pk_idFromUrl || "");
   const [tableDataState, setTableDataState] = useState({});
 
   useEffect(() => {
-    getLatestPackages();
+    getLatestPackages("10");
   }, []);
 
   useEffect(() => {
     setTableDataState(tableData);
   }, [tableData]);
+
+  useEffect(() => {
+    if (pk_idFromUrl !== null) searchPackage(pk_idFromUrl);
+  }, [tablesDisplayed]);
 
   const packageColumns = [
     {
@@ -164,6 +173,11 @@ const PackagePage = (props) => {
           title: "ID",
           dataIndex: "id",
           key: "id",
+        },
+        {
+          title: "Date",
+          dataIndex: "sendTimeLocale",
+          key: "sendTimeLocale",
         },
         {
           title: "Type",
@@ -306,7 +320,7 @@ const PackagePage = (props) => {
   return (
     <Container>
       <Left>
-        <Sidebar />
+        <Sidebar selected="package" />
       </Left>
       <Right>
         <Header
@@ -320,6 +334,7 @@ const PackagePage = (props) => {
           <SearchContainer>
             <span>PE6420948BB</span>
             <StyledInput
+              defaultValue={pk_idFromUrl}
               onChange={(e) => setSearchInput(e.target.value)}
               onPressEnter={() => searchPackage(searchInput)}
             />
@@ -411,7 +426,7 @@ const mapState = (state) => ({
 
 const mapDispatch = (dispatch) => ({
   searchPackage(pk_id) {
-    if (pk_id === undefined) {
+    if (pk_id.trim() === "") {
       return message.warn("Input must not be null.");
     }
     dispatch(actionCreators.searchPackageAction(pk_id.trim()));

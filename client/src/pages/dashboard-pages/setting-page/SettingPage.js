@@ -65,7 +65,7 @@ const SettingPage = (props) => {
   return (
     <Container>
       <Left>
-        <Sidebar />
+        <Sidebar selected="setting" />
       </Left>
       <Right>
         <Header

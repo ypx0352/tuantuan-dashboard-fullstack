@@ -12,6 +12,7 @@ import AddressPage from "./pages/dashboard-pages/address-page/AddressPage";
 import SettingPage from "./pages/dashboard-pages/setting-page/SettingPage";
 import TestPage from "./pages/dashboard-pages/test-page/TestPage";
 import PackagePage from "./pages/dashboard-pages/package-page/PackagePage";
+import NotFoundPage from "./pages/not-found-page/NotFoundPage";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -30,6 +31,7 @@ function App() {
           <Route path="/dashboard/package" element={<PackagePage />} />
           <Route path="/dashboard/setting" element={<SettingPage />} />
           <Route path="/dashboard/test" element={<TestPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </Provider>

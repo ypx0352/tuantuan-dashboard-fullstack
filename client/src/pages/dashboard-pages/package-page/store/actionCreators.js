@@ -14,6 +14,9 @@ export const searchPackageAction = (pk_id) => {
       );
       const { itemRecords, packageRecord, trackRecords } = response.data;
 
+      packageRecord.sendTimeLocale = new Date(
+        packageRecord.sendTimeISO
+      ).toLocaleString();
       const { receiver, phone, address, ...rest } = packageRecord;
       dispatch({
         type: actionTypes.SET_TABLE_DATA,

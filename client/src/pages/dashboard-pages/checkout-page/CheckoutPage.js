@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import {
   InputNumber,
@@ -9,6 +10,7 @@ import {
   Popconfirm,
   message,
   Modal,
+  Input,
 } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -94,10 +96,26 @@ const BlockContent = styled.span`
   margin-top: 10px;
 `;
 
+const SearchWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 50px 0 25px 0;
+`;
+
+const StyledInput = styled(Input).attrs({
+  placeholder: "Please enter the receiver, package ID or item name",
+})`
+  width: 50%;
+  height: 50px;
+  ::placeholder {
+    color: grey;
+  }
+`;
+
 const TableWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 50px 0;
+  margin: 25px 0;
   justify-content: center;
   align-items: center;
 `;
@@ -165,27 +183,29 @@ const StyledSpan = styled.span.attrs((props) => ({
 `;
 
 const ExpandedRow = (props) => {
-  const { pk_id, price, weight, exchangeRate, createdAt, log } = props.record;
+  const { price, weight, exchangeRate, createdAt, log, updatedAt } =
+    props.record;
   const localCreatedAt = new Date(createdAt).toLocaleString();
+  const localUpdatedAt = new Date(updatedAt).toLocaleString();
   return (
     <>
       <ul style={{ display: "inline-block", width: "33%" }}>
-        <li>
-          <strong>Package ID : </strong> {pk_id}
-        </li>
         <li>
           <strong>Price / each : </strong> ${price}
         </li>
         <li>
           <strong>Weight / each : </strong> {weight} Kg
         </li>
-      </ul>
-      <ul style={{ display: "inline-block", width: "33%" }}>
         <li>
           <strong>Exchange rate : </strong> {exchangeRate}
         </li>
+      </ul>
+      <ul style={{ display: "inline-block", width: "33%" }}>
         <li>
           <strong>Created at : </strong> {localCreatedAt}
+        </li>
+        <li>
+          <strong>Updated at : </strong> {localUpdatedAt}
         </li>
       </ul>
       <ul style={{ display: "inline-block", width: "33%" }}>
@@ -235,11 +255,11 @@ const CheckoutPage = (props) => {
 
   const [columnsState, setColumnsState] = useState();
 
+  const [tableDataState, setTableDataState] = useState([]);
+
   useEffect(() => {
     setColumnsState(setColumns(blockSelected));
   }, [blockSelected]);
-
-  const [tableDataState, setTableDataState] = useState([]);
 
   const capitalizeFirstLetter = (word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
@@ -451,23 +471,37 @@ const CheckoutPage = (props) => {
                 },
               },
               {
-                title: "Note",
-                dataIndex: "note",
-                key: "note",
-              },
-              {
                 title: "Parcel",
                 dataIndex: "parcel",
                 key: "parcel",
                 render: (text, record, index) => {
                   return (
                     <>
-                      <div>{record.receiver}</div>
-                      <div>{record.pk_id}</div>
+                      <div>
+                        <Link
+                          to={`/dashboard/address/?receiver=${record.receiver}`}
+                          target="_blank"
+                        >
+                          {record.receiver}
+                        </Link>
+                      </div>
+                      <div>
+                        <Link
+                          to={`/dashboard/package/?pk_id=${record.pk_id}`}
+                          target="_blank"
+                        >
+                          {record.pk_id}
+                        </Link>
+                      </div>
                       <div>{record.sendTimeLocale}</div>
                     </>
                   );
                 },
+              },
+              {
+                title: "Note",
+                dataIndex: "note",
+                key: "note",
               },
               {
                 title: "Add to",
@@ -530,12 +564,12 @@ const CheckoutPage = (props) => {
                 key: "cost",
               },
               {
-                title: "Payment / entry (￥)",
+                title: "Payment / row (￥)",
                 dataIndex: "subtotal",
                 key: "subtotal",
               },
               {
-                title: "Payback / entry (￥)",
+                title: "Payback / row (￥)",
                 dataIndex: "payAmount",
                 key: "payAmount",
               },
@@ -543,11 +577,6 @@ const CheckoutPage = (props) => {
                 title: "Original type",
                 dataIndex: "originalType",
                 key: "originalType",
-              },
-              {
-                title: "Noted",
-                dataIndex: "note",
-                key: "note",
               },
               {
                 title: "Approved",
@@ -572,9 +601,37 @@ const CheckoutPage = (props) => {
                 },
               },
               {
-                title: "Last updated at",
-                dataIndex: "dateTime",
-                key: "date",
+                title: "Parcel",
+                dataIndex: "parcel",
+                key: "parcel",
+                render: (text, record, index) => {
+                  return (
+                    <>
+                      <div>
+                        <Link
+                          to={`/dashboard/address/?receiver=${record.receiver}`}
+                          target="_blank"
+                        >
+                          {record.receiver}
+                        </Link>
+                      </div>
+                      <div>
+                        <Link
+                          to={`/dashboard/package/?pk_id=${record.pk_id}`}
+                          target="_blank"
+                        >
+                          {record.pk_id}
+                        </Link>
+                      </div>
+                      <div>{record.sendTimeLocale}</div>
+                    </>
+                  );
+                },
+              },
+              {
+                title: "Note",
+                dataIndex: "note",
+                key: "note",
               },
               {
                 title: "Add to",
@@ -613,6 +670,19 @@ const CheckoutPage = (props) => {
     ];
     const dataIndex = blockNames.indexOf(block);
     return setTableDataState(tableData[dataIndex]);
+  };
+
+  const getTableData = (block) => {
+    const blockNames = ["All", "Sold", "Stock", "Employee", "Exception"];
+    const tableData = [
+      allItemsTableData,
+      soldItems,
+      stockItems,
+      employeeItems,
+      exceptionItems,
+    ];
+    const dataIndex = blockNames.indexOf(block);
+    return tableData[dataIndex];
   };
 
   useEffect(() => {
@@ -654,10 +724,28 @@ const CheckoutPage = (props) => {
     });
   };
 
+  const handleSearch = (searchInput) => {
+    if (searchInput.trim() === "") {
+      setTableData(blockSelected);
+    } else {
+      const searchPatten = new RegExp(`\W*${searchInput.trim()}\W*`);
+      setTableDataState(
+        getTableData(blockSelected).filter((item) => {
+          return (
+            searchPatten.test(item.item) ||
+            searchPatten.test(item.receiver) ||
+            searchPatten.test(item.pk_id) ||
+            searchPatten.test(item.sendTimeLocale)
+          );
+        })
+      );
+    }
+  };
+
   return (
     <Container>
       <Left>
-        <Sidebar />
+        <Sidebar selected="checkout" />
       </Left>
       <Right>
         <Cart className={showCart ? "" : "hide"} />
@@ -669,6 +757,13 @@ const CheckoutPage = (props) => {
         />
         <ContentWrapper>
           <BlockWrapper>{generateBlock()}</BlockWrapper>
+          <SearchWrapper>
+            <StyledInput
+              onChange={(e) => {
+                handleSearch(e.target.value);
+              }}
+            />
+          </SearchWrapper>
           <TableWrapper>
             <Table
               style={{ width: "100%" }}

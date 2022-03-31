@@ -276,7 +276,6 @@ const confirmOrder = async (req, res) => {
         try {
           await models[index].insertMany(
             itemCollection.map((item) => {
-              console.log(item);
               delete item.key;
               return item;
             })

@@ -5,10 +5,12 @@ const mongoose = require("mongoose");
 const itemSchema = new mongoose.Schema({
   item: { type: String, required: true },
   solid_id: { type: String, required: true },
-  cost: { type: Number, required: true },  
+  cost: { type: Number, required: true },
   addToCart: { type: Number, required: true },
   type: { type: String, required: true },
   payAmount: { type: Number, required: true },
+  receiver: { type: String, required: true },
+  pk_id: { type: String, required: true },
 });
 
 const cartSchema = new mongoose.Schema(
@@ -18,8 +20,6 @@ const cartSchema = new mongoose.Schema(
       required: true,
     },
     items: [itemSchema],
-    createdAt: Date,
-    updatedAt: Date,
   },
   { timestamps: true }
 );

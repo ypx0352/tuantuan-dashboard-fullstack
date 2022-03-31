@@ -129,7 +129,7 @@ const Cart = (props) => {
     return cartItems.map((item, index) => {
       return (
         <Record key={index}>
-          <span style={{ width: "50%" }}>
+          <span style={{ width: "40%" }}>
             {item.get("item") + " "}
             {item.get("type") !== "sold" ? (
               <Tag type={item.get("type")}>{item.get("type")}</Tag>
@@ -137,10 +137,14 @@ const Cart = (props) => {
               ""
             )}
           </span>
-          <span style={{ width: "23%" }}>{item.get("addToCart")}</span>
+          <span style={{ width: "13%" }}>{item.get("addToCart")}</span>
+          <span style={{ width: "20%" }}>
+            <span>{item.get("receiver")} </span>
+            <span> {item.get("pk_id")}</span>
+          </span>
           <Remove
             className="remove"
-            style={{ width: "20%" }}
+            style={{ width: "27%" }}
             onClick={() =>
               handleRemove(
                 item.get("_id"),
@@ -161,7 +165,7 @@ const Cart = (props) => {
   return (
     <CartContainer className={props.className}>
       <Header>
-        <span style={{ width: "50%" }}>Item</span>
+        <span style={{ width: "22%" }}>Item</span>
         <span style={{ width: "48%" }}>Quantity</span>
         <span
           className="material-icons-outlined"

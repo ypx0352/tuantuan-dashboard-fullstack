@@ -34,7 +34,12 @@ const ListItemWrapper = styled.a`
   :hover {
     color: white;
     background-color: #3c3e4c;
-    border-left: 5px solid white;
+    border-bottom: 2px solid white;
+  }
+  &.selected {
+    color: white;
+    background-color: #3c3e4c;
+    border-left: 10px solid white;
   }
 `;
 
@@ -44,36 +49,52 @@ const ListItemText = styled.span`
 
 const ListItemIcon = styled.span``;
 
-const Sidebar = () => {
+const Sidebar = (props) => {
+  const { selected } = props;
   return (
     <SidebarWrapper>
       <DashboardTitle>Tuantuan Dashbord</DashboardTitle>
       <List>
-        <ListItemWrapper href="/dashboard/overview">
+        <ListItemWrapper
+          href="/dashboard/overview"
+          className={selected === "overview" ? "selected" : ""}
+        >
           <ListItemIcon className="material-icons-outlined">
             timeline
           </ListItemIcon>
           <ListItemText>Overview</ListItemText>
         </ListItemWrapper>
-        <ListItemWrapper href="/dashboard/order">
+        <ListItemWrapper
+          href="/dashboard/order"
+          className={selected === "order" ? "selected" : ""}
+        >
           <ListItemIcon className="material-icons-outlined">
             shopping_bag
           </ListItemIcon>
           <ListItemText>Order</ListItemText>
         </ListItemWrapper>
-        <ListItemWrapper href="/dashboard/checkout">
+        <ListItemWrapper
+          href="/dashboard/checkout"
+          className={selected === "checkout" ? "selected" : ""}
+        >
           <ListItemIcon className="material-icons-outlined">
             shopping_cart_checkout
           </ListItemIcon>
           <ListItemText>Checkout</ListItemText>
         </ListItemWrapper>
-        <ListItemWrapper href="/dashboard/package">
+        <ListItemWrapper
+          href="/dashboard/package"
+          className={selected === "package" ? "selected" : ""}
+        >
           <ListItemIcon className="material-icons-outlined">
             flight_takeoff
           </ListItemIcon>
           <ListItemText>Package</ListItemText>
         </ListItemWrapper>
-        <ListItemWrapper href="/dashboard/address">
+        <ListItemWrapper
+          href="/dashboard/address"
+          className={selected === "address" ? "selected" : ""}
+        >
           <ListItemIcon className="material-icons-outlined">
             import_contacts
           </ListItemIcon>
@@ -85,7 +106,10 @@ const Sidebar = () => {
           </ListItemIcon>
           <ListItemText>Product</ListItemText>
         </ListItemWrapper>
-        <ListItemWrapper href="/dashboard/setting">
+        <ListItemWrapper
+          href="/dashboard/setting"
+          className={selected === "setting" ? "selected" : ""}
+        >
           <ListItemIcon className="material-icons-outlined">
             settings
           </ListItemIcon>
