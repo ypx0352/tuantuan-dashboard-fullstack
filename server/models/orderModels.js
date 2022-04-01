@@ -82,7 +82,7 @@ const exceptionItemsSchema = new mongoose.Schema(
     status: { type: String, required: true },
     log: { type: String, required: true },
     subtotal: { type: Number, required: true },
-    qty_in_cart: { type: Number, default: 0, required: true },
+    qty_in_cart: { type: Number, default: 0, min: 0, required: true },
     approved: { type: Boolean, default: false, required: true },
     receiver: { type: String, required: true },
     sendTimeISO: { type: Date, required: true },

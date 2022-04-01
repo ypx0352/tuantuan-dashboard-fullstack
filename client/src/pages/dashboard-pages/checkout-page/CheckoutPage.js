@@ -20,6 +20,7 @@ import userImage from "../../../image/tuan-logo.jpeg";
 import Cart from "../static/Cart";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
+import TextArea from "antd/lib/input/TextArea";
 
 const Container = styled.div`
   display: flex;
@@ -236,6 +237,7 @@ const CheckoutPage = (props) => {
     handleAddToEmployee,
     handleRecoverFromException,
     handleExceptionItemApprove,
+    updateNote,
   } = props;
 
   useEffect(() => {
@@ -502,6 +504,19 @@ const CheckoutPage = (props) => {
                 title: "Note",
                 dataIndex: "note",
                 key: "note",
+                render: (text, record, index) => {
+                  return (
+                    <TextArea
+                      defaultValue={text}
+                      autoSize
+                      bordered={false}
+                      onChange={(e) => {
+                        record.newNote = e.target.value.trim();
+                      }}
+                      onBlur={() => updateNote(record)}
+                    />
+                  );
+                },
               },
               {
                 title: "Add to",
@@ -632,6 +647,19 @@ const CheckoutPage = (props) => {
                 title: "Note",
                 dataIndex: "note",
                 key: "note",
+                render: (text, record, index) => {
+                  return (
+                    <TextArea
+                      defaultValue={text}
+                      autoSize
+                      bordered={false}
+                      onChange={(e) => {
+                        record.newNote = e.target.value.trim();
+                      }}
+                      onBlur={() => updateNote(record)}
+                    />
+                  );
+                },
               },
               {
                 title: "Add to",
@@ -864,6 +892,13 @@ const mapDispatch = (dispatch) => ({
 
   handleExceptionItemApprove(record) {
     dispatch(actionCreators.approveExceptionItemAction(record._id));
+  },
+
+  updateNote(record) {
+    const { newNote, note } = record;
+    if (newNote !== undefined && note !== newNote) {
+      dispatch(actionCreators.updateNoteAction(record));
+    }
   },
 });
 

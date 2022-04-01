@@ -34,7 +34,7 @@ export const getAllItemsAction = async (dispatch) => {
       entry[1].forEach((item) => {
         item.dateTime = new Date(item.updatedAt).toLocaleString();
         item.qty_available = item.qty - item.qty_in_cart;
-        item.sendTimeLocale = new Date(item.sendTimeISO).toLocaleString()
+        item.sendTimeLocale = new Date(item.sendTimeISO).toLocaleString();
       });
     });
 
@@ -172,6 +172,23 @@ export const approveExceptionItemAction = (_id) => {
       );
       dispatch(getAllItemsAction);
       message.success(response.data.msg);
+    } catch (error) {
+      console.log(error);
+      message.error(error.response.data.msg);
+    }
+  };
+};
+
+export const updateNoteAction = (record) => {
+  return async (dispatch) => {
+    const { newNote, type, _id } = record;
+    try {
+      const response = await axios.put(
+        serverBaseUrl + "/api/checkout/update_note",
+        { newNote, type, _id }
+      );
+      message.success(response.data.msg);
+      dispatch(getAllItemsAction);
     } catch (error) {
       console.log(error);
       message.error(error.response.data.msg);

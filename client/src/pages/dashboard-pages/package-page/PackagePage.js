@@ -120,7 +120,7 @@ const TableWrapper = styled.div`
   align-items: center;
   width: 100%;
   &.hide {
-    display: none;
+    visibility: hidden;
   }
 `;
 
@@ -285,9 +285,6 @@ const PackagePage = (props) => {
           title: "Note",
           dataIndex: "note",
           key: "note",
-          render: (text, record, index) => {
-            return <TextArea value={text} autoSize bordered={false} />;
-          },
         },
       ],
     },

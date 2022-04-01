@@ -269,7 +269,7 @@ const confirmOrder = async (req, res) => {
 
     // Insert data to three data collections
     const itemsCollections = [sold, stock, employee];
-    const types = ["Sold", "Stock ", "employee"];
+    const types = ["Sold", "Stock", "Employee"];
     for (let index = 0; index < itemsCollections.length; index++) {
       const itemCollection = itemsCollections[index];
       if (itemCollection.length > 0) {

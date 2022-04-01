@@ -118,15 +118,15 @@ const removeCartItem = async (req, res) => {
       return res.status(400).json({ msg: "The item does not exist." });
     }
 
-    // Update the item's qty in the cart
+    // Update the item's qty_in_cart
     await models[typeIndex].findByIdAndUpdate(solid_id, {
       $inc: { qty_in_cart: -addToCart },
     });
 
     await CartModel.findOneAndUpdate(
       { user_id: user_id },
-      { $pull: { items: { _id: record_id } } },
-      { new: true }
+      { $pull: { items: { _id: record_id } } }
+      // { new: true }
     );
 
     return res

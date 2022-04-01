@@ -79,7 +79,7 @@ const addToStock = async (req, res) => {
         status,
         log,
         receiver,
-        sendTimeISO
+        sendTimeISO,
       } = originalSoldOrEmployeeResult;
 
       await StockItemsModel.create({
@@ -93,7 +93,8 @@ const addToStock = async (req, res) => {
         exchangeRate,
         type: "stock",
         status,
-        receiver,sendTimeISO,
+        receiver,
+        sendTimeISO,
         log:
           log +
           `*[${dateTime} Stock + ${addToStock} <= ${firstLetterToUpperCase(
@@ -158,7 +159,8 @@ const addToEmployee = async (req, res) => {
         exchangeRate,
         status,
         log,
-        receiver,sendTimeISO
+        receiver,
+        sendTimeISO,
       } = originalRecord;
 
       const employeeRecord = await EmployeeItemsModel.findOne({
@@ -179,7 +181,8 @@ const addToEmployee = async (req, res) => {
           exchangeRate,
           type: "employee",
           status,
-          receiver,sendTimeISO,
+          receiver,
+          sendTimeISO,
           log:
             log +
             `*[${dateTime} Employee + ${addToEmployee} <= ${firstLetterToUpperCase(
@@ -277,10 +280,14 @@ const addToException = async (req, res) => {
       payAmountEach: payAmountEach,
     });
     if (recordInException !== null) {
+      const newPayAmount = Number(
+        (recordInException.payAmount + payAmount).toFixed(2)
+      );
       await ExceptionItemModel.findByIdAndUpdate(recordInException._id, {
-        $inc: { qty: addToCart, payAmount: payAmount, subtotal: subtotal },
+        $inc: { qty: addToCart, subtotal: subtotal },
         $set: {
           approved: false,
+          payAmount: newPayAmount,
           log:
             recordInException.log +
             `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
@@ -358,7 +365,7 @@ const recoverFromException = async (req, res) => {
     status,
     log,
     receiver,
-    sendTimeISO
+    sendTimeISO,
   } = req.body;
 
   const types = ["sold", "stock"];
@@ -483,6 +490,35 @@ const approveExceptionItem = async (req, res) => {
   }
 };
 
+const updateNote = async (req, res) => {
+  const { newNote, type, _id } = req.body;
+  const models = [
+    SoldItemsModel,
+    StockItemsModel,
+    EmployeeItemsModel,
+    ExceptionItemModel,
+  ];
+  const types = ["sold", "stock", "employee", "exception"];
+  const typeIndex = types.indexOf(type);
+
+  // Make sure the item exists in the database.
+  try {
+    const originalRecord = await models[typeIndex].findById(_id);
+    if (originalRecord === null) {
+      return res.status(400).json({
+        msg: "Failed to update the note. Can not find the record in the database.",
+      });
+    }
+
+    // Update the note.
+    await models[typeIndex].findByIdAndUpdate(_id, { $set: { note: newNote } });
+    res.status(200).json({ msg: "Note has been updated successfully." });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Failed to update the note. Server error." });
+  }
+};
+
 module.exports = {
   allItems,
   addToStock,
@@ -490,4 +526,5 @@ module.exports = {
   addToException,
   recoverFromException,
   approveExceptionItem,
+  updateNote,
 };

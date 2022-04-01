@@ -344,6 +344,8 @@ const OrderPage = (props) => {
     const newData = [...itemTableData];
     if (key === "item" || key === "note") {
       newData[index][key] = e.target.value;
+    } else if (key === "qty" || key === "stock" || key === "employee") {
+      newData[index][key] = Number(e);
     } else {
       newData[index][key] = Number(e.target.value);
     }
@@ -379,7 +381,7 @@ const OrderPage = (props) => {
           title: "Item",
           dataIndex: "item",
           key: "item",
-          width: "20%",
+
           render: (text, record, index) => {
             return (
               <TextArea
@@ -395,13 +397,15 @@ const OrderPage = (props) => {
           title: "Qty",
           dataIndex: "qty",
           key: "qty",
-          width: "10%",
+
           render: (text, record, index) => {
             return (
-              <Input
+              <InputNumber
                 type="number"
                 bordered={false}
                 value={text}
+                controls={false}
+                style={{ padding: "0 0" }}
                 onChange={onInputChange("qty", index)}
               />
             );
@@ -411,14 +415,16 @@ const OrderPage = (props) => {
           title: "Price / each",
           dataIndex: "price",
           key: "price",
+
           render: (text, record, index) => {
             return (
               <Input
                 type="number"
-                prefix="$"
                 bordered={false}
                 min={0}
+                size="small"
                 value={text}
+                prefix="$"
                 onChange={onInputChange("price", index)}
               />
             );
@@ -428,6 +434,7 @@ const OrderPage = (props) => {
           title: "Weight / each",
           dataIndex: "weight",
           key: "weight",
+          width: "5%",
         },
         {
           title: "Add to stock",
@@ -435,7 +442,7 @@ const OrderPage = (props) => {
           key: "stock",
           render: (text, record, index) => {
             return (
-              <Input
+              <InputNumber
                 type="number"
                 min={0}
                 max={
@@ -443,6 +450,7 @@ const OrderPage = (props) => {
                 }
                 value={text}
                 bordered={false}
+                controls={false}
                 onChange={onInputChange("stock", index)}
               />
             );
@@ -454,7 +462,7 @@ const OrderPage = (props) => {
           key: "employee",
           render: (text, record, index) => {
             return (
-              <Input
+              <InputNumber
                 type="number"
                 min={0}
                 max={
@@ -462,6 +470,7 @@ const OrderPage = (props) => {
                 }
                 bordered={false}
                 value={text}
+                controls={false}
                 onChange={onInputChange("employee", index)}
               />
             );
