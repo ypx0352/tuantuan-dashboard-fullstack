@@ -25,6 +25,7 @@ const Container = styled.div`
   position: relative;
   display: flex;
   min-height: 100vh;
+  min-width: 1200px;
   background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
@@ -344,8 +345,6 @@ const OrderPage = (props) => {
     const newData = [...itemTableData];
     if (key === "item" || key === "note") {
       newData[index][key] = e.target.value;
-    } else if (key === "qty" || key === "stock" || key === "employee") {
-      newData[index][key] = Number(e);
     } else {
       newData[index][key] = Number(e.target.value);
     }
@@ -381,13 +380,14 @@ const OrderPage = (props) => {
           title: "Item",
           dataIndex: "item",
           key: "item",
-
+          width: "20%",
           render: (text, record, index) => {
             return (
               <TextArea
                 bordered={false}
                 autoSize
                 value={text}
+                style={{ padding: "0 0" }}
                 onChange={onInputChange("item", index)}
               />
             );
@@ -397,10 +397,10 @@ const OrderPage = (props) => {
           title: "Qty",
           dataIndex: "qty",
           key: "qty",
-
+          width: "8%",
           render: (text, record, index) => {
             return (
-              <InputNumber
+              <Input
                 type="number"
                 bordered={false}
                 value={text}
@@ -415,7 +415,7 @@ const OrderPage = (props) => {
           title: "Price / each",
           dataIndex: "price",
           key: "price",
-
+          width: "12%",
           render: (text, record, index) => {
             return (
               <Input
@@ -425,6 +425,7 @@ const OrderPage = (props) => {
                 size="small"
                 value={text}
                 prefix="$"
+                style={{ padding: "0 0" }}
                 onChange={onInputChange("price", index)}
               />
             );
@@ -434,15 +435,16 @@ const OrderPage = (props) => {
           title: "Weight / each",
           dataIndex: "weight",
           key: "weight",
-          width: "5%",
+          width: "1%",
         },
         {
           title: "Add to stock",
           dataIndex: "stock",
           key: "stock",
+          width: "5%",
           render: (text, record, index) => {
             return (
-              <InputNumber
+              <Input
                 type="number"
                 min={0}
                 max={
@@ -450,7 +452,7 @@ const OrderPage = (props) => {
                 }
                 value={text}
                 bordered={false}
-                controls={false}
+                style={{ padding: "0 0" }}
                 onChange={onInputChange("stock", index)}
               />
             );
@@ -460,9 +462,10 @@ const OrderPage = (props) => {
           title: "Emplyee purchase",
           dataIndex: "employee",
           key: "employee",
+          width: "5%",
           render: (text, record, index) => {
             return (
-              <InputNumber
+              <Input
                 type="number"
                 min={0}
                 max={
@@ -470,17 +473,17 @@ const OrderPage = (props) => {
                 }
                 bordered={false}
                 value={text}
-                controls={false}
+                style={{ padding: "0 0" }}
                 onChange={onInputChange("employee", index)}
               />
             );
           },
         },
-
         {
           title: "Subtotal weight",
           dataIndex: "subtotalWeight",
           key: "subtotalWeight",
+          width:"10%",
           render: (text, record, index) => {
             return (
               <>
@@ -489,6 +492,7 @@ const OrderPage = (props) => {
                   min={0}
                   max={packageWeight}
                   value={text}
+                  style={{ padding: "0 0" }}
                   bordered={false}
                   onChange={onInputChange("subtotalWeight", index)}
                 />
@@ -503,22 +507,16 @@ const OrderPage = (props) => {
           title: "Cost / each",
           dataIndex: "cost",
           key: "cost",
+          width: "8%",
           render: (text, record, index) => {
-            return (
-              <Input
-                type="text"
-                prefix="￥"
-                value={text}
-                bordered={false}
-                onChange={onInputChange("cost", index)}
-              />
-            );
+            return <span>￥{text}</span>;
           },
         },
         {
           title: "Note",
           dataIndex: "note",
           key: "note",
+          width: "15%",
           render: (text, record, index) => {
             return (
               <TextArea
@@ -534,6 +532,7 @@ const OrderPage = (props) => {
           title: "Action",
           dataIndex: "action",
           key: "action",
+          width: "5%",
           render: (text, record, index) => {
             const handleDelete = () => {
               var newData = [...itemTableData];
@@ -624,6 +623,9 @@ const OrderPage = (props) => {
       ],
     },
   ];
+
+  
+
 
   // get confirmation element ref
   const confirmationRef = useRef(null);

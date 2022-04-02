@@ -241,6 +241,7 @@ const submitOrder = async (req, res) => {
 const confirmOrder = async (req, res) => {
   const { pk_id, stock, employee, sold } = req.body.confirmationData;
   const { packageData, receiverData } = req.body;
+  console.log(sold);
 
   // To avoid duplicate saves, check duplicates first.
   const models = [
