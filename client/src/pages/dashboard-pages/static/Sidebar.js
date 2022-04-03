@@ -1,5 +1,8 @@
+import { fromJS } from "immutable";
 import React from "react";
+import { connect } from "react-redux";
 import styled from "styled-components";
+import { actionTypes } from "./store";
 
 const SidebarWrapper = styled.div`
   height: 100%;
@@ -50,8 +53,12 @@ const ListItemText = styled.span`
 const ListItemIcon = styled.span``;
 
 const Sidebar = (props) => {
-  const { selected } = props;
-  return (
+  const { selected, showSidebar, setShowSidebar } = props;
+  return !showSidebar ? (
+    <span class="material-icons-outlined" onClick={() => setShowSidebar(true)}>
+      menu
+    </span>
+  ) : (
     <SidebarWrapper>
       <DashboardTitle>Tuantuan Dashbord</DashboardTitle>
       <List>
@@ -120,4 +127,14 @@ const Sidebar = (props) => {
   );
 };
 
-export default Sidebar;
+const mapState = (state) => ({
+  showSidebar: state.getIn(["static", "showSidebar"]),
+});
+
+const mapDispatch = (dispatch) => ({
+  setShowSidebar(value) {
+    dispatch({ type: actionTypes.SET_SHOW_SIDEBAR, value: fromJS(value) });
+  },
+});
+
+export default connect(mapState, mapDispatch)(Sidebar);

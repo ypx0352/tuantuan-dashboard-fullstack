@@ -21,7 +21,7 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
-  width: 15%;
+  //width: 15%;
 `;
 
 const Right = styled.div`

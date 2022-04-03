@@ -6,6 +6,7 @@ const defaultState = fromJS({
   cartItems: [],
   cartItemsCount: 0,
   cartSubtotal: 0,
+  showSidebar: true,
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -21,6 +22,10 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.CART_SUBTOTAL:
       return state.set("cartSubtotal", action.value);
+
+    case actionTypes.SET_SHOW_SIDEBAR:
+      return state.set("showSidebar", action.value);
+      
     default:
       return state;
   }
