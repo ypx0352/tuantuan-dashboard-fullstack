@@ -25,7 +25,7 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.SET_SHOW_SIDEBAR:
       return state.set("showSidebar", action.value);
-      
+
     default:
       return state;
   }

@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import styled from "styled-components";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
@@ -13,12 +14,15 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
-  width: 15%;
+  max-width: 10%;
 `;
 
 const Right = styled.div`
-  width: 85%;
+  min-width: 90%;
   padding: 20px;
+  &.expand {
+    width: 100%;
+  }
 `;
 
 const BlockWrapper = styled.div`
@@ -63,13 +67,14 @@ const BlockContent = styled.span`
 
 const Diagram = styled.div``;
 
-const OverviewPage = () => {
+const OverviewPage = (props) => {
+  const { showSidebar } = props;
   return (
     <Container>
       <Left>
         <Sidebar selected="overview" />
       </Left>
-      <Right>
+      <Right className={showSidebar ? "" : "expand"}>
         <Header
           title="Overview"
           userName="Tuantuan"
@@ -101,4 +106,10 @@ const OverviewPage = () => {
   );
 };
 
-export default OverviewPage;
+const mapState = (state) => ({
+  showSidebar: state.getIn(["static", "showSidebar"]),
+});
+
+const mapDispatch = (dispatch) => ({});
+
+export default connect(mapState, mapDispatch)(OverviewPage);

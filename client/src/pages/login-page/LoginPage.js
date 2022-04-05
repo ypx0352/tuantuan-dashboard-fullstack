@@ -17,14 +17,14 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  height: 60%;
+  height: 70%;
+  min-height: 550px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 20px;
   background-color: white;
-  overflow: auto;
   -webkit-box-shadow: 0px 0px 20px -6px #000000;
   box-shadow: 0px 0px 20px -6px #000000;
 `;

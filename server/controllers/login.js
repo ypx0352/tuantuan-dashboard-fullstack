@@ -36,7 +36,7 @@ const login = async (req, res) => {
   }
 
   // Return token to front-end
-  try {
+  try {    
     const token = jwt.sign({ name: name }, process.env.JWT_KEY, {
       expiresIn: 10000,
     });

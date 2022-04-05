@@ -6,11 +6,16 @@ import { actionTypes } from "./store";
 
 const SidebarWrapper = styled.div`
   height: 100%;
-  min-width: 150px;
+  // min-width: 150px;
+  width: 150px;
   display: flex;
   flex-direction: column;
   background-color: #363740;
+  transition: width 1s ease-in-out;
   overflow: auto;
+  &.hide {
+    width: 0px;
+  }
 `;
 
 const DashboardTitle = styled.div`
@@ -54,12 +59,8 @@ const ListItemIcon = styled.span``;
 
 const Sidebar = (props) => {
   const { selected, showSidebar, setShowSidebar } = props;
-  return !showSidebar ? (
-    <span class="material-icons-outlined" onClick={() => setShowSidebar(true)}>
-      menu
-    </span>
-  ) : (
-    <SidebarWrapper>
+  return (
+    <SidebarWrapper className={showSidebar ? "" : "hide"}>
       <DashboardTitle>Tuantuan Dashbord</DashboardTitle>
       <List>
         <ListItemWrapper

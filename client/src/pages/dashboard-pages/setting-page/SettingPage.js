@@ -18,12 +18,15 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
-  width: 15%;
+  max-width: 15%;
 `;
 
 const Right = styled.div`
-  width: 85%;
+  min-width: 90%;
   padding: 20px;
+  &.expand {
+    width: 100%;
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -53,6 +56,7 @@ const SettingPage = (props) => {
     updateSetting,
     settingsInput,
     handleSettingsInput,
+    showSidebar
   } = props;
 
   useEffect(() => getSettings(), []);
@@ -67,7 +71,7 @@ const SettingPage = (props) => {
       <Left>
         <Sidebar selected="setting" />
       </Left>
-      <Right>
+      <Right className={showSidebar ? "" : "expand"}>
         <Header
           title="Setting"
           userName="Tuantuan"
@@ -169,6 +173,7 @@ const SettingPage = (props) => {
 const mapState = (state) => ({
   settings: state.getIn(["setting", "settings"]),
   settingsInput: state.getIn(["setting", "settingsInput"]).toJS(),
+  showSidebar: state.getIn(["static", "showSidebar"]),
 });
 
 const mapDispatch = (dispatch) => ({

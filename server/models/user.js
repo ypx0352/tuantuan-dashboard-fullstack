@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema(
       required: "Name is required.",
       minlength: [9, "Password must be at least 9 characters."],
     },
+    admin: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -32,12 +32,15 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
-  width: 15%;
+  width: auto;
 `;
 
 const Right = styled.div`
-  width: 85%;
+  min-width: 90%;
   padding: 20px;
+  &.expand {
+    width: 100%;
+  }
 `;
 
 const OrderContainer = styled.div`
@@ -125,6 +128,7 @@ const OrderPage = (props) => {
     babyFormulaPostage,
     exchangeRateInSetting,
     initializeSettings,
+    showSidebar,
   } = props;
 
   const searchInputEl = useRef(null);
@@ -645,7 +649,7 @@ const OrderPage = (props) => {
       <Left>
         <Sidebar selected="order" />
       </Left>
-      <Right>
+      <Right className={showSidebar ? "" : "expand"}>
         <Header
           title="Order"
           userName="Tuantuan"
@@ -869,6 +873,7 @@ const mapState = (state) => ({
   normalPostage: state.getIn(["order", "normalPostage"]),
   babyFormulaPostage: state.getIn(["order", "babyFormulaPostage"]),
   exchangeRateInSetting: state.getIn(["order", "exchangeRateInSetting"]),
+  showSidebar: state.getIn(["static", "showSidebar"]),
 });
 
 const mapDispatch = (dispatch) => ({

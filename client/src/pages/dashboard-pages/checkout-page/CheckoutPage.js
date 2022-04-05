@@ -26,18 +26,21 @@ const Container = styled.div`
   display: flex;
   min-width: 930px;
   min-height: 100vh;
-  //background-color: #f7f8fc;
+  background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
 `;
 
 const Left = styled.div`
-  width: 15%;
+  max-width: 15%;
 `;
 
 const Right = styled.div`
-  width: 85%;
+  min-width: 90%;
   padding: 20px;
+  &.expand {
+    width: 100%;
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -238,6 +241,7 @@ const CheckoutPage = (props) => {
     handleRecoverFromException,
     handleExceptionItemApprove,
     updateNote,
+    showSidebar,
   } = props;
 
   useEffect(() => {
@@ -775,7 +779,7 @@ const CheckoutPage = (props) => {
       <Left>
         <Sidebar selected="checkout" />
       </Left>
-      <Right>
+      <Right className={showSidebar ? "" : "expand"}>
         <Cart className={showCart ? "" : "hide"} />
         <Header
           title="Checkout"
@@ -840,6 +844,7 @@ const mapState = (state) => ({
   showCart: state.getIn(["static", "showCart"]),
   cartItemsCount: state.getIn(["static", "cartItemsCount"]),
   showModal: state.getIn(["checkout", "showModal"]),
+  showSidebar: state.getIn(["static", "showSidebar"]),
 });
 
 const mapDispatch = (dispatch) => ({

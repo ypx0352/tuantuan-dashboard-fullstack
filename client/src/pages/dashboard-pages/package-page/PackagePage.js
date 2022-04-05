@@ -17,16 +17,19 @@ const Container = styled.div`
   min-height: 100vh;
   background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
-  margin: 15px 20px;
+  margin: 15px 20px;  
 `;
 
 const Left = styled.div`
-  //width: 15%;
+  width: auto;
 `;
 
 const Right = styled.div`
-  width: 85%;
-  padding: 20px;
+  min-width: 85%;
+  padding: 20px;  
+  &.expand {
+    width: 100%;
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -144,6 +147,7 @@ const PackagePage = (props) => {
     getLatestPackages,
     latestPackagesSpinning,
     latestPackages,
+    showSidebar,
   } = props;
 
   const [params] = useSearchParams();
@@ -319,7 +323,7 @@ const PackagePage = (props) => {
       <Left>
         <Sidebar selected="package" />
       </Left>
-      <Right>
+      <Right className={showSidebar ? "" : "expand"}>
         <Header
           title="Package"
           userName="Tuantuan"
@@ -329,7 +333,6 @@ const PackagePage = (props) => {
 
         <ContentWrapper>
           <SearchContainer>
-            <span>PE6420948BB</span>
             <StyledInput
               defaultValue={pk_idFromUrl}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -419,6 +422,7 @@ const mapState = (state) => ({
   tableSpinning: state.getIn(["package", "tableSpinning"]),
   latestPackagesSpinning: state.getIn(["package", "latestPackagesSpinning"]),
   latestPackages: state.getIn(["package", "latestPackages"]).toJS(),
+  showSidebar: state.getIn(["static", "showSidebar"]),
 });
 
 const mapDispatch = (dispatch) => ({
