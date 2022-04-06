@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators, actionTypes } from "./store";
+import { useLocation } from "react-router-dom";
 
 const Container = styled.div`
   height: 100vh;
@@ -24,7 +25,7 @@ const Wrapper = styled.div`
   align-items: center;
   padding: 20px;
   background-color: white;
- // overflow: auto;
+  // overflow: auto;
   -webkit-box-shadow: 0px 0px 20px -6px #000000;
   box-shadow: 0px 0px 20px -6px #000000;
 `;
@@ -156,6 +157,8 @@ const RegisterPage = (props) => {
     delete inputErrorObject[e.target.name];
     modifyInputErrorObject(inputErrorObject);
   };
+  const location = useLocation();
+  console.log(location);
 
   return (
     <Container>

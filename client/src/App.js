@@ -1,6 +1,10 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Provider } from "react-redux";
-//import 'dotenv/config'
 import store from "./store";
 import LandingPage from "./pages/landing-page/LandingPage";
 import LoginPage from "./pages/login-page/LoginPage";
@@ -16,15 +20,16 @@ import NotFoundPage from "./pages/not-found-page/NotFoundPage";
 
 function App() {
   const token = localStorage.getItem("token");
+  const login = store.getState().getIn(["login", "user", "login"]);
 
   return (
     <Provider store={store}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dashboard/overview" element={<OverviewPage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />         
+          <Route path="/dashboard/overview" element={<OverviewPage /> } />
           <Route path="/dashboard/order" element={<OrderPage />} />
           <Route path="/dashboard/checkout" element={<CheckoutPage />} />
           <Route path="/dashboard/address" element={<AddressPage />} />

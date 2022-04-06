@@ -22,8 +22,9 @@ const { Option } = Select;
 
 const Container = styled.div`
   display: flex;
-  min-width: 930px;
+  min-width: 1200px;
   min-height: 100vh;
+  background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
 `;
@@ -33,7 +34,7 @@ const Left = styled.div`
 `;
 
 const Right = styled.div`
-  min-width: 90%;
+  min-width: 88%;
   padding: 20px;
   &.expand {
     width: 100%;

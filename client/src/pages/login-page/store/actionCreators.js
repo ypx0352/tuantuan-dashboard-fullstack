@@ -18,12 +18,12 @@ export const loginAction = (loginInfo) => {
         serverBaseUrl + "/api/login",
         loginInfo
       );
-      const { msg, token } = response.data;
+      const { msg, token, name,admin } = response.data;
       message.success(msg);
       // Save token to local storage
-      localStorage.setItem("token", token);
-
-      // Redirect to dashbord page
+      localStorage.setItem("user", response.data);
+      dispatch({type:actionTypes.LOGIN_SUCCESS, value:fromJS({name,admin})});
+          
     } catch (error) {
       console.log(error);
       const { errorObject, msg } = error.response.data;

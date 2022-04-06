@@ -7,7 +7,7 @@ import { actionTypes } from "./store";
 const SidebarWrapper = styled.div`
   height: 100%;
   // min-width: 150px;
-  width: 150px;
+  width: 160px;
   display: flex;
   flex-direction: column;
   background-color: #363740;
@@ -18,11 +18,14 @@ const SidebarWrapper = styled.div`
   }
 `;
 
-const DashboardTitle = styled.div`
+const DashboardTitle = styled.a.attrs({href: "/"})`
   font-size: 19px;
   color: #a4a6b3;
   text-align: center;
   margin-top: 10px;
+  :hover{
+    color:white
+  }
 `;
 
 const List = styled.div`

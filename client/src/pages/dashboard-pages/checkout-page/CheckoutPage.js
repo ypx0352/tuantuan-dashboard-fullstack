@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import styled from "styled-components";
 import {
   InputNumber,
@@ -24,7 +24,7 @@ import TextArea from "antd/lib/input/TextArea";
 
 const Container = styled.div`
   display: flex;
-  min-width: 930px;
+  min-width: 1200px;
   min-height: 100vh;
   background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
@@ -36,7 +36,7 @@ const Left = styled.div`
 `;
 
 const Right = styled.div`
-  min-width: 90%;
+  min-width:88%;
   padding: 20px;
   &.expand {
     width: 100%;
@@ -242,6 +242,7 @@ const CheckoutPage = (props) => {
     handleExceptionItemApprove,
     updateNote,
     showSidebar,
+    login,
   } = props;
 
   useEffect(() => {
@@ -845,6 +846,7 @@ const mapState = (state) => ({
   cartItemsCount: state.getIn(["static", "cartItemsCount"]),
   showModal: state.getIn(["checkout", "showModal"]),
   showSidebar: state.getIn(["static", "showSidebar"]),
+  login: state.getIn(["login", "user", "login"]),
 });
 
 const mapDispatch = (dispatch) => ({

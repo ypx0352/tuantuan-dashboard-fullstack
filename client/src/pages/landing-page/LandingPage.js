@@ -57,6 +57,9 @@ const Button = styled.a`
   cursor: pointer;
   border-radius: 10px;
   text-decoration: none;
+  :hover {
+    color: green;
+  }
 `;
 
 const Right = styled.div`
@@ -74,13 +77,12 @@ const LandingPage = () => {
         <Title>Tuantuan Dashboard</Title>
         <Subtitle>Easy business, happy life.</Subtitle>
         <Wrapper>
-          <Button href='/login'>GET STARTED</Button>
+          <Button href="/login">GET STARTED</Button>
         </Wrapper>
       </Left>
       <Right>
         <Image src={Koala}></Image>
       </Right>
-      
     </Container>
   );
 };

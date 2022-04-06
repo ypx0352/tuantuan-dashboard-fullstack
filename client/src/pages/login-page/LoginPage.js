@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { fromJS } from "immutable";
 import Logo from "../../image/tuan-logo.jpeg";
@@ -137,9 +138,16 @@ const LoginPage = (props) => {
     handleSubmit,
     inputErrorObject,
     modifyInputErrorObject,
+    login
   } = props;
 
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {if(login){
+    navigate("/dashboard/overview");
+  }},[login])
 
   const handleInput = (e) => {
     setLoginInfo({ ...loginInfo, [e.target.name]: e.target.value });
@@ -203,6 +211,7 @@ const LoginPage = (props) => {
 const mapState = (state) => ({
   showPassword: state.getIn(["login", "showPassword"]),
   inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
+  login: state.getIn(["login","user", "login"]),
 });
 
 const mapDispatch = (dispatch) => ({
