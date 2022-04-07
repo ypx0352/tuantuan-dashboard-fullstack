@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import {
   InputNumber,
@@ -36,7 +36,7 @@ const Left = styled.div`
 `;
 
 const Right = styled.div`
-  min-width:88%;
+  min-width: 88%;
   padding: 20px;
   &.expand {
     width: 100%;

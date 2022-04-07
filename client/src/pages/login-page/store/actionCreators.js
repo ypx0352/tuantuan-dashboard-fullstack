@@ -20,8 +20,9 @@ export const loginAction = (loginInfo) => {
       );
       const { msg, token, name,admin } = response.data;
       message.success(msg);
+      console.log(response.data);
       // Save token to local storage
-      localStorage.setItem("user", response.data);
+      localStorage.setItem("user", JSON.stringify(response.data));     
       dispatch({type:actionTypes.LOGIN_SUCCESS, value:fromJS({name,admin})});
           
     } catch (error) {

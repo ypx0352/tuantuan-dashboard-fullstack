@@ -35,9 +35,7 @@ const deleteAddress = async (req, res) => {
       .json({ msg: "This address has been deleted successfully." });
   } catch (error) {
     console.log(error);
-    res
-      .status(400)
-      .json({ msg: "Failed to delete this address. Server error." });
+    res.status(400).json({ msg: "Failed toelete this address. Server error." });
   }
 };
 
