@@ -7,10 +7,7 @@ const addAddress = async (req, res) => {
       .status(200)
       .json({ msg: `${req.body.name}'s address has been saved successfully.` });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(400)
-      .json({ msg: "Failed to add new address. Database error." });
+    handleError(error, res, 500, "Failed to add new address. Database error.");
   }
 };
 
@@ -19,10 +16,7 @@ const getAllAddress = async (req, res) => {
     const result = await AddressModel.find();
     return res.status(200).json({ result });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(400)
-      .json({ msg: "Failed to initialize address. Server error." });
+    handleError(error, res, 500, "Failed to fetch address. Server error.");
   }
 };
 
@@ -34,8 +28,12 @@ const deleteAddress = async (req, res) => {
       .status(200)
       .json({ msg: "This address has been deleted successfully." });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ msg: "Failed toelete this address. Server error." });
+    handleError(
+      error,
+      res,
+      500,
+      "Failed to delete this address. Server error."
+    );
   }
 };
 
@@ -44,7 +42,7 @@ const updateAddress = async (req, res) => {
     req.body;
 
   try {
-    const result = await AddressModel.findByIdAndUpdate(_id, {
+    const result = await AddressModel.findByIdAndUpdate(_id + 1, {
       $set: { name, phone, province, city, district, address, note },
     });
     console.log(result);
@@ -52,11 +50,18 @@ const updateAddress = async (req, res) => {
       msg: `${name}'s address has been updated successfully.`,
     });
   } catch (error) {
-    console.log(error);
-    res
-      .status(400)
-      .json({ msg: "Failed to update this address. Server error" });
+    handleError(
+      error,
+      res,
+      500,
+      "Failed to update this address. Server error."
+    );
   }
+};
+
+const handleError = (error, res, errorCode, errorMsg) => {
+  console.log(error);
+  res.status(errorCode).json({ msg: errorMsg });
 };
 
 module.exports = { addAddress, getAllAddress, deleteAddress, updateAddress };
