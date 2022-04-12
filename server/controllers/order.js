@@ -210,6 +210,7 @@ const submitOrder = async (req, res) => {
           items[index].push({
             ...element,
             qty: count,
+            qty_in_cart:0,
             pk_id: id,
             exchangeRate,
             sendTimeISO,
@@ -241,7 +242,6 @@ const submitOrder = async (req, res) => {
 const confirmOrder = async (req, res) => {
   const { pk_id, stock, employee, sold } = req.body.confirmationData;
   const { packageData, receiverData } = req.body;
-  console.log(sold);
 
   // To avoid duplicate saves, check duplicates first.
   const models = [
@@ -269,7 +269,7 @@ const confirmOrder = async (req, res) => {
     }
 
     // Insert data to three data collections
-    const itemsCollections = [sold, stock, employee];
+    const itemsCollections = [sold, stock, employee]; console.log(sold);
     const types = ["Sold", "Stock", "Employee"];
     for (let index = 0; index < itemsCollections.length; index++) {
       const itemCollection = itemsCollections[index];

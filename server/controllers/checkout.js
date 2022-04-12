@@ -85,6 +85,7 @@ const addToStock = async (req, res) => {
       await StockItemsModel.create({
         item,
         qty: newQtyStock,
+        qty_in_cart:0,
         cost,
         price,
         weight,
@@ -173,6 +174,7 @@ const addToEmployee = async (req, res) => {
         await EmployeeItemsModel.create({
           item,
           qty: addToEmployee,
+          qty_in_cart:0,
           cost,
           price,
           weight,
@@ -301,6 +303,7 @@ const addToException = async (req, res) => {
         solid_id: _id,
         cost,
         qty: addToCart,
+        qty_in_cart:0,
         type: "exception",
         originalType: type,
         payAmount,

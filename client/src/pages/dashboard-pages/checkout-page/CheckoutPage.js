@@ -465,6 +465,11 @@ const CheckoutPage = (props) => {
                 key: "qty_available",
               },
               {
+                title: "Qty in cart",
+                dataIndex: "qty_in_cart",
+                key: "qty_in_cart",
+              },
+              {
                 title: "Cost / each (￥)",
                 dataIndex: "cost",
                 key: "cost",

@@ -687,7 +687,7 @@ const OrderPage = (props) => {
             </Button>
           </SearchContainer>
 
-          <ExchangeRateWrapper href="https://www.boc.cn/sourcedb/whpj/enindex_1619.html">
+          <ExchangeRateWrapper href="https://www.boc.cn/sourcedb/whpj/">
             Current exchange rate:{" "}
             <Spin spinning={exchangeRateSpinning} indicator={antIcon} />
             {exchangeRate}

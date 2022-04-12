@@ -96,7 +96,7 @@ const getCartItems = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(400).json({ msg: "Failed to load cart items. Server error!" });
+    res.status(500).json({ msg: "Failed to load cart items. Server error!" });
   }
 };
 
@@ -110,33 +110,41 @@ const removeCartItem = async (req, res) => {
     ExceptionItemModel,
   ];
   const typeIndex = types.indexOf(type);
+
+  generalResponse(
+    async () => {
+      // Make sure the item exists in the original collection.
+      const result = await models[typeIndex].findById(solid_id);
+      if (result === null) {
+        return res.status(404).json({ msg: "The item does not exist." });
+      }
+
+      // Update the item's qty_in_cart
+      await models[typeIndex].findByIdAndUpdate(solid_id, {
+        $inc: { qty_in_cart: -addToCart },
+      });
+
+      await CartModel.findOneAndUpdate(
+        { user_id: user_id },
+        { $pull: { items: { _id: record_id } } }
+      );
+
+      return res
+        .status(200)
+        .json({ msg: " Item has been removed from cart successfully" });
+    },
+    res,
+    "Failed to remove item from cart. Server error!",
+    500
+  );
+};
+
+const generalResponse = (action, res, msg, status) => {
   try {
-    // Make sure the item exists in the original collection.
-
-    const result = await models[typeIndex].findById(solid_id);
-    if (result === null) {
-      return res.status(400).json({ msg: "The item does not exist." });
-    }
-
-    // Update the item's qty_in_cart
-    await models[typeIndex].findByIdAndUpdate(solid_id, {
-      $inc: { qty_in_cart: -addToCart },
-    });
-
-    await CartModel.findOneAndUpdate(
-      { user_id: user_id },
-      { $pull: { items: { _id: record_id } } }
-      // { new: true }
-    );
-
-    return res
-      .status(200)
-      .json({ msg: " Item has been removed from cart successfully" });
+    action();
   } catch (error) {
     console.log(error);
-    res
-      .status(400)
-      .json({ msg: "Failed to remove it from cart. Server error!" });
+    res.status(status).json({ msg: msg });
   }
 };
 
