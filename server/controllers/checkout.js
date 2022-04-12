@@ -1,3 +1,5 @@
+const connection = require("../database");
+
 const {
   SoldItemsModel,
   StockItemsModel,
@@ -85,7 +87,7 @@ const addToStock = async (req, res) => {
       await StockItemsModel.create({
         item,
         qty: newQtyStock,
-        qty_in_cart:0,
+        qty_in_cart: 0,
         cost,
         price,
         weight,
@@ -102,6 +104,7 @@ const addToStock = async (req, res) => {
             type
           )}]* `,
       });
+
       return res.status(200).json({
         msg: `${newQtyStock} ${item} has been added to the stock collection successfully.`,
       });
@@ -120,6 +123,7 @@ const addToStock = async (req, res) => {
             )}]* `,
         },
       });
+
       return res.status(200).json({
         msg: `${addToStock} ${item} has been added to the stock collection successfully.`,
       });
@@ -174,7 +178,7 @@ const addToEmployee = async (req, res) => {
         await EmployeeItemsModel.create({
           item,
           qty: addToEmployee,
-          qty_in_cart:0,
+          qty_in_cart: 0,
           cost,
           price,
           weight,
@@ -245,106 +249,110 @@ const addToException = async (req, res) => {
 
   // Make sure the item exists in the original collection.
   try {
-    const originalRecord = await models[typeIndex].findById(_id);
-    if (originalRecord === null) {
-      return res.status(400).json({
-        msg: "Failed to add to the exception collection. Can not find the item in database.",
-      });
-    }
+    const session = await connection.startSession();
+    await session.withTransaction(async () => {
+      const originalRecord = await models[typeIndex].findById(_id);
+      if (originalRecord === null) {
+        return res.status(400).json({
+          msg: "Failed to add to the exception collection. Can not find the item in database.",
+        });
+      }
 
-    const {
-      item,
-      cost,
-      price,
-      weight,
-      pk_id,
-      note,
-      exchangeRate,
-      status,
-      log,
-      receiver,
-      sendTimeISO,
-    } = originalRecord;
-
-    // Add the item to exception collection. If the same item (share the same pk_id, cost, payAmountEach (amount reimbursed)) exists in the exception collection, increase the qty, payAmount and subtotal of the item, resetting the approved status to false. Otherwise, create a new record of this item in exception collection.
-
-    // Calculate the amount of payment
-    const payAmount = Number(
-      (cost * addToCart + (subtotal - cost * addToCart) / 2).toFixed(2)
-    );
-
-    const payAmountEach = Number((payAmount / addToCart).toFixed(2));
-
-    const recordInException = await ExceptionItemModel.findOne({
-      pk_id: pk_id,
-      item: item,
-      cost: cost,
-      payAmountEach: payAmountEach,
-    });
-    if (recordInException !== null) {
-      const newPayAmount = Number(
-        (recordInException.payAmount + payAmount).toFixed(2)
-      );
-      await ExceptionItemModel.findByIdAndUpdate(recordInException._id, {
-        $inc: { qty: addToCart, subtotal: subtotal },
-        $set: {
-          approved: false,
-          payAmount: newPayAmount,
-          log:
-            recordInException.log +
-            `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
-              type
-            )}; The item is reset to unapproved]* `,
-        },
-      });
-    } else {
-      await ExceptionItemModel.create({
+      const {
         item,
-        solid_id: _id,
         cost,
-        qty: addToCart,
-        qty_in_cart:0,
-        type: "exception",
-        originalType: type,
-        payAmount,
-        payAmountEach,
         price,
         weight,
         pk_id,
         note,
         exchangeRate,
         status,
+        log,
         receiver,
         sendTimeISO,
-        log:
-          log +
-          `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
-            type
-          )}]* `,
-        subtotal,
-      });
-    }
+      } = originalRecord;
 
-    // Deduct the number of this item in original collection. If the number becomes 0, delete the item from the original collection.
-    const newQty = originalRecord.qty - addToCart;
-    if (newQty > 0) {
-      await models[typeIndex].findByIdAndUpdate(_id, {
-        $set: {
-          qty: newQty,
+      // Add the item to exception collection. If the same item (share the same pk_id, cost, payAmountEach (amount reimbursed)) exists in the exception collection, increase the qty, payAmount and subtotal of the item, resetting the approved status to false. Otherwise, create a new record of this item in exception collection.
+
+      // Calculate the amount of payment
+      const payAmount = Number(
+        (cost * addToCart + (subtotal - cost * addToCart) / 2).toFixed(2)
+      );
+
+      const payAmountEach = Number((payAmount / addToCart).toFixed(2));
+
+      const recordInException = await ExceptionItemModel.findOne({
+        pk_id: pk_id,
+        item: item,
+        cost: cost,
+        payAmountEach: payAmountEach,
+      });
+      if (recordInException !== null) {
+        const newPayAmount = Number(
+          (recordInException.payAmount + payAmount).toFixed(2)
+        );
+        await ExceptionItemModel.findByIdAndUpdate(recordInException._id, {
+          $inc: { qty: addToCart, subtotal: subtotal },
+          $set: {
+            approved: false,
+            payAmount: newPayAmount,
+            log:
+              recordInException.log +
+              `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
+                type
+              )}; The item is reset to unapproved]* `,
+          },
+        });
+      } else {
+        await ExceptionItemModel.create({
+          item,
+          solid_id: _id,
+          cost,
+          qty: addToCart,
+          qty_in_cart: 0,
+          type: "exception",
+          originalType: type,
+          payAmount,
+          payAmountEach,
+          price,
+          weight,
+          pk_id,
+          note,
+          exchangeRate,
+          status,
+          receiver,
+          sendTimeISO,
           log:
-            originalRecord.log +
-            `*[${dateTime} ${firstLetterToUpperCase(
+            log +
+            `*[${dateTime} Exception + ${addToCart} <= ${firstLetterToUpperCase(
               type
-            )} - ${addToCart} => Exception]* `,
-        },
-      });
-    } else {
-      await models[typeIndex].findByIdAndRemove(_id);
-    }
+            )}]* `,
+          subtotal,
+        });
+      }
 
-    res.status(200).json({
-      msg: `${addToCart} ${item} has been added to the exception collection successfully.`,
+      // Deduct the number of this item in original collection. If the number becomes 0, delete the item from the original collection.
+      const newQty = originalRecord.qty - addToCart;
+      if (newQty > 0) {
+        await models[typeIndex].findByIdAndUpdate(_id, {
+          $set: {
+            qty: newQty,
+            log:
+              originalRecord.log +
+              `*[${dateTime} ${firstLetterToUpperCase(
+                type
+              )} - ${addToCart} => Exception]* `,
+          },
+        });
+      } else {
+        await models[typeIndex].findByIdAndRemove(_id);
+      }
+
+      res.status(200).json({
+        msg: `${addToCart} ${item} has been added to the exception collection successfully.`,
+      });
     });
+    session.endSession();
   } catch (error) {
     console.log(error);
     return res.status(400).json({
@@ -520,6 +528,34 @@ const updateNote = async (req, res) => {
     console.log(error);
     res.status(400).json({ msg: "Failed to update the note. Server error." });
   }
+};
+
+// item: { type: String, required: true },
+//     qty: { type: Number, required: true },
+//     qty_in_cart: { type: Number, min: 0 },
+//     qty_available: { type: Number },
+//     cost: { type: Number, required: true }, // cost per unit
+//     price: { type: Number, required: true }, // price per unit
+//     weight: { type: Number, required: true }, // weight per unit
+//     pk_id: { type: String, required: true },
+//     note: { type: String, required: false },
+//     exchangeRate: { type: Number, required: true },
+//     type: { type: String, required: true },
+//     origin_type: { type: String },
+//     log: { type: String, required: true },
+//     receiver: { type: String, required: true },
+//     sendTimeISO: { type: Date, required: true },
+
+const transferItem = async (req, res,sourceType, targetType, transferQty) => {
+  const { _id, pk_id, item, cost, price, weight, note, exchangeRate, status, receiver, sendTimeISO, log } = req.body;
+  const dateTime = new Date().toLocaleString();
+  const models = [SoldItemsModel, StockItemsModel, EmployeeItemsModel];
+  const types = ["sold", "stock", "employee"];
+  const typeIndex = types.indexOf(sourceType);
+  const targetTypeIndex = types.indexOf(targetType);
+
+  
+
 };
 
 module.exports = {

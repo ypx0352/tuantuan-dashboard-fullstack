@@ -100,7 +100,7 @@ const exceptionItemsSchema = new mongoose.Schema(
     pk_id: { type: String, required: true },
     note: { type: String, required: false },
     exchangeRate: { type: Number, required: true },
-    status: { type: String, required: true },
+    status: { type: String},
     log: { type: String, required: true },
     subtotal: { type: Number, required: true },
     qty_in_cart: { type: Number, min: 0 },
