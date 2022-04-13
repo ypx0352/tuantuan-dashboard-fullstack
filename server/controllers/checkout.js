@@ -546,16 +546,38 @@ const updateNote = async (req, res) => {
 //     receiver: { type: String, required: true },
 //     sendTimeISO: { type: Date, required: true },
 
-const transferItem = async (req, res,sourceType, targetType, transferQty) => {
-  const { _id, pk_id, item, cost, price, weight, note, exchangeRate, status, receiver, sendTimeISO, log } = req.body;
+const transferItem = async (req, res) => {
+  const { original_id, sourceType, targetType, transferQty } = req.body;
   const dateTime = new Date().toLocaleString();
-  const models = [SoldItemsModel, StockItemsModel, EmployeeItemsModel];
-  const types = ["sold", "stock", "employee"];
-  const typeIndex = types.indexOf(sourceType);
+  const models = [
+    SoldItemsModel,
+    StockItemsModel,
+    EmployeeItemsModel,
+    ExceptionItemModel,
+  ];
+  const types = ["sold", "stock", "employee", "exception"];
+  const sourceTypeIndex = types.indexOf(sourceType);
   const targetTypeIndex = types.indexOf(targetType);
 
-  
+  // Make sure the item exists in the original collection.
+  const originalRecord = await models[sourceTypeIndex].findById(original_id);
+  if (originalRecord === null) {
+    return res.status(404).json({
+      msg: "Failed to transfer the item. Can not find the item in the database.",
+    });
+  } else if (originalRecord.qty_available < transferQty) {
+    return res.status(400).json({
+      msg: "Failed to transfer the item. The qty is not enough.",
+    });
+  }
 
+  // If there is not the same item in the target collection, create a new record in the target collection.
+
+  // If there is the same item in the target collection, update the qty in the target collection.
+
+  // If the qty in the original collection becomes 0, delete the record in the original collection.
+
+  // If the qty in the original collection does not becomes 0, update the qty in the original collection.
 };
 
 module.exports = {
