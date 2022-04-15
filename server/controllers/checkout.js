@@ -7,6 +7,10 @@ const {
   ExceptionItemModel,
 } = require("../models/orderModels");
 
+const firstLetterToUpperCase = (word) => {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+};
+
 const allItems = async (req, res) => {
   try {
     const soldItems = await SoldItemsModel.find();
@@ -571,10 +575,70 @@ const transferItem = async (req, res) => {
     });
   }
 
-  // If there is not the same item in the target collection, create a new record in the target collection.
+  // Create a transaction including the actions on the original collection and the target collection.
+  // const session = await connection.startSession();
+  // session.startTransaction();
+  // Manupulate original record.
+  // Create a new record or update the record in the target collection depending on whether there is a same item saved in the target collection. Same item has the same pk_id, item, cost and price.
+  const targetRecord = await models[targetTypeIndex].findOne({
+    pk_id: originalRecord.pk_id,
+    item: originalRecord.item,
+    cost: originalRecord.cost,
+    price: originalRecord.price,
+  });
 
-  // If there is the same item in the target collection, update the qty in the target collection.
+  const { _id, qty, ...rest } = originalRecord._doc;
+  console.log(rest);
+  const re = rest
 
+  const targetActionResult = await models[targetTypeIndex].findOneAndUpdate(
+    {
+      pk_id: originalRecord.pk_id,
+      item: originalRecord.item,
+      cost: originalRecord.cost,
+      price: originalRecord.price,
+    },
+
+    {
+      $set: {
+        weight: originalRecord.weight,
+        note: originalRecord.note,
+        exchangeRate: originalRecord.exchangeRate,
+        receiver: originalRecord.receiver,
+        sendTimeISO: originalRecord.sendTimeISO,
+        qty_in_cart: 0,        
+        type: targetType,
+        log:originalRecord.log +  `*[${dateTime} ${firstLetterToUpperCase(
+          sourceType
+        )} + ${transferQty} <= ${firstLetterToUpperCase(
+          originalRecord.type
+        )}]* `
+        
+      },
+
+      
+
+      // log: $concat(
+      //   originalRecord.log,
+      //   `*[${dateTime} Transfer - ${transferQty}]* `
+      // ),
+
+      // log:
+      // originalRecord.log + "$log"
+      //   `*[${dateTime} ${firstLetterToUpperCase(
+      //     sourceType
+      //   )} + ${transferQty} <= ${firstLetterToUpperCase(
+      //     originalRecord.type
+      //   )}]* `,
+
+      $inc: { qty: transferQty },
+    },
+
+    { upsert: true, rawResult: false, timestamps: true, new: true }
+  );
+  console.log(targetActionResult);
+
+  // Manupulate target record.
   // If the qty in the original collection becomes 0, delete the record in the original collection.
 
   // If the qty in the original collection does not becomes 0, update the qty in the original collection.
@@ -588,4 +652,5 @@ module.exports = {
   recoverFromException,
   approveExceptionItem,
   updateNote,
+  transferItem,
 };

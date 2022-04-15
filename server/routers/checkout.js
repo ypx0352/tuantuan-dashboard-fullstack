@@ -7,6 +7,7 @@ const {
   recoverFromException,
   approveExceptionItem,
   updateNote,
+  transferItem,
 } = require("../controllers/checkout");
 
 router.get("/all_items", allItems);
@@ -22,5 +23,7 @@ router.put("/recover_from_exception", recoverFromException);
 router.put("/approve_exception_item", approveExceptionItem);
 
 router.put("/update_note", updateNote);
+
+router.put("/transfer_item", transferItem)
 
 module.exports = router;
