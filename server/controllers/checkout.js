@@ -587,10 +587,6 @@ const transferItem = async (req, res) => {
     price: originalRecord.price,
   });
 
-  const { _id, qty, ...rest } = originalRecord._doc;
-  console.log(rest);
-  const re = rest
-
   const targetActionResult = await models[targetTypeIndex].findOneAndUpdate(
     {
       pk_id: originalRecord.pk_id,
@@ -606,42 +602,74 @@ const transferItem = async (req, res) => {
         exchangeRate: originalRecord.exchangeRate,
         receiver: originalRecord.receiver,
         sendTimeISO: originalRecord.sendTimeISO,
-        qty_in_cart: 0,        
+        qty_in_cart: 0,
         type: targetType,
-        log:originalRecord.log +  `*[${dateTime} ${firstLetterToUpperCase(
-          sourceType
-        )} + ${transferQty} <= ${firstLetterToUpperCase(
-          originalRecord.type
-        )}]* `
-        
+        log:
+          originalRecord.log +
+          `*[${dateTime} ${firstLetterToUpperCase(
+            sourceType
+          )} + ${transferQty} <= ${firstLetterToUpperCase(
+            originalRecord.type
+          )}]* `,
+        updatedAt: new Date(),
       },
-
-      
-
-      // log: $concat(
-      //   originalRecord.log,
-      //   `*[${dateTime} Transfer - ${transferQty}]* `
-      // ),
-
-      // log:
-      // originalRecord.log + "$log"
-      //   `*[${dateTime} ${firstLetterToUpperCase(
-      //     sourceType
-      //   )} + ${transferQty} <= ${firstLetterToUpperCase(
-      //     originalRecord.type
-      //   )}]* `,
 
       $inc: { qty: transferQty },
     },
 
-    { upsert: true, rawResult: false, timestamps: true, new: true }
+    { upsert: true, rawResult: true, timestamps: true }
   );
-  console.log(targetActionResult);
+  console.log(targetActionResult.ok);
 
   // Manupulate target record.
   // If the qty in the original collection becomes 0, delete the record in the original collection.
 
   // If the qty in the original collection does not becomes 0, update the qty in the original collection.
+};
+
+const addItemToCollection = async (targetType, item) => {
+  const model = typeToModel(targetType);
+  const result = await model.findOneAndUpdate(
+    {
+      pk_id: item.pk_id,
+      item: item.item,
+      cost: item.cost,
+      price: item.price,
+    },
+    {
+      $set: {
+        weight: item.weight,
+        note: item.note,
+        exchangeRate: item.exchangeRate,
+        receiver: item.receiver,
+        sendTimeISO: item.sendTimeISO,
+        qty_in_cart: 0,
+        type: targetType,
+        log:
+          originalRecord.log +
+          `*[${dateTime} ${firstLetterToUpperCase(
+            sourceType
+          )} + ${transferQty} <= ${firstLetterToUpperCase(
+            originalRecord.type
+          )}]* `,
+        updatedAt: new Date(),
+      },
+      $inc: { qty: transferQty },
+    },
+    { upsert: true, rawResult: true, timestamps: true }
+  );
+};
+
+const typeToModel = (type) => {
+  const models = [
+    SoldItemsModel,
+    StockItemsModel,
+    EmployeeItemsModel,
+    ExceptionItemModel,
+  ];
+  const types = ["sold", "stock", "employee", "exception"];
+  const typeIndex = types.indexOf(type);
+  return models[typeIndex];
 };
 
 module.exports = {

@@ -38,7 +38,8 @@ const normalItemSchema = new mongoose.Schema(
     origin_type: { type: String },
     log: { type: String, required: true },
     receiver: { type: String, required: true },
-    sendTimeISO: { type: Date, required: true },
+    sendTimeISO: { type: Date, required: true },    
+    updatedAt: { type: Date, required: true },
   },
   { timeseries: true }
 );
