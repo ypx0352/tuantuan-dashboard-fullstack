@@ -461,8 +461,8 @@ const CheckoutPage = (props) => {
               },
               {
                 title: "Qty",
-                dataIndex: "qty_available",
-                key: "qty_available",
+                dataIndex: "qty",
+                key: "qty",
               },
               {
                 title: "Qty in cart",
@@ -580,8 +580,8 @@ const CheckoutPage = (props) => {
               },
               {
                 title: "Qty",
-                dataIndex: "qty_available",
-                key: "qty_available",
+                dataIndex: "qty",
+                key: "qty",
               },
               {
                 title: "Cost / each (￥)",

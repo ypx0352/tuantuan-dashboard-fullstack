@@ -551,84 +551,47 @@ const updateNote = async (req, res) => {
 //     sendTimeISO: { type: Date, required: true },
 
 const transferItem = async (req, res) => {
-  const { original_id, sourceType, targetType, transferQty } = req.body;
-  const dateTime = new Date().toLocaleString();
-  const models = [
-    SoldItemsModel,
-    StockItemsModel,
-    EmployeeItemsModel,
-    ExceptionItemModel,
-  ];
-  const types = ["sold", "stock", "employee", "exception"];
-  const sourceTypeIndex = types.indexOf(sourceType);
-  const targetTypeIndex = types.indexOf(targetType);
+  generalHandle(async (session) => {
+    const { original_id, sourceType, targetType, transferQty } = req.body;
 
-  // Make sure the item exists in the original collection.
-  const originalRecord = await models[sourceTypeIndex].findById(original_id);
-  if (originalRecord === null) {
-    return res.status(404).json({
-      msg: "Failed to transfer the item. Can not find the item in the database.",
-    });
-  } else if (originalRecord.qty_available < transferQty) {
-    return res.status(400).json({
-      msg: "Failed to transfer the item. The qty is not enough.",
-    });
-  }
+    const sourceRecordResult = await validateAndGetSourceRecord(
+      sourceType,
+      original_id,
+      transferQty
+    );
+    if (sourceRecordResult.ok !== 1) {
+      throw new Error(sourceRecordResult.msg);
+    }
 
-  // Create a transaction including the actions on the original collection and the target collection.
-  // const session = await connection.startSession();
-  // session.startTransaction();
-  // Manupulate original record.
-  // Create a new record or update the record in the target collection depending on whether there is a same item saved in the target collection. Same item has the same pk_id, item, cost and price.
-  const targetRecord = await models[targetTypeIndex].findOne({
-    pk_id: originalRecord.pk_id,
-    item: originalRecord.item,
-    cost: originalRecord.cost,
-    price: originalRecord.price,
-  });
+    // Manipulate the record in the source collection.
+    const removeResult = await removeItemFromCollection(
+      sourceType,
+      sourceRecordResult.sourceRecord,
+      transferQty,
+      session
+    );
+    if (removeResult.ok !== 1) {
+      // If the removeItemFromCollection function returns an error, rollback the transaction.
+      throw new Error("Failed to manipulate the original record.");
+    }
 
-  const targetActionResult = await models[targetTypeIndex].findOneAndUpdate(
-    {
-      pk_id: originalRecord.pk_id,
-      item: originalRecord.item,
-      cost: originalRecord.cost,
-      price: originalRecord.price,
-    },
-
-    {
-      $set: {
-        weight: originalRecord.weight,
-        note: originalRecord.note,
-        exchangeRate: originalRecord.exchangeRate,
-        receiver: originalRecord.receiver,
-        sendTimeISO: originalRecord.sendTimeISO,
-        qty_in_cart: 0,
-        type: targetType,
-        log:
-          originalRecord.log +
-          `*[${dateTime} ${firstLetterToUpperCase(
-            sourceType
-          )} + ${transferQty} <= ${firstLetterToUpperCase(
-            originalRecord.type
-          )}]* `,
-        updatedAt: new Date(),
-      },
-
-      $inc: { qty: transferQty },
-    },
-
-    { upsert: true, rawResult: true, timestamps: true }
-  );
-  console.log(targetActionResult.ok);
-
-  // Manupulate target record.
-  // If the qty in the original collection becomes 0, delete the record in the original collection.
-
-  // If the qty in the original collection does not becomes 0, update the qty in the original collection.
+    // Manipulate the record in the target collection.
+    const addResult = await addItemToCollection(
+      targetType,
+      sourceRecordResult.sourceRecord,
+      transferQty,
+      session
+    );
+    if (addResult.ok !== 1) {
+      // If the addItemToCollection function returns an error, rollback the transaction.
+      throw new Error("Failed to manipulate the target record.");
+    }
+  }, res);
 };
 
-const addItemToCollection = async (targetType, item) => {
-  const model = typeToModel(targetType);
+const addItemToCollection = async (collectionType, item, addQty, session) => {
+  // Create a new record or update the record in the target collection depending on whether there is a same item saved in the target collection. Same item has the same pk_id, item, cost and price.
+  const model = typeToModel(collectionType);
   const result = await model.findOneAndUpdate(
     {
       pk_id: item.pk_id,
@@ -643,33 +606,92 @@ const addItemToCollection = async (targetType, item) => {
         exchangeRate: item.exchangeRate,
         receiver: item.receiver,
         sendTimeISO: item.sendTimeISO,
-        qty_in_cart: 0,
-        type: targetType,
-        log:
-          originalRecord.log +
-          `*[${dateTime} ${firstLetterToUpperCase(
-            sourceType
-          )} + ${transferQty} <= ${firstLetterToUpperCase(
-            originalRecord.type
-          )}]* `,
+        type: collectionType,
         updatedAt: new Date(),
       },
-      $inc: { qty: transferQty },
+      $inc: { qty: addQty },
     },
-    { upsert: true, rawResult: true, timestamps: true }
+    { upsert: true, rawResult: true, timestamps: true, session: session }
   );
+  return result;
+};
+
+const validateAndGetSourceRecord = async (sourceType, item_id, transferQty) => {
+  // Make sure the item exists in the database.
+  const model = typeToModel(sourceType);
+  const sourceRecord = await model.findById(item_id);
+  if (sourceRecord === null) {
+    return {
+      ok: 0,
+      msg: `Failed to transfer the item. Can not find the item in the ${sourceType} collection.`,
+    };
+  }
+
+  // Make sure the item has enough quantity to transfer.
+  if (sourceRecord.qty_available < transferQty) {
+    return {
+      ok: 0,
+      msg: `Failed to transfer the item. The item has only ${sourceRecord.qty_available} quantity available.`,
+    };
+  }
+
+  return { ok: 1, sourceRecord };
+};
+
+const removeItemFromCollection = async (
+  collectionType,
+  originalRecord,
+  removeQty,
+  session
+) => {
+  const model = typeToModel(collectionType);
+
+  // If the new qty does not becomes 0, update the qty.
+  if (originalRecord.qty - removeQty !== 0) {
+    const result = await model.findByIdAndUpdate(
+      originalRecord._id,
+      {
+        $inc: { qty: -removeQty },
+      },
+      { rawResult: true, session: session }
+    );
+    return result;
+  }
+  // If the qty in the original collection becomes 0 after updating, delete the record in the original collection.
+  else {
+    const result = await model.findByIdAndDelete(originalRecord._id, {
+      rawResult: true,
+      session: session,
+    });
+    return result;
+  }
 };
 
 const typeToModel = (type) => {
-  const models = [
-    SoldItemsModel,
-    StockItemsModel,
-    EmployeeItemsModel,
-    ExceptionItemModel,
-  ];
-  const types = ["sold", "stock", "employee", "exception"];
-  const typeIndex = types.indexOf(type);
-  return models[typeIndex];
+  const modelsMap = {
+    sold: SoldItemsModel,
+    stock: StockItemsModel,
+    employee: EmployeeItemsModel,
+    exception: ExceptionItemModel,
+  };
+  return modelsMap[type];
+};
+
+const generalHandle = async (action, res) => {
+  const session = await connection.startSession();
+  try {
+    session.startTransaction();
+    await action(session);
+    await session.commitTransaction();
+    res.status(200).json({ msg: "Successfully transfer the item." });
+  } catch (error) {
+    console.log(error);
+    await session.abortTransaction();
+    res.status(500).json({
+      msg: error.message || "Failed to transfer the item. Server error!",
+    });
+  }
+  session.endSession();
 };
 
 module.exports = {
