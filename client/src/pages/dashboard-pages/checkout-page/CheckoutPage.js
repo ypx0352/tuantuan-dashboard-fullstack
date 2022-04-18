@@ -243,6 +243,7 @@ const CheckoutPage = (props) => {
     updateNote,
     showSidebar,
     login,
+    transferItem,
   } = props;
 
   useEffect(() => {
@@ -273,14 +274,6 @@ const CheckoutPage = (props) => {
   };
 
   const generateButton = (record, destination) => {
-    const methods = [
-      handleAddToStock,
-      handleAddToEmployee,
-      handleRecoverFromException,
-      handleExceptionItemApprove,
-    ];
-    const destinations = ["stock", "employee", "recover", "approve"];
-    const index = destinations.indexOf(destination);
 
     if (destination !== "cart") {
       return destination === "approve" ? (
@@ -288,7 +281,7 @@ const CheckoutPage = (props) => {
           disabled={record.qty_available <= 0 ? true : ""}
           placement="topRight"
           title="Do you want to approve it?"
-          onConfirm={() => methods[index](record)}
+          onConfirm={() => handleExceptionItemApprove(record._id)}
           okText={
             destination === "recover"
               ? "Recover"
@@ -314,9 +307,7 @@ const CheckoutPage = (props) => {
               <Button
                 size="small"
                 onClick={() => {
-                  //record.addToStock = record.qty;
-                  record[`addTo${capitalizeFirstLetter(destination)}`] =
-                    record.qty_available;
+                  record.transferQty = record.qty_available;
                   setUpdate(record);
                 }}
               >
@@ -328,14 +319,21 @@ const CheckoutPage = (props) => {
                 min={1}
                 max={record.qty_available}
                 defaultValue={null}
-                value={record[`addTo${capitalizeFirstLetter(destination)}`]}
+                value={record.transferQty}
                 onChange={(e) => {
-                  record[`addTo${capitalizeFirstLetter(destination)}`] = e;
+                  record.transferQty = e;
                 }}
               />
             </>
           }
-          onConfirm={() => methods[index](record)}
+          onConfirm={() =>
+            transferItem(
+              record._id,
+              record.type,
+              destination,
+              record.transferQty
+            )
+          } // original_id, sourceType, targetType, transferQty
           okText={
             destination === "recover"
               ? "Recover"
@@ -556,10 +554,10 @@ const CheckoutPage = (props) => {
                       )}
                       {record.type === "exception" && (
                         <>
-                          {record.approved && generateButton(record, "cart")}
+                          {record.approved
+                            ? generateButton(record, "cart")
+                            : generateButton(record, "approve")}
                           {generateButton(record, "recover")}
-                          {!record.approved &&
-                            generateButton(record, "approve")}
                         </>
                       )}
                     </ButtonWrapper>
@@ -861,25 +859,7 @@ const mapDispatch = (dispatch) => ({
 
   setBlockSelected(block) {
     dispatch({ type: actionTypes.BLOCK_SELECTED, value: fromJS(block) });
-  },
-
-  handleAddToStock(record) {
-    const { addToStock } = record;
-    if (addToStock === undefined) {
-      message.warning("Invalid input!");
-    } else {
-      dispatch(actionCreators.addToStockAction(record));
-    }
-  },
-
-  handleAddToEmployee(record) {
-    const { addToEmployee } = record;
-    if (addToEmployee === undefined) {
-      message.warning("Invalid input!");
-    } else {
-      dispatch(actionCreators.addToEmployeeAction(record));
-    }
-  },
+  }, 
 
   handleAddToCart(record) {
     const { addToCart } = record;
@@ -902,8 +882,8 @@ const mapDispatch = (dispatch) => ({
     dispatch(actionCreators.recoverFromExceptionAction(record));
   },
 
-  handleExceptionItemApprove(record) {
-    dispatch(actionCreators.approveExceptionItemAction(record._id));
+  handleExceptionItemApprove(_id) {
+    dispatch(actionCreators.approveExceptionItemAction(_id));
   },
 
   updateNote(record) {
@@ -911,6 +891,14 @@ const mapDispatch = (dispatch) => ({
     if (newNote !== undefined && note !== newNote) {
       dispatch(actionCreators.updateNoteAction(record));
     }
+  },
+
+  transferItem(original_id, sourceType, targetType, transferQty) {
+    dispatch(
+      actionCreators.transferItemAction(
+        original_id, sourceType, targetType, transferQty
+      )
+    );
   },
 });
 

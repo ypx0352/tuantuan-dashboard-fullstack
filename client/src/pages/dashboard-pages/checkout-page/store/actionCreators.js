@@ -127,7 +127,7 @@ export const addToCartAction = (record) => {
 
 export const addToExceptionAction = (item) => {
   return async (dispatch) => {
-    try {      
+    try {
       const response = await axios.put(
         serverBaseUrl + "/api/checkout/add_to_exception",
         item
@@ -149,7 +149,7 @@ export const recoverFromExceptionAction = (record) => {
     try {
       const response = await axios.put(
         serverBaseUrl + "/api/checkout/recover_from_exception",
-        record
+        { record }
       );
       dispatch(getAllItemsAction);
       const { msg } = response.data;
@@ -185,6 +185,27 @@ export const updateNoteAction = (record) => {
       const response = await axios.put(
         serverBaseUrl + "/api/checkout/update_note",
         { newNote, type, _id }
+      );
+      message.success(response.data.msg);
+      dispatch(getAllItemsAction);
+    } catch (error) {
+      console.log(error);
+      message.error(error.response.data.msg);
+    }
+  };
+};
+
+export const transferItemAction = (
+  original_id,
+  sourceType,
+  targetType,
+  transferQty
+) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.put(
+        serverBaseUrl + "/api/checkout/transfer_item",
+        { original_id, sourceType, targetType, transferQty }
       );
       message.success(response.data.msg);
       dispatch(getAllItemsAction);

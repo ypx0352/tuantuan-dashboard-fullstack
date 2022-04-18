@@ -88,7 +88,7 @@ const normalItemSchema = new mongoose.Schema(
 const exceptionItemsSchema = new mongoose.Schema(
   {
     item: { type: String, required: true },
-    solid_id: { type: String, required: true },
+    original_id: { type: String, required: true },
     cost: { type: Number, required: true },
     qty: { type: Number, required: true },
     type: { type: String, required: true },
@@ -100,7 +100,6 @@ const exceptionItemsSchema = new mongoose.Schema(
     pk_id: { type: String, required: true },
     note: { type: String, required: false },
     exchangeRate: { type: Number, required: true },
-    status: { type: String},
     subtotal: { type: Number, required: true },
     qty_in_cart: { type: Number, min: 0 },
     approved: { type: Boolean, default: false, required: true },

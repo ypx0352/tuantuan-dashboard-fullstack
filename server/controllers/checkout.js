@@ -7,6 +7,8 @@ const {
   ExceptionItemModel,
 } = require("../models/orderModels");
 
+const LogModel = require("../models/logModel");
+
 const firstLetterToUpperCase = (word) => {
   return word.charAt(0).toUpperCase() + word.slice(1);
 };
@@ -479,17 +481,16 @@ const recoverFromException = async (req, res) => {
 };
 
 const approveExceptionItem = async (req, res) => {
-  const { _id } = req.body;
   const dateTime = new Date().toLocaleString();
   try {
     // Make sure the item exists in the exception collection.
-    const recordInException = await ExceptionItemModel.findById(_id);
+    const recordInException = await ExceptionItemModel.findById(req.body._id);
     if (recordInException === null) {
       return res.status(400).json({
         msg: "Failed to approve the item. Can not find the item in database",
       });
     }
-    await ExceptionItemModel.findByIdAndUpdate(_id, {
+    await ExceptionItemModel.findByIdAndUpdate(req.body._id, {
       $set: {
         approved: true,
         log:
@@ -586,19 +587,74 @@ const transferItem = async (req, res) => {
       // If the addItemToCollection function returns an error, rollback the transaction.
       throw new Error("Failed to manipulate the target record.");
     }
+
+    // Write the log.
+    const logResult = await writeLog(
+      "Pengxiang Yue",
+      `Transfer ${transferQty} ${sourceRecordResult.sourceRecord.item} to ${targetType} from ${sourceType}.`,
+      session
+    );
+    if (logResult.insertedCount !== 1) {
+      // If the writeLog function returns an error, rollback the transaction.
+      throw new Error("Failed to write the log.");
+    }
   }, res);
 };
 
 const addItemToCollection = async (collectionType, item, addQty, session) => {
-  // Create a new record or update the record in the target collection depending on whether there is a same item saved in the target collection. Same item has the same pk_id, item, cost and price.
+  // Create a new record or update the record in the target collection depending on whether there is a same item saved in the target collection. Same item has the same pk_id, item, cost and price (plus payAmountEach in cart and exception collection).
   const model = typeToModel(collectionType);
+  const filter =
+    collectionType === "exception"
+      ? {
+          pk_id: item.pk_id,
+          item: item.item,
+          cost: item.cost,
+          price: item.price,
+          payAmountEach: item.payAmountEach,
+        }
+      : {
+          pk_id: item.pk_id,
+          item: item.item,
+          cost: item.cost,
+          price: item.price,
+        };
+
+  const update =
+    collectionType === "exception"
+      ? {
+          $set: {
+            original_id: item._id,
+            weight: item.weight,
+            note: item.note,
+            exchangeRate: item.exchangeRate,
+            type: collectionType,
+            originalType: item.type,
+            payAmount: item.payAmount,
+            price: item.price,
+            subtotal: item.subtotal,
+            qty_in_cart: item.qty_in_cart,
+            approved: item.approved,
+            receiver: item.receiver,
+            sendTimeISO: item.sendTimeISO,
+            updatedAt: new Date(),
+          },
+          $inc: { qty: addQty },
+        }
+      : {
+          $set: {
+            weight: item.weight,
+            note: item.note,
+            exchangeRate: item.exchangeRate,
+            receiver: item.receiver,
+            sendTimeISO: item.sendTimeISO,
+            type: collectionType,
+            updatedAt: new Date(),
+          },
+          $inc: { qty: addQty },
+        };
   const result = await model.findOneAndUpdate(
-    {
-      pk_id: item.pk_id,
-      item: item.item,
-      cost: item.cost,
-      price: item.price,
-    },
+    filter,
     {
       $set: {
         weight: item.weight,
@@ -675,6 +731,19 @@ const typeToModel = (type) => {
     exception: ExceptionItemModel,
   };
   return modelsMap[type];
+};
+
+const writeLog = async (user, msg, session) => {
+  const result = await LogModel.insertMany(
+    [
+      {
+        user: user,
+        msg: msg,
+      },
+    ],
+    { session: session, rawResult: true }
+  );
+  return result;
 };
 
 const generalHandle = async (action, res) => {
