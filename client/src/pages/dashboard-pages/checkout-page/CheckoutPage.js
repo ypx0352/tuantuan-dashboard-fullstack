@@ -274,7 +274,6 @@ const CheckoutPage = (props) => {
   };
 
   const generateButton = (record, destination) => {
-
     if (destination !== "cart") {
       return destination === "approve" ? (
         <Popconfirm
@@ -823,7 +822,14 @@ const CheckoutPage = (props) => {
         cancelText="Back"
         style={{ top: "20px" }}
         onOk={() => {
-          addToException(exceptionItem);
+          // addToException(exceptionItem);
+          transferItem(
+            exceptionItem._id,
+            exceptionItem.type,
+            "exception",
+            exceptionItem.addToCart,
+            exceptionItem.subtotal
+          );
           setModalOkButtonDisabled(true);
         }}
         onCancel={() => setShowModal(false)}
@@ -859,7 +865,7 @@ const mapDispatch = (dispatch) => ({
 
   setBlockSelected(block) {
     dispatch({ type: actionTypes.BLOCK_SELECTED, value: fromJS(block) });
-  }, 
+  },
 
   handleAddToCart(record) {
     const { addToCart } = record;
@@ -875,7 +881,8 @@ const mapDispatch = (dispatch) => ({
   },
 
   addToException(item) {
-    dispatch(actionCreators.addToExceptionAction(item));
+    console.log(item);
+    //dispatch(actionCreators.addToExceptionAction(item));
   },
 
   handleRecoverFromException(record) {
@@ -893,10 +900,15 @@ const mapDispatch = (dispatch) => ({
     }
   },
 
-  transferItem(original_id, sourceType, targetType, transferQty) {
+  transferItem(original_id, sourceType, targetType, transferQty, subtotal) {
+    console.log(original_id, sourceType, targetType, transferQty, subtotal);
     dispatch(
       actionCreators.transferItemAction(
-        original_id, sourceType, targetType, transferQty
+        original_id,
+        sourceType,
+        targetType,
+        transferQty,
+        subtoial
       )
     );
   },

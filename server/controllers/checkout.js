@@ -535,25 +535,10 @@ const updateNote = async (req, res) => {
   }
 };
 
-// item: { type: String, required: true },
-//     qty: { type: Number, required: true },
-//     qty_in_cart: { type: Number, min: 0 },
-//     qty_available: { type: Number },
-//     cost: { type: Number, required: true }, // cost per unit
-//     price: { type: Number, required: true }, // price per unit
-//     weight: { type: Number, required: true }, // weight per unit
-//     pk_id: { type: String, required: true },
-//     note: { type: String, required: false },
-//     exchangeRate: { type: Number, required: true },
-//     type: { type: String, required: true },
-//     origin_type: { type: String },
-//     log: { type: String, required: true },
-//     receiver: { type: String, required: true },
-//     sendTimeISO: { type: Date, required: true },
-
 const transferItem = async (req, res) => {
   generalHandle(async (session) => {
-    const { original_id, sourceType, targetType, transferQty } = req.body;
+    const { original_id, sourceType, targetType, transferQty, subtotal } =
+      req.body;
 
     const sourceRecordResult = await validateAndGetSourceRecord(
       sourceType,
@@ -581,6 +566,7 @@ const transferItem = async (req, res) => {
       targetType,
       sourceRecordResult.sourceRecord,
       transferQty,
+      subtotal,
       session
     );
     if (addResult.ok !== 1) {
@@ -592,18 +578,33 @@ const transferItem = async (req, res) => {
     const logResult = await writeLog(
       "Pengxiang Yue",
       `Transfer ${transferQty} ${sourceRecordResult.sourceRecord.item} to ${targetType} from ${sourceType}.`,
+      sourceRecordResult.sourceRecord.pk_id,
       session
     );
     if (logResult.insertedCount !== 1) {
       // If the writeLog function returns an error, rollback the transaction.
       throw new Error("Failed to write the log.");
     }
+
+    // If there is no error, return the success response text.
+    return `Successfully transferred ${transferQty} ${sourceRecordResult.sourceRecord.item} to ${targetType} from ${sourceType}.`;
   }, res);
 };
 
-const addItemToCollection = async (collectionType, item, addQty, session) => {
+const addItemToCollection = async (
+  collectionType,
+  item,
+  addQty,
+  subtotal,
+  session
+) => {
   // Create a new record or update the record in the target collection depending on whether there is a same item saved in the target collection. Same item has the same pk_id, item, cost and price (plus payAmountEach in cart and exception collection).
   const model = typeToModel(collectionType);
+
+  if (collectionType === "exception") {
+    const payAmountEach = Number(((subtotal * 100) / addQty / 100).toFixed(2));
+  }
+
   const filter =
     collectionType === "exception"
       ? {
@@ -630,16 +631,15 @@ const addItemToCollection = async (collectionType, item, addQty, session) => {
             exchangeRate: item.exchangeRate,
             type: collectionType,
             originalType: item.type,
-            payAmount: item.payAmount,
+            payAmountEach: item.payAmountEach,
             price: item.price,
             subtotal: item.subtotal,
-            qty_in_cart: item.qty_in_cart,
-            approved: item.approved,
+            approved: false,
             receiver: item.receiver,
             sendTimeISO: item.sendTimeISO,
             updatedAt: new Date(),
           },
-          $inc: { qty: addQty },
+          $inc: { qty: addQty, payAmount: subtotal },
         }
       : {
           $set: {
@@ -653,22 +653,13 @@ const addItemToCollection = async (collectionType, item, addQty, session) => {
           },
           $inc: { qty: addQty },
         };
-  const result = await model.findOneAndUpdate(
-    filter,
-    {
-      $set: {
-        weight: item.weight,
-        note: item.note,
-        exchangeRate: item.exchangeRate,
-        receiver: item.receiver,
-        sendTimeISO: item.sendTimeISO,
-        type: collectionType,
-        updatedAt: new Date(),
-      },
-      $inc: { qty: addQty },
-    },
-    { upsert: true, rawResult: true, timestamps: true, session: session }
-  );
+
+  const result = await model.findOneAndUpdate(filter, update, {
+    upsert: true,
+    rawResult: true,
+    timestamps: true,
+    session: session,
+  });
   return result;
 };
 
@@ -733,12 +724,13 @@ const typeToModel = (type) => {
   return modelsMap[type];
 };
 
-const writeLog = async (user, msg, session) => {
+const writeLog = async (user, msg, pk_id, session) => {
   const result = await LogModel.insertMany(
     [
       {
         user: user,
         msg: msg,
+        package: pk_id,
       },
     ],
     { session: session, rawResult: true }
@@ -750,14 +742,15 @@ const generalHandle = async (action, res) => {
   const session = await connection.startSession();
   try {
     session.startTransaction();
-    await action(session);
+
+    const successResponseText = await action(session);
     await session.commitTransaction();
-    res.status(200).json({ msg: "Successfully transfer the item." });
+    res.status(200).json({ msg: successResponseText });
   } catch (error) {
     console.log(error);
     await session.abortTransaction();
     res.status(500).json({
-      msg: error.message || "Failed to transfer the item. Server error!",
+      msg: error.message || "Server error!",
     });
   }
   session.endSession();

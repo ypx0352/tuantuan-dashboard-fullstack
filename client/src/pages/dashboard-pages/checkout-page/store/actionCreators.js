@@ -199,13 +199,14 @@ export const transferItemAction = (
   original_id,
   sourceType,
   targetType,
-  transferQty
+  transferQty,
+  subtotal
 ) => {
   return async (dispatch) => {
     try {
       const response = await axios.put(
         serverBaseUrl + "/api/checkout/transfer_item",
-        { original_id, sourceType, targetType, transferQty }
+        { original_id, sourceType, targetType, transferQty, subtotal }
       );
       message.success(response.data.msg);
       dispatch(getAllItemsAction);
