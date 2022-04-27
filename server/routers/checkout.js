@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const {
   allItems,
-  addToStock,
-  addToEmployee,
+  //addToStock,
+  //addToEmployee,
   addToException,
   recoverFromException,
   approveExceptionItem,
@@ -12,9 +12,9 @@ const {
 
 router.get("/all_items", allItems);
 
-router.put("/add_to_stock", addToStock);
+// router.put("/add_to_stock", addToStock);
 
-router.put("/add_to_employee", addToEmployee);
+// router.put("/add_to_employee", addToEmployee);
 
 router.put("/add_to_exception", addToException);
 

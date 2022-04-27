@@ -14,7 +14,7 @@ export const initializeCartAction = async (dispatch) => {
     var cartItemsCount = 0;
     var cartSubtotal = 0;
     result.forEach((element) => {
-      cartItemsCount += element.addToCart;
+      cartItemsCount += element.qty;
       cartSubtotal += element.payAmount;
     });
 
@@ -35,6 +35,7 @@ export const initializeCartAction = async (dispatch) => {
 };
 
 export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
+  console.log(record_id, solid_id, type, addToCart);
   return async (dispatch) => {
     try {
       const response = await axios.put(

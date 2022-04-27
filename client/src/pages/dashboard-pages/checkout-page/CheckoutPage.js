@@ -325,14 +325,17 @@ const CheckoutPage = (props) => {
               />
             </>
           }
-          onConfirm={() =>
+          onConfirm={() => {
+            if (destination === "recover") {
+              destination = record.originalType;
+            }
             transferItem(
               record._id,
               record.type,
               destination,
               record.transferQty
-            )
-          } // original_id, sourceType, targetType, transferQty
+            );
+          }} // original_id, sourceType, targetType, transferQty
           okText={
             destination === "recover"
               ? "Recover"
@@ -460,11 +463,6 @@ const CheckoutPage = (props) => {
                 title: "Qty",
                 dataIndex: "qty",
                 key: "qty",
-              },
-              {
-                title: "Qty in cart",
-                dataIndex: "qty_in_cart",
-                key: "qty_in_cart",
               },
               {
                 title: "Cost / each (￥)",
@@ -901,14 +899,13 @@ const mapDispatch = (dispatch) => ({
   },
 
   transferItem(original_id, sourceType, targetType, transferQty, subtotal) {
-    console.log(original_id, sourceType, targetType, transferQty, subtotal);
     dispatch(
       actionCreators.transferItemAction(
         original_id,
         sourceType,
         targetType,
         transferQty,
-        subtoial
+        subtotal
       )
     );
   },

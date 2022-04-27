@@ -210,7 +210,7 @@ const submitOrder = async (req, res) => {
           items[index].push({
             ...element,
             qty: count,
-            qty_in_cart:0,
+            qty_in_cart: 0,
             pk_id: id,
             exchangeRate,
             sendTimeISO,
@@ -269,7 +269,7 @@ const confirmOrder = async (req, res) => {
     }
 
     // Insert data to three data collections
-    const itemsCollections = [sold, stock, employee]; 
+    const itemsCollections = [sold, stock, employee];
     const types = ["Sold", "Stock", "Employee"];
     for (let index = 0; index < itemsCollections.length; index++) {
       const itemCollection = itemsCollections[index];

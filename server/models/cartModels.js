@@ -7,10 +7,10 @@ const itemSchema = new mongoose.Schema({
   original_id: { type: String, required: true },
   cost: { type: Number, required: true },
   qty: { type: Number, required: true },
-  type: { type: String, required: true },
+  // type: { type: String, required: true },
   originalType: { type: String, required: true },
   payAmount: { type: Number, required: true },
-  payAmountEach: { type: Number, required: true },
+  //payAmountEach: { type: Number, required: true },
   receiver: { type: String, required: true },
   pk_id: { type: String, required: true },
 });

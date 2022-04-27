@@ -36,211 +36,211 @@ const allItems = async (req, res) => {
   }
 };
 
-const addToStock = async (req, res) => {
-  const { addToStock, _id, type } = req.body;
-  const types = ["sold", "employee"];
-  const models = [SoldItemsModel, EmployeeItemsModel];
-  const typeIndex = types.indexOf(type);
-  const dateTime = new Date().toLocaleString();
+// const addToStock = async (req, res) => {
+//   const { addToStock, _id, type } = req.body;
+//   const types = ["sold", "employee"];
+//   const models = [SoldItemsModel, EmployeeItemsModel];
+//   const typeIndex = types.indexOf(type);
+//   const dateTime = new Date().toLocaleString();
 
-  const firstLetterToUpperCase = (word) => {
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  };
+//   const firstLetterToUpperCase = (word) => {
+//     return word.charAt(0).toUpperCase() + word.slice(1);
+//   };
 
-  try {
-    // Deduct the qty of the item saved in sold or employee collection
-    const originalSoldOrEmployeeResult = await models[typeIndex].findById(_id);
-    const newQtySoldOrEmployee = originalSoldOrEmployeeResult.qty - addToStock;
-    if (newQtySoldOrEmployee === 0) {
-      await models[typeIndex].findByIdAndDelete(_id);
-    } else {
-      await models[typeIndex].findByIdAndUpdate(_id, {
-        $set: {
-          qty: newQtySoldOrEmployee,
-          log:
-            originalSoldOrEmployeeResult.log +
-            `*[${dateTime}  ${firstLetterToUpperCase(
-              originalSoldOrEmployeeResult.type
-            )} - ${addToStock} => Stock]* `,
-        },
-      });
-    }
+//   try {
+//     // Deduct the qty of the item saved in sold or employee collection
+//     const originalSoldOrEmployeeResult = await models[typeIndex].findById(_id);
+//     const newQtySoldOrEmployee = originalSoldOrEmployeeResult.qty - addToStock;
+//     if (newQtySoldOrEmployee === 0) {
+//       await models[typeIndex].findByIdAndDelete(_id);
+//     } else {
+//       await models[typeIndex].findByIdAndUpdate(_id, {
+//         $set: {
+//           qty: newQtySoldOrEmployee,
+//           log:
+//             originalSoldOrEmployeeResult.log +
+//             `*[${dateTime}  ${firstLetterToUpperCase(
+//               originalSoldOrEmployeeResult.type
+//             )} - ${addToStock} => Stock]* `,
+//         },
+//       });
+//     }
 
-    const { item, cost, pk_id } = originalSoldOrEmployeeResult;
-    const originalStockResult = await StockItemsModel.findOne({
-      item,
-      cost,
-      pk_id,
-    });
+//     const { item, cost, pk_id } = originalSoldOrEmployeeResult;
+//     const originalStockResult = await StockItemsModel.findOne({
+//       item,
+//       cost,
+//       pk_id,
+//     });
 
-    // If the item is not saved in stock, create a new record in stock collection
-    if (originalStockResult === null) {
-      const newQtyStock = addToStock;
-      const {
-        item,
-        cost,
-        price,
-        weight,
-        pk_id,
-        note,
-        exchangeRate,
-        status,
-        log,
-        receiver,
-        sendTimeISO,
-      } = originalSoldOrEmployeeResult;
+//     // If the item is not saved in stock, create a new record in stock collection
+//     if (originalStockResult === null) {
+//       const newQtyStock = addToStock;
+//       const {
+//         item,
+//         cost,
+//         price,
+//         weight,
+//         pk_id,
+//         note,
+//         exchangeRate,
+//         status,
+//         log,
+//         receiver,
+//         sendTimeISO,
+//       } = originalSoldOrEmployeeResult;
 
-      await StockItemsModel.create({
-        item,
-        qty: newQtyStock,
-        qty_in_cart: 0,
-        cost,
-        price,
-        weight,
-        pk_id,
-        note,
-        exchangeRate,
-        type: "stock",
-        status,
-        receiver,
-        sendTimeISO,
-        log:
-          log +
-          `*[${dateTime} Stock + ${addToStock} <= ${firstLetterToUpperCase(
-            type
-          )}]* `,
-      });
+//       await StockItemsModel.create({
+//         item,
+//         qty: newQtyStock,
+//         qty_in_cart: 0,
+//         cost,
+//         price,
+//         weight,
+//         pk_id,
+//         note,
+//         exchangeRate,
+//         type: "stock",
+//         status,
+//         receiver,
+//         sendTimeISO,
+//         log:
+//           log +
+//           `*[${dateTime} Stock + ${addToStock} <= ${firstLetterToUpperCase(
+//             type
+//           )}]* `,
+//       });
 
-      return res.status(200).json({
-        msg: `${newQtyStock} ${item} has been added to the stock collection successfully.`,
-      });
-    } else {
-      // If the item was already saved in stock, add the qty of the item
-      const newQtyStock = originalStockResult.qty + addToStock;
-      const item = originalStockResult.item;
+//       return res.status(200).json({
+//         msg: `${newQtyStock} ${item} has been added to the stock collection successfully.`,
+//       });
+//     } else {
+//       // If the item was already saved in stock, add the qty of the item
+//       const newQtyStock = originalStockResult.qty + addToStock;
+//       const item = originalStockResult.item;
 
-      await StockItemsModel.findByIdAndUpdate(originalStockResult._id, {
-        $set: {
-          qty: newQtyStock,
-          log:
-            originalStockResult.log +
-            `*[${dateTime} Stock + ${addToStock} <= ${firstLetterToUpperCase(
-              originalSoldOrEmployeeResult.type
-            )}]* `,
-        },
-      });
+//       await StockItemsModel.findByIdAndUpdate(originalStockResult._id, {
+//         $set: {
+//           qty: newQtyStock,
+//           log:
+//             originalStockResult.log +
+//             `*[${dateTime} Stock + ${addToStock} <= ${firstLetterToUpperCase(
+//               originalSoldOrEmployeeResult.type
+//             )}]* `,
+//         },
+//       });
 
-      return res.status(200).json({
-        msg: `${addToStock} ${item} has been added to the stock collection successfully.`,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res
-      .status(400)
-      .json({ msg: "Failed to add to the stock collection. Server error!" });
-  }
-};
+//       return res.status(200).json({
+//         msg: `${addToStock} ${item} has been added to the stock collection successfully.`,
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res
+//       .status(400)
+//       .json({ msg: "Failed to add to the stock collection. Server error!" });
+//   }
+// };
 
-const addToEmployee = async (req, res) => {
-  const { addToEmployee, _id, type } = req.body;
-  const types = ["sold", "stock"];
-  const models = [SoldItemsModel, StockItemsModel];
-  const typeIndex = types.indexOf(type);
-  const dateTime = new Date().toLocaleString();
-  const firstLetterToUpperCase = (word) => {
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  };
+// const addToEmployee = async (req, res) => {
+//   const { addToEmployee, _id, type } = req.body;
+//   const types = ["sold", "stock"];
+//   const models = [SoldItemsModel, StockItemsModel];
+//   const typeIndex = types.indexOf(type);
+//   const dateTime = new Date().toLocaleString();
+//   const firstLetterToUpperCase = (word) => {
+//     return word.charAt(0).toUpperCase() + word.slice(1);
+//   };
 
-  try {
-    const originalRecord = await models[typeIndex].findById(_id);
-    if (originalRecord === null) {
-      return res.status(400).json({
-        msg: "Failed to add to the employee collection. Can not find the item in database.",
-      });
-    } else {
-      // Add the item to employee collection. If the item is already saved in the collection (share the same pk_id and cost), add the qty of this item. Otherwise, create a new record of this item in employee collection.
-      const {
-        item,
-        cost,
-        price,
-        weight,
-        pk_id,
-        note,
-        exchangeRate,
-        status,
-        log,
-        receiver,
-        sendTimeISO,
-      } = originalRecord;
+//   try {
+//     const originalRecord = await models[typeIndex].findById(_id);
+//     if (originalRecord === null) {
+//       return res.status(400).json({
+//         msg: "Failed to add to the employee collection. Can not find the item in database.",
+//       });
+//     } else {
+//       // Add the item to employee collection. If the item is already saved in the collection (share the same pk_id and cost), add the qty of this item. Otherwise, create a new record of this item in employee collection.
+//       const {
+//         item,
+//         cost,
+//         price,
+//         weight,
+//         pk_id,
+//         note,
+//         exchangeRate,
+//         status,
+//         log,
+//         receiver,
+//         sendTimeISO,
+//       } = originalRecord;
 
-      const employeeRecord = await EmployeeItemsModel.findOne({
-        pk_id: originalRecord.pk_id,
-        cost: originalRecord.cost,
-        item: originalRecord.item,
-      });
+//       const employeeRecord = await EmployeeItemsModel.findOne({
+//         pk_id: originalRecord.pk_id,
+//         cost: originalRecord.cost,
+//         item: originalRecord.item,
+//       });
 
-      if (employeeRecord === null) {
-        await EmployeeItemsModel.create({
-          item,
-          qty: addToEmployee,
-          qty_in_cart: 0,
-          cost,
-          price,
-          weight,
-          pk_id,
-          note,
-          exchangeRate,
-          type: "employee",
-          status,
-          receiver,
-          sendTimeISO,
-          log:
-            log +
-            `*[${dateTime} Employee + ${addToEmployee} <= ${firstLetterToUpperCase(
-              type
-            )}]* `,
-        });
-      } else {
-        await EmployeeItemsModel.findByIdAndUpdate(employeeRecord._id, {
-          $set: {
-            qty: employeeRecord.qty + addToEmployee,
-            log:
-              employeeRecord.log +
-              `*[${dateTime} Employee + ${addToEmployee} <= ${firstLetterToUpperCase(
-                type
-              )}]* `,
-          },
-        });
-      }
+//       if (employeeRecord === null) {
+//         await EmployeeItemsModel.create({
+//           item,
+//           qty: addToEmployee,
+//           qty_in_cart: 0,
+//           cost,
+//           price,
+//           weight,
+//           pk_id,
+//           note,
+//           exchangeRate,
+//           type: "employee",
+//           status,
+//           receiver,
+//           sendTimeISO,
+//           log:
+//             log +
+//             `*[${dateTime} Employee + ${addToEmployee} <= ${firstLetterToUpperCase(
+//               type
+//             )}]* `,
+//         });
+//       } else {
+//         await EmployeeItemsModel.findByIdAndUpdate(employeeRecord._id, {
+//           $set: {
+//             qty: employeeRecord.qty + addToEmployee,
+//             log:
+//               employeeRecord.log +
+//               `*[${dateTime} Employee + ${addToEmployee} <= ${firstLetterToUpperCase(
+//                 type
+//               )}]* `,
+//           },
+//         });
+//       }
 
-      // Deduct the number of this item in original collection, if the number becomes 0, delete the item from the original collection.
-      if (originalRecord.qty - addToEmployee === 0) {
-        await models[typeIndex].findByIdAndDelete(originalRecord._id);
-      } else {
-        await models[typeIndex].findByIdAndUpdate(originalRecord._id, {
-          $set: {
-            qty: originalRecord.qty - addToEmployee,
-            log:
-              originalRecord.log +
-              `*[${dateTime} ${firstLetterToUpperCase(
-                type
-              )} - ${addToEmployee} => Employee]* `,
-          },
-        });
-      }
+//       // Deduct the number of this item in original collection, if the number becomes 0, delete the item from the original collection.
+//       if (originalRecord.qty - addToEmployee === 0) {
+//         await models[typeIndex].findByIdAndDelete(originalRecord._id);
+//       } else {
+//         await models[typeIndex].findByIdAndUpdate(originalRecord._id, {
+//           $set: {
+//             qty: originalRecord.qty - addToEmployee,
+//             log:
+//               originalRecord.log +
+//               `*[${dateTime} ${firstLetterToUpperCase(
+//                 type
+//               )} - ${addToEmployee} => Employee]* `,
+//           },
+//         });
+//       }
 
-      return res.status(200).json({
-        msg: `${addToEmployee} ${item} has been added to the employee collection successfully.`,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res
-      .status(400)
-      .json({ msg: "Failed to add to the employee collection. Server error!" });
-  }
-};
+//       return res.status(200).json({
+//         msg: `${addToEmployee} ${item} has been added to the employee collection successfully.`,
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res
+//       .status(400)
+//       .json({ msg: "Failed to add to the employee collection. Server error!" });
+//   }
+// };
 
 const addToException = async (req, res) => {
   const { _id, type, addToCart, subtotal } = req.body;
@@ -426,6 +426,7 @@ const recoverFromException = async (req, res) => {
       await models[typeIndex].create({
         item,
         qty: addToRecover,
+        qty_in_cart: 0,
         cost,
         price,
         weight,
@@ -758,8 +759,8 @@ const generalHandle = async (action, res) => {
 
 module.exports = {
   allItems,
-  addToStock,
-  addToEmployee,
+  // addToStock,
+  // addToEmployee,
   addToException,
   recoverFromException,
   approveExceptionItem,

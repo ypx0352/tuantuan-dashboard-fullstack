@@ -137,7 +137,7 @@ const Cart = (props) => {
               ""
             )}
           </span>
-          <span style={{ width: "13%" }}>{item.get("addToCart")}</span>
+          <span style={{ width: "13%" }}>{item.get("qty")}</span>
           <span style={{ width: "20%" }}>
             <span>{item.get("receiver")} </span>
             <span> {item.get("pk_id")}</span>
@@ -148,9 +148,9 @@ const Cart = (props) => {
             onClick={() =>
               handleRemove(
                 item.get("_id"),
-                item.get("solid_id"),
-                item.get("type"),
-                item.get("addToCart")
+                item.get("original_id"),
+                item.get("originalType"),
+                item.get("qty")
               )
             }
           >

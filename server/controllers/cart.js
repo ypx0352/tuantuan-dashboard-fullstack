@@ -35,7 +35,7 @@ const addToCart = async (req, res) => {
 
       const { item, cost, type, receiver, pk_id } = originalItem;
 
-      solid_id = _id;
+      original_id = _id;
       const user_id = "tuantuan";
       var payAmount = 0;
       if (type !== "employee") {
@@ -52,10 +52,10 @@ const addToCart = async (req, res) => {
       }
       cartItem = {
         item,
-        solid_id,
+        original_id,
         cost,
-        addToCart,
-        type,
+        qty: addToCart,
+        originalType: type,
         payAmount,
         receiver,
         pk_id,

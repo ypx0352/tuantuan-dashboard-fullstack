@@ -37,10 +37,9 @@ const normalItemSchema = new mongoose.Schema(
     type: { type: String, required: true },
     origin_type: { type: String },
     receiver: { type: String, required: true },
-    sendTimeISO: { type: Date, required: true },    
-    updatedAt: { type: Date, required: true },
+    sendTimeISO: { type: Date, required: true },
   },
-  { timeseries: true }
+  { timestamps: true }
 );
 
 // define the schema of the stock collection
