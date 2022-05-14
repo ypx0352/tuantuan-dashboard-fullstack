@@ -1,33 +1,12 @@
 const connection = require("../database");
 const mongoose = require("mongoose");
 
-// define the schema of the sold collection
-// const soldItemsSchema = new mongoose.Schema(
-//   {
-//     item: { type: String, required: true },
-//     qty: { type: Number, required: true },
-//     qty_in_cart: { type: Number, min: 0 },
-//     cost: { type: Number, required: true },
-//     price: { type: Number, required: true },
-//     weight: { type: Number, required: true },
-//     pk_id: { type: String, required: true },
-//     note: { type: String, required: false },
-//     exchangeRate: { type: Number, required: true },
-//     status: { type: String, required: true },
-//     type: { type: String, required: true },
-//     log: { type: String, required: true },
-//     receiver: { type: String, required: true },
-//     sendTimeISO: { type: Date, required: true },
-//   },
-//   { timestamps: true }
-// );
 
 const normalItemSchema = new mongoose.Schema(
   {
     item: { type: String, required: true },
     qty: { type: Number, required: true },
     qty_in_cart: { type: Number, min: 0 },
-    qty_available: { type: Number },
     cost: { type: Number, required: true }, // cost per unit
     price: { type: Number, required: true }, // price per unit
     weight: { type: Number, required: true }, // weight per unit
@@ -42,47 +21,6 @@ const normalItemSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// define the schema of the stock collection
-// const stockItemsSchema = new mongoose.Schema(
-//   {
-//     item: { type: String, required: true },
-//     qty: { type: Number, required: true },
-//     qty_in_cart: { type: Number, min: 0 },
-//     cost: { type: Number, required: true },
-//     price: { type: Number, required: true },
-//     weight: { type: Number, required: true },
-//     pk_id: { type: String, required: true },
-//     note: { type: String, required: false },
-//     exchangeRate: { type: Number, required: true },
-//     status: { type: String, required: true },
-//     type: { type: String, required: true },
-//     log: { type: String, required: true },
-//     receiver: { type: String, required: true },
-//     sendTimeISO: { type: Date, required: true },
-//   },
-//   { timestamps: true }
-// );
-
-// define the schema of the employee collection
-// const employeeItemsSchema = new mongoose.Schema(
-//   {
-//     item: { type: String, required: true },
-//     qty: { type: Number, required: true },
-//     qty_in_cart: { type: Number, min: 0 },
-//     cost: { type: Number, required: true },
-//     price: { type: Number, required: true },
-//     weight: { type: Number, required: true },
-//     pk_id: { type: String, required: true },
-//     note: { type: String, required: false },
-//     exchangeRate: { type: Number, required: true },
-//     status: { type: String, required: true },
-//     type: { type: String, required: true },
-//     log: { type: String, required: true },
-//     receiver: { type: String, required: true },
-//     sendTimeISO: { type: Date, required: true },
-//   },
-//   { timestamps: true }
-// );
 
 const exceptionItemsSchema = new mongoose.Schema(
   {

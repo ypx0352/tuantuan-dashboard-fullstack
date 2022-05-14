@@ -57,43 +57,43 @@ export const getAllItemsAction = async (dispatch) => {
   }
 };
 
-export const addToStockAction = (record) => {
-  return async (dispatch) => {
-    const { addToStock, _id, type } = record;
-    try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/checkout/add_to_stock",
-        { addToStock, _id, type }
-      );
-      const { msg } = response.data;
-      message.success(msg);
-      dispatch(getAllItemsAction);
-    } catch (error) {
-      console.log(error);
-      const { msg } = error.response.data;
-      message.error(msg);
-    }
-  };
-};
+// export const addToStockAction = (record) => {
+//   return async (dispatch) => {
+//     const { addToStock, _id, type } = record;
+//     try {
+//       const response = await axios.put(
+//         serverBaseUrl + "/api/checkout/add_to_stock",
+//         { addToStock, _id, type }
+//       );
+//       const { msg } = response.data;
+//       message.success(msg);
+//       dispatch(getAllItemsAction);
+//     } catch (error) {
+//       console.log(error);
+//       const { msg } = error.response.data;
+//       message.error(msg);
+//     }
+//   };
+// };
 
-export const addToEmployeeAction = (record) => {
-  return async (dispatch) => {
-    const { addToEmployee, _id, type } = record;
-    try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/checkout/add_to_employee",
-        { addToEmployee, _id, type }
-      );
-      const { msg } = response.data;
-      message.success(msg);
-      dispatch(getAllItemsAction);
-    } catch (error) {
-      console.log(error);
-      const { msg } = error.response.data;
-      message.error(msg);
-    }
-  };
-};
+// export const addToEmployeeAction = (record) => {
+//   return async (dispatch) => {
+//     const { addToEmployee, _id, type } = record;
+//     try {
+//       const response = await axios.put(
+//         serverBaseUrl + "/api/checkout/add_to_employee",
+//         { addToEmployee, _id, type }
+//       );
+//       const { msg } = response.data;
+//       message.success(msg);
+//       dispatch(getAllItemsAction);
+//     } catch (error) {
+//       console.log(error);
+//       const { msg } = error.response.data;
+//       message.error(msg);
+//     }
+//   };
+// };
 
 export const addToCartAction = (record) => {
   return async (dispatch) => {
@@ -125,24 +125,24 @@ export const addToCartAction = (record) => {
   };
 };
 
-export const addToExceptionAction = (item) => {
-  return async (dispatch) => {
-    try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/checkout/add_to_exception",
-        item
-      );
-      dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(false) });
-      dispatch(getAllItemsAction);
-      const { msg } = response.data;
-      message.success(msg);
-    } catch (error) {
-      console.log(error);
-      const { msg } = error.response.data;
-      message.error(msg);
-    }
-  };
-};
+// export const addToExceptionAction = (item) => {
+//   return async (dispatch) => {
+//     try {
+//       const response = await axios.put(
+//         serverBaseUrl + "/api/checkout/add_to_exception",
+//         item
+//       );
+//       dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(false) });
+//       dispatch(getAllItemsAction);
+//       const { msg } = response.data;
+//       message.success(msg);
+//     } catch (error) {
+//       console.log(error);
+//       const { msg } = error.response.data;
+//       message.error(msg);
+//     }
+//   };
+// };
 
 export const recoverFromExceptionAction = (record) => {
   return async (dispatch) => {
@@ -209,6 +209,9 @@ export const transferItemAction = (
         { original_id, sourceType, targetType, transferQty, subtotal }
       );
       message.success(response.data.msg);
+      if (targetType === "exception") {
+        dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(false) });
+      }
       dispatch(getAllItemsAction);
     } catch (error) {
       console.log(error);

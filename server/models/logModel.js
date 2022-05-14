@@ -3,7 +3,7 @@ const connection = require("../database");
 
 const logSchema = new mongoose.Schema(
   {
-    msg: { type: String, required: true },
+    action: { type: String, required: true },
     user: { type: String, required: true },
     package: { type: String, required: true },
   },

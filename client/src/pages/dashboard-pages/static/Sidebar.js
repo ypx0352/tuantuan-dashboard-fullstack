@@ -18,13 +18,13 @@ const SidebarWrapper = styled.div`
   }
 `;
 
-const DashboardTitle = styled.a.attrs({href: "/"})`
+const DashboardTitle = styled.a.attrs({ href: "/" })`
   font-size: 19px;
   color: #a4a6b3;
   text-align: center;
   margin-top: 10px;
-  :hover{
-    color:white
+  :hover {
+    color: white;
   }
 `;
 
@@ -116,6 +116,15 @@ const Sidebar = (props) => {
             loyalty
           </ListItemIcon>
           <ListItemText>Product</ListItemText>
+        </ListItemWrapper>
+        <ListItemWrapper
+          href="/dashboard/log"
+          className={selected === "log" ? "selected" : ""}
+        >
+          <ListItemIcon className="material-symbols-outlined">
+            receipt_long
+          </ListItemIcon>
+          <ListItemText>Log</ListItemText>
         </ListItemWrapper>
         <ListItemWrapper
           href="/dashboard/setting"

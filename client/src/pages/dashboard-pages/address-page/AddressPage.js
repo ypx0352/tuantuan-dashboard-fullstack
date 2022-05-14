@@ -113,7 +113,7 @@ const AddressPage = (props) => {
     showModal,
     handleShowModal,
     updateAddress,
-    showSidebar
+    showSidebar,
   } = props;
 
   const [params] = useSearchParams();
@@ -454,7 +454,6 @@ const AddressPage = (props) => {
   };
 
   const handleSearch = (searchWord) => {
-    console.log(1);
     if (searchWord.trim() === "") {
       setTableData(allAddress);
     } else {

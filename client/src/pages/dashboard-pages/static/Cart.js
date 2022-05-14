@@ -131,8 +131,8 @@ const Cart = (props) => {
         <Record key={index}>
           <span style={{ width: "40%" }}>
             {item.get("item") + " "}
-            {item.get("type") !== "sold" ? (
-              <Tag type={item.get("type")}>{item.get("type")}</Tag>
+            {item.get("originalType") !== "sold" ? (
+              <Tag type={item.get("originalType")}>{item.get("originalType")}</Tag>
             ) : (
               ""
             )}

@@ -7,6 +7,7 @@ import { reducer as staticReducer } from "../pages/dashboard-pages/static/store"
 import { reducer as settingReducer } from "../pages/dashboard-pages/setting-page/store";
 import { reducer as addressReducer } from "../pages/dashboard-pages/address-page/store";
 import { reducer as packageReducer } from "../pages/dashboard-pages/package-page/store";
+import { reducer as logReducer } from "../pages/dashboard-pages/log-page/store";
 
 const reducers = combineReducers({
   login: loginReducer,
@@ -17,6 +18,7 @@ const reducers = combineReducers({
   setting: settingReducer,
   address: addressReducer,
   package: packageReducer,
+  log: logReducer,
 });
 
 export default reducers;
