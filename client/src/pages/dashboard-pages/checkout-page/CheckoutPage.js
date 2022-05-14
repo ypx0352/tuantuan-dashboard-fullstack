@@ -821,7 +821,6 @@ const CheckoutPage = (props) => {
         cancelText="Back"
         style={{ top: "20px" }}
         onOk={() => {
-          // addToException(exceptionItem);
           transferItem(
             exceptionItem._id,
             exceptionItem.type,
@@ -865,18 +864,6 @@ const mapDispatch = (dispatch) => ({
   setBlockSelected(block) {
     dispatch({ type: actionTypes.BLOCK_SELECTED, value: fromJS(block) });
   },
-
-  // item: { type: String, required: true },
-  // original_id: { type: String, required: true },
-  // cost: { type: Number, required: true },
-  // qty: { type: Number, required: true },
-  // // type: { type: String, required: true },
-  // originalType: { type: String, required: true },
-  // payAmount: { type: Number, required: true },
-  // //payAmountEach: { type: Number, required: true },
-  // receiver: { type: String, required: true },
-  // pk_id: { type: String, required: true },
-
   
   handleAddToCart(record) {
     const { addToCart } = record;
@@ -892,14 +879,9 @@ const mapDispatch = (dispatch) => ({
     dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(value) });
   },
 
-  // addToException(item) {
-  //   console.log(item);
-  //   //dispatch(actionCreators.addToExceptionAction(item));
+  // handleRecoverFromException(record) {
+  //   dispatch(actionCreators.recoverFromExceptionAction(record));
   // },
-
-  handleRecoverFromException(record) {
-    dispatch(actionCreators.recoverFromExceptionAction(record));
-  },
 
   handleExceptionItemApprove(_id) {
     dispatch(actionCreators.approveExceptionItemAction(_id));

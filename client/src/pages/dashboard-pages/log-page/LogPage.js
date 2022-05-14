@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-
+import { Link } from "react-router-dom";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
@@ -12,7 +12,7 @@ const Container = styled.div`
   display: flex;
   min-width: 930px;
   min-height: 100vh;
-  //background-color: #f7f8fc;
+  background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
 `;
@@ -66,9 +66,37 @@ const LogPage = (props) => {
   }, [allLogs]);
 
   const columns = [
-    { title: "Action", dataIndex: "action", key: "action" },
-    { title: "User", dataIndex: "user", key: "user" },
-    { title: "Package", dataIndex: "package", key: "package" },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      filters: [
+        { text: "transfer", value: "transfer" },
+        { text: "approve", value: "approve" },
+        { text: "login", value: "login" },
+        { text: "register", value: "register" },
+        { text: "checkout", value: "checkout" },
+      ],
+      onFilter: (value, record) => record.action.indexOf(value) === 0,
+    },
+    {
+      title: "User",
+      dataIndex: "user",
+      key: "user",
+      filters: [
+        { text: "Pengxiang Yue", value: "Pengxiang Yue" },
+        { text: "Yanan Zhang", value: "Yanan Zhang" },
+      ],
+      onFilter: (value, record) => record.user.indexOf(value) === 0,
+    },
+    {
+      title: "Package",
+      dataIndex: "package",
+      key: "package",
+      render: (text) => {
+        return <Link to={`/dashboard/package/?pk_id=${text}`}>{text}</Link>;
+      },
+    },
     { title: "Time", dataIndex: "createdAtLocale", key: "createdAtLocale" },
   ];
 
@@ -102,7 +130,11 @@ const LogPage = (props) => {
           cartCount="hide"
         />
         <SearchContainer>
-          <StyledInput onChange={(e) => handleSearch(e.target.value)} />
+          <StyledInput
+            onChange={(e) => {
+              handleSearch(e.target.value);
+            }}
+          />
         </SearchContainer>
         <ContentWrapper>
           <Spin spinning={tableSpinning} tip="Loading...">

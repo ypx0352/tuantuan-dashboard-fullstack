@@ -57,44 +57,6 @@ export const getAllItemsAction = async (dispatch) => {
   }
 };
 
-// export const addToStockAction = (record) => {
-//   return async (dispatch) => {
-//     const { addToStock, _id, type } = record;
-//     try {
-//       const response = await axios.put(
-//         serverBaseUrl + "/api/checkout/add_to_stock",
-//         { addToStock, _id, type }
-//       );
-//       const { msg } = response.data;
-//       message.success(msg);
-//       dispatch(getAllItemsAction);
-//     } catch (error) {
-//       console.log(error);
-//       const { msg } = error.response.data;
-//       message.error(msg);
-//     }
-//   };
-// };
-
-// export const addToEmployeeAction = (record) => {
-//   return async (dispatch) => {
-//     const { addToEmployee, _id, type } = record;
-//     try {
-//       const response = await axios.put(
-//         serverBaseUrl + "/api/checkout/add_to_employee",
-//         { addToEmployee, _id, type }
-//       );
-//       const { msg } = response.data;
-//       message.success(msg);
-//       dispatch(getAllItemsAction);
-//     } catch (error) {
-//       console.log(error);
-//       const { msg } = error.response.data;
-//       message.error(msg);
-//     }
-//   };
-// };
-
 export const addToCartAction = (record) => {
   return async (dispatch) => {
     const { addToCart, _id, type } = record;
@@ -125,14 +87,13 @@ export const addToCartAction = (record) => {
   };
 };
 
-// export const addToExceptionAction = (item) => {
+// export const recoverFromExceptionAction = (record) => {
 //   return async (dispatch) => {
 //     try {
 //       const response = await axios.put(
-//         serverBaseUrl + "/api/checkout/add_to_exception",
-//         item
+//         serverBaseUrl + "/api/checkout/recover_from_exception",
+//         { record }
 //       );
-//       dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(false) });
 //       dispatch(getAllItemsAction);
 //       const { msg } = response.data;
 //       message.success(msg);
@@ -143,24 +104,6 @@ export const addToCartAction = (record) => {
 //     }
 //   };
 // };
-
-export const recoverFromExceptionAction = (record) => {
-  return async (dispatch) => {
-    try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/checkout/recover_from_exception",
-        { record }
-      );
-      dispatch(getAllItemsAction);
-      const { msg } = response.data;
-      message.success(msg);
-    } catch (error) {
-      console.log(error);
-      const { msg } = error.response.data;
-      message.error(msg);
-    }
-  };
-};
 
 export const approveExceptionItemAction = (_id) => {
   return async (dispatch) => {

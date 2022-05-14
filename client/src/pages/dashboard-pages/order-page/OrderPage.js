@@ -8,8 +8,7 @@ import {
   message,
   BackTop,
   Button,
-  Modal,
-  InputNumber,
+  Modal,  
 } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
