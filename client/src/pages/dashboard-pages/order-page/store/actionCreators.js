@@ -22,6 +22,14 @@ export const searchAction = (pk_id) => {
       const response = await axios.get(
         serverBaseUrl + `/api/order/${pk_id.trim()}`
       );
+      const { exist } = response.data;
+      if (exist) {
+        dispatch({
+          type: actionTypes.SPINNING,
+          value: fromJS(false),
+        });
+        return dispatch({ type: actionTypes.SHOW_EXIST_MESSAGE });
+      }
       const { result } = response.data;
       result.sendTimeLocale = new Date(result.sendTimeISO).toLocaleString();
 
@@ -144,7 +152,7 @@ export const saveConfirmationDataAction = (
     dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(true) });
 
     const confirmResult = {};
-    delete packageData.sendTimeLocale
+    delete packageData.sendTimeLocale;
     try {
       const response = await axios.post(serverBaseUrl + "/api/order/confirm", {
         confirmationData,

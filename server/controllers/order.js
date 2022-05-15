@@ -140,9 +140,21 @@ const getSendTime = async (pk_id) => {
   return sendTime;
 };
 
+const checkOrderExist = async (pk_id) => {
+  const result = await PackageModel.findOne({ id: pk_id });
+  if (result === null) {
+    return false;
+  }
+  return true;
+};
+
 const getOrder = async (req, res) => {
   const { pk_id } = req.params;
   try {
+    // Check whether the order is exist in package collection.
+    if (await checkOrderExist(pk_id)) {
+      return res.status(200).json({ exist: true });
+    }
     var result = await getOnePackage(pk_id);
     const sendTimeISO = await getSendTime(pk_id);
 
@@ -150,7 +162,7 @@ const getOrder = async (req, res) => {
     for (let index = 0; index <= 3; index++) {
       if (result != "false") {
         result.sendTimeISO = sendTimeISO;
-        res.status(200).json({ result: result });
+        res.status(200).json({ exist: false, result: result });
         break;
       } else {
         if (index !== 3) {

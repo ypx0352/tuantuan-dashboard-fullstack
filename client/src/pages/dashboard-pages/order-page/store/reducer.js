@@ -30,6 +30,7 @@ const defaultState = fromJS({
   normalPostage: null,
   babyFormulaPostage: null,
   exchangeRateInSetting: null,
+  showExistMessage: false,
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -81,6 +82,9 @@ const returnNewStateToStore = (state = defaultState, action) => {
         babyFormulaPostage: action.value.get("babyFormulaPostage"),
         exchangeRateInSetting: action.value.get("exchangeRateInSetting"),
       });
+
+    case actionTypes.SHOW_EXIST_MESSAGE:
+      return state.set("showExistMessage", fromJS(true));
 
     default:
       return state;

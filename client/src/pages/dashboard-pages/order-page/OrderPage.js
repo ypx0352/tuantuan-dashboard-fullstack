@@ -1,15 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import {
-  Table,
-  Input,
-  Spin,
-  message,
-  BackTop,
-  Button,
-  Modal,  
-} from "antd";
+import { Table, Input, Spin, message, BackTop, Button, Modal } from "antd";
 import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
@@ -56,6 +48,13 @@ const SearchContainer = styled.div`
   margin-bottom: 60px;
 `;
 
+const OrderExistMessage = styled.div`
+  text-align: center;
+  &.hide {
+    display: none;
+  }
+`;
+
 const BtnWrapper = styled.div`
   display: flex;
   justify-content: space-between;
@@ -81,6 +80,7 @@ const ExchangeRateWrapper = styled.a.attrs({ target: "_blank" })`
   color: #3751ff;
   padding: 0 10px;
   font-weight: bold;
+  
 `;
 
 const TableWrapper = styled.div`
@@ -128,7 +128,9 @@ const OrderPage = (props) => {
     exchangeRateInSetting,
     initializeSettings,
     showSidebar,
+    showExistMessage,
   } = props;
+
 
   const searchInputEl = useRef(null);
 
@@ -486,7 +488,7 @@ const OrderPage = (props) => {
           title: "Subtotal weight",
           dataIndex: "subtotalWeight",
           key: "subtotalWeight",
-          width:"10%",
+          width: "10%",
           render: (text, record, index) => {
             return (
               <>
@@ -627,9 +629,6 @@ const OrderPage = (props) => {
     },
   ];
 
-  
-
-
   // get confirmation element ref
   const confirmationRef = useRef(null);
 
@@ -685,6 +684,10 @@ const OrderPage = (props) => {
               Search
             </Button>
           </SearchContainer>
+
+          <OrderExistMessage className={showExistMessage ? "" : "hide"}>
+            123
+          </OrderExistMessage>
 
           <ExchangeRateWrapper href="https://www.boc.cn/sourcedb/whpj/">
             Current exchange rate:{" "}
@@ -747,7 +750,7 @@ const OrderPage = (props) => {
                   color: "white",
                 }}
               >
-                Submit
+                Review
               </Button>
             </BtnWrapper>
           </Spin>
@@ -873,6 +876,7 @@ const mapState = (state) => ({
   babyFormulaPostage: state.getIn(["order", "babyFormulaPostage"]),
   exchangeRateInSetting: state.getIn(["order", "exchangeRateInSetting"]),
   showSidebar: state.getIn(["static", "showSidebar"]),
+  showExistMessage: state.getIn(["order", "showExistMessage"]),
 });
 
 const mapDispatch = (dispatch) => ({

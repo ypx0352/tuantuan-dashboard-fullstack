@@ -1,4 +1,4 @@
-const { writeLog,generalHandle } = require("./static");
+const { writeLog, generalHandle } = require("./static");
 
 const {
   SoldItemsModel,
