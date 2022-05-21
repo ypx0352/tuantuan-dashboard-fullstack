@@ -18,13 +18,14 @@ export const searchPackageAction = (pk_id) => {
         packageRecord.sendTimeISO
       ).toLocaleString();
       const { receiver, phone, address, ...rest } = packageRecord;
+      const { domesticCourier, domesticParcelID,status } = trackRecords;
       dispatch({
         type: actionTypes.SET_TABLE_DATA,
         value: fromJS({
-          packageData: [{ ...rest }],
+          packageData: [{ domesticCourier, domesticParcelID,status, ...rest }],
           receiverData: [{ receiver, phone, address }],
           itemData: itemRecords,
-          trackData: trackRecords,
+          trackData: trackRecords.trackInfo,
         }),
       });
       dispatch({ type: actionTypes.SHOW_TABLES, value: fromJS(true) });
@@ -33,6 +34,7 @@ export const searchPackageAction = (pk_id) => {
       console.log(error);
       message.error(error.response.data.msg);
       dispatch({ type: actionTypes.SET_TABLE_SPINNING, value: fromJS(false) });
+      dispatch({ type: actionTypes.SHOW_TABLES, value: fromJS(false) });
     }
   };
 };

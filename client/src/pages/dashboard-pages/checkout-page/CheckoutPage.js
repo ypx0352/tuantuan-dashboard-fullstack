@@ -19,6 +19,7 @@ import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
 import Cart from "../static/Cart";
 import { actionCreators, actionTypes } from "./store";
+import { updateNoteAction } from "../static/store/actionCreators";
 import { fromJS } from "immutable";
 import TextArea from "antd/lib/input/TextArea";
 
@@ -55,6 +56,17 @@ const BlockWrapper = styled.div`
   margin-top: 30px;
 `;
 
+const colors = {
+  cart: " #145DA0",
+  sold: "#145DA0",
+  stock: "sandybrown",
+  employee: "#18a16d",
+  recover: "#E8B4B8",
+  exception: "#DF362D",
+  approve: "#3751ff",
+  all: "#3751ff",
+};
+
 const Block = styled.div`
   width: 20%;
   display: flex;
@@ -68,21 +80,21 @@ const Block = styled.div`
   background-color: white;
   cursor: pointer;
   :hover {
-    border-color: #3751ff;
+    border-color: ${(props) => colors[`${props.name.toLowerCase()}`]};
     div {
-      color: #3751ff;
+      color: ${(props) => colors[`${props.name.toLowerCase()}`]};
     }
     span {
-      color: #3751ff;
+      color: ${(props) => colors[`${props.name.toLowerCase()}`]};
     }
   }
   &.selected {
-    border-color: #3751ff;
+    border-color: ${(props) => colors[`${props.name.toLowerCase()}`]};
     div {
-      color: #3751ff;
+      color: ${(props) => colors[`${props.name.toLowerCase()}`]};
     }
     span {
-      color: #3751ff;
+      color: ${(props) => colors[`${props.name.toLowerCase()}`]};
     }
   }
 `;
@@ -146,16 +158,6 @@ const antIcon = (
   <LoadingOutlined style={{ fontSize: 48, color: "#3751ff" }} spin />
 );
 
-const colors = {
-  cart: " #145DA0",
-  sold: "darkgreen",
-  stock: "sandybrown",
-  employee: "#18a16d",
-  recover: "#E8B4B8",
-  exception: "#DF362D",
-  approve: "#3751ff",
-};
-
 const StyledButton = styled(Button).attrs((props) => ({
   style: { backgroundColor: colors[`${props.destination}`] },
   type: "primary",
@@ -212,7 +214,6 @@ const ExpandedRow = (props) => {
           <strong>Updated at : </strong> {localUpdatedAt}
         </li>
       </ul>
-      
     </>
   );
 };
@@ -514,7 +515,10 @@ const CheckoutPage = (props) => {
                       onChange={(e) => {
                         record.newNote = e.target.value.trim();
                       }}
-                      onBlur={() => updateNote(record)}
+                      onBlur={() => {
+                        const { newNote, note, type, _id } = record;
+                        updateNote({ newNote, note, type, _id });
+                      }}
                     />
                   );
                 },
@@ -662,7 +666,10 @@ const CheckoutPage = (props) => {
                       onChange={(e) => {
                         record.newNote = e.target.value.trim();
                       }}
-                      onBlur={() => updateNote(record)}
+                      onBlur={() => {
+                        const { newNote, note, type, _id } = record;
+                        updateNote({ newNote, note, type, _id });
+                      }}
                     />
                   );
                 },
@@ -744,6 +751,7 @@ const CheckoutPage = (props) => {
         <Block
           onClick={() => handleBlockClicked(name)}
           className={blockSelected === name ? "selected" : ""}
+          name={name}
         >
           <BlockTitle>{name}</BlockTitle>
           <BlockContent>
@@ -864,7 +872,7 @@ const mapDispatch = (dispatch) => ({
   setBlockSelected(block) {
     dispatch({ type: actionTypes.BLOCK_SELECTED, value: fromJS(block) });
   },
-  
+
   handleAddToCart(record) {
     const { addToCart } = record;
     console.log(record);
@@ -879,19 +887,12 @@ const mapDispatch = (dispatch) => ({
     dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(value) });
   },
 
-  // handleRecoverFromException(record) {
-  //   dispatch(actionCreators.recoverFromExceptionAction(record));
-  // },
-
   handleExceptionItemApprove(_id) {
     dispatch(actionCreators.approveExceptionItemAction(_id));
   },
 
-  updateNote(record) {
-    const { newNote, note } = record;
-    if (newNote !== undefined && note !== newNote) {
-      dispatch(actionCreators.updateNoteAction(record));
-    }
+  updateNote(info) {
+    dispatch(updateNoteAction(info));
   },
 
   transferItem(original_id, sourceType, targetType, transferQty, subtotal) {

@@ -15,18 +15,16 @@ const defaultState = fromJS({
   spinning: false,
   exchangeRate: "",
   exchangeRateSpinning: false,
-  submitLoading: false,
-  showConfirmation: false,
-  confirmationSpinning: false,
-  confirmationData: {
+  showReview: false,
+  reviewData: {
     pk_id: "",
     sold: [],
     stock: [],
     employee: [],
   },
-  confirmLoading: false,
-  showConfirmationResultDialog: false,
-  confirmResult: { title: "Result", msg: "Loading" },
+  submitLoading: false,
+  showSubmitResultDialog: false,
+  submitResult: { title: "Result", msg: "Loading" },
   normalPostage: null,
   babyFormulaPostage: null,
   exchangeRateInSetting: null,
@@ -50,31 +48,25 @@ const returnNewStateToStore = (state = defaultState, action) => {
     case actionTypes.EXCHANGE_RATE_SPINNING:
       return state.set("exchangeRateSpinning", action.value);
 
+    case actionTypes.SHOW_REVIEW:
+      return state.set("showReview", action.value);
+    
+    case actionTypes.REVIEW_DATA:
+      return state.set("reviewData", action.value);
+
     case actionTypes.SUBMIT_LOADING:
       return state.set("submitLoading", action.value);
 
-    case actionTypes.SHOW_CONFIRMATION:
-      return state.set("showConfirmation", action.value);
-
-    case actionTypes.CONFIRMATION_SPINNING:
-      return state.set("confirmationSpinning", action.value);
-
-    case actionTypes.CONFIRMATION_DATA:
-      return state.set("confirmationData", action.value);
-
-    case actionTypes.CONFIRM_LOADING:
-      return state.set("confirmLoading", action.value);
-
-    case actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG:
-      return state.set("showConfirmationResultDialog", action.value);
+    case actionTypes.SHOW_SUBMIT_RESULT_DIALOG:
+      return state.set("showSubmitResultDialog", action.value);
 
     case actionTypes.RESET_ORDER_STORE:
       const newState = defaultState.toJS();
       newState.exchangeRate = state.get("exchangeRate");
       return fromJS(newState);
 
-    case actionTypes.CONFIRM_RESULT:
-      return state.set("confirmResult", action.value);
+    case actionTypes.SUBMIT_RESULT:
+      return state.set("submitResult", action.value);
 
     case actionTypes.INITIAL_SETTINGS:
       return state.merge({
@@ -84,7 +76,7 @@ const returnNewStateToStore = (state = defaultState, action) => {
       });
 
     case actionTypes.SHOW_EXIST_MESSAGE:
-      return state.set("showExistMessage", fromJS(true));
+      return state.set("showExistMessage", action.value);
 
     default:
       return state;

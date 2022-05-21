@@ -87,24 +87,6 @@ export const addToCartAction = (record) => {
   };
 };
 
-// export const recoverFromExceptionAction = (record) => {
-//   return async (dispatch) => {
-//     try {
-//       const response = await axios.put(
-//         serverBaseUrl + "/api/checkout/recover_from_exception",
-//         { record }
-//       );
-//       dispatch(getAllItemsAction);
-//       const { msg } = response.data;
-//       message.success(msg);
-//     } catch (error) {
-//       console.log(error);
-//       const { msg } = error.response.data;
-//       message.error(msg);
-//     }
-//   };
-// };
-
 export const approveExceptionItemAction = (_id) => {
   return async (dispatch) => {
     try {
@@ -121,22 +103,22 @@ export const approveExceptionItemAction = (_id) => {
   };
 };
 
-export const updateNoteAction = (record) => {
-  return async (dispatch) => {
-    const { newNote, type, _id } = record;
-    try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/checkout/update_note",
-        { newNote, type, _id }
-      );
-      message.success(response.data.msg);
-      dispatch(getAllItemsAction);
-    } catch (error) {
-      console.log(error);
-      message.error(error.response.data.msg);
-    }
-  };
-};
+// export const updateNoteAction = (record) => {
+//   return async (dispatch) => {
+//     const { newNote, type, _id } = record;
+//     try {
+//       const response = await axios.put(
+//         serverBaseUrl + "/api/checkout/update_note",
+//         { newNote, type, _id }
+//       );
+//       message.success(response.data.msg);
+//       dispatch(getAllItemsAction);
+//     } catch (error) {
+//       console.log(error);
+//       message.error(error.response.data.msg);
+//     }
+//   };
+// };
 
 export const transferItemAction = (
   original_id,

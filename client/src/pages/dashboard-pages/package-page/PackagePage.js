@@ -7,6 +7,7 @@ import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
 import { Button, Input, Table, Steps, Spin, message, Select } from "antd";
 import { actionCreators } from "./store";
+import { updateNoteAction } from "../static/store/actionCreators";
 const { TextArea } = Input;
 const { Step } = Steps;
 const { Option } = Select;
@@ -17,7 +18,7 @@ const Container = styled.div`
   min-height: 100vh;
   background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
-  margin: 15px 20px;  
+  margin: 15px 20px;
 `;
 
 const Left = styled.div`
@@ -26,7 +27,7 @@ const Left = styled.div`
 
 const Right = styled.div`
   min-width: 88%;
-  padding: 20px;  
+  padding: 20px;
   &.expand {
     width: 100%;
   }
@@ -57,8 +58,12 @@ const StyledInput = styled(Input).attrs({
 `;
 
 const PackageTagContainer = styled.div`
-  width: 55%;
-  margin: 0 auto 20px auto;
+  width: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto 20px 50px;
+  justify-content: center;
 `;
 
 const PackageTagHeaderWrapper = styled.div`
@@ -67,9 +72,14 @@ const PackageTagHeaderWrapper = styled.div`
 `;
 
 const PackageTagWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(10, 100px);
+  grid-template-rows: repeat(3, 70px);
+  grid-row-gap: 10px;
+  grid-column-gap: 10px;
+  box-sizing: border-box;
+
+  overflow: auto;
 `;
 
 const colors = {
@@ -106,14 +116,21 @@ const StyledSpan = styled.span.attrs((props) => ({
   color: white;
 `;
 
-const PackageTag = styled.span.attrs((props) => ({
+const PackageTag = styled.div.attrs((props) => ({
   style: { backgroundColor: colors[`${props.type}`] },
 }))`
   color: white;
   border-radius: 8px;
-  padding: 5px;
-  margin: 5px;
+  padding: 0 5px;
+  margin: 10px;
+  width: 105px;
+  height: 50px;
   cursor: pointer;
+`;
+
+const LegendWrapper = styled.div`
+  display: flex;
+  justify-content: center;
 `;
 
 const TableWrapper = styled.div`
@@ -148,6 +165,7 @@ const PackagePage = (props) => {
     latestPackagesSpinning,
     latestPackages,
     showSidebar,
+    updateNote,
   } = props;
 
   const [params] = useSearchParams();
@@ -165,22 +183,34 @@ const PackagePage = (props) => {
   }, [tableData]);
 
   useEffect(() => {
-    if (pk_idFromUrl !== null) searchPackage(pk_idFromUrl);
-  }, [tablesDisplayed]);
+    if (pk_idFromUrl !== null) {
+      searchPackage(pk_idFromUrl);
+    }
+  }, [pk_idFromUrl]);
 
   const packageColumns = [
     {
       title: "Package Information",
-
       children: [
         {
           title: "ID",
-          dataIndex: "id",
-          key: "id",
+          dataIndex: "pk_id",
+          key: "pk_id",
         },
         {
-          title: "Date",
+          title: "Send date",
           dataIndex: "sendTimeLocale",
+          key: "sendTimeLocale",
+        },
+        { title: "Status", dataIndex: "status", key: "status" },
+        {
+          title: "Domestic courier",
+          dataIndex: "domesticCourier",
+          key: "sendTimeLocale",
+        },
+        {
+          title: "Domestic parcel ID",
+          dataIndex: "domesticParcelID",
           key: "sendTimeLocale",
         },
         {
@@ -262,6 +292,15 @@ const PackagePage = (props) => {
           },
         },
         {
+          title: "Qty in cart",
+          dataIndex: "qty_in_cart",
+          key: "qty_in_cart",
+          width: "10%",
+          render: (text) => {
+            return <Input type="number" bordered={false} value={text} />;
+          },
+        },
+        {
           title: "Price / each",
           dataIndex: "price",
           key: "price",
@@ -289,13 +328,29 @@ const PackagePage = (props) => {
           title: "Note",
           dataIndex: "note",
           key: "note",
+          render: (text, record, index) => {
+            return (
+              <TextArea
+                defaultValue={text}
+                autoSize
+                bordered={false}
+                onChange={(e) => {
+                  record.newNote = e.target.value.trim();
+                }}
+                onBlur={() => {
+                  const { newNote, note, type, _id } = record;
+                  updateNote({ newNote, note, type, _id });
+                }}
+              />
+            );
+          },
         },
       ],
     },
   ];
 
   const generateStep = () => {
-    return tableDataState.trackData?.length === 0 ? (
+    return tableDataState?.trackData?.length === 0 ? (
       <span>Loading...</span>
     ) : (
       <Steps
@@ -312,8 +367,14 @@ const PackagePage = (props) => {
 
   const generatePackageTag = () => {
     return latestPackages.map((item) => (
-      <PackageTag type={item.type} onClick={() => searchPackage(item.id)}>
-        {item.id} {item.receiver}
+      <PackageTag
+        type={item.type}
+        onClick={() => {
+          searchPackage(item.pk_id);
+          setSearchInput(item.pk_id);
+        }}
+      >
+        {item.pk_id} {item.receiver} {item.sendLocaleDate}
       </PackageTag>
     ));
   };
@@ -335,6 +396,7 @@ const PackagePage = (props) => {
           <SearchContainer>
             <StyledInput
               defaultValue={pk_idFromUrl}
+              value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onPressEnter={() => searchPackage(searchInput)}
             />
@@ -350,7 +412,7 @@ const PackagePage = (props) => {
             <PackageTagContainer>
               <PackageTagHeaderWrapper>
                 <h3>
-                  Recently added packages: last{" "}
+                  Recently added {"  "}
                   <Select
                     defaultValue={10}
                     onChange={(e) => getLatestPackages(e)}
@@ -365,7 +427,23 @@ const PackagePage = (props) => {
                       30
                     </Option>
                   </Select>{" "}
-                  packages
+                  packages:
+                  <LegendWrapper>
+                    <span
+                      class="material-symbols-outlined"
+                      style={{ color: "#E8B4B8" }}
+                    >
+                      blur_on
+                    </span>
+                    <span>Formulas</span>
+                    <span
+                      class="material-symbols-outlined"
+                      style={{ color: "#189AB4" }}
+                    >
+                      blur_on
+                    </span>
+                    <span>Regular</span>
+                  </LegendWrapper>
                 </h3>
               </PackageTagHeaderWrapper>
 
@@ -406,7 +484,7 @@ const PackagePage = (props) => {
               />
             </TableWrapper>
             <StepWrapper className={tablesDisplayed ? "" : "hide"}>
-              <h3>Track</h3>
+              <h3>Parcel Track</h3>
               {generateStep()}
             </StepWrapper>
           </Spin>
@@ -435,6 +513,9 @@ const mapDispatch = (dispatch) => ({
 
   getLatestPackages(limit) {
     dispatch(actionCreators.getLatestPackagesAction(limit));
+  },
+  updateNote(info) {
+    dispatch(updateNoteAction(info));
   },
 });
 

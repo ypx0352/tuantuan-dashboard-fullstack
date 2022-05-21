@@ -4,7 +4,7 @@ const connect = require("../database");
 
 const packageSchema = new mongoose.Schema(
   {
-    id: { type: String, required: true },
+    pk_id: { type: String, required: true },
     sendTimeISO: { type: Date, required: true },
     type: { type: String, required: true },
     weight: { type: Number, required: true },

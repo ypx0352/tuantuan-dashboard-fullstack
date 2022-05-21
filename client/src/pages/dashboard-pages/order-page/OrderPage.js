@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { Table, Input, Spin, message, BackTop, Button, Modal } from "antd";
 import "antd/dist/antd.css";
@@ -80,7 +81,6 @@ const ExchangeRateWrapper = styled.a.attrs({ target: "_blank" })`
   color: #3751ff;
   padding: 0 10px;
   font-weight: bold;
-  
 `;
 
 const TableWrapper = styled.div`
@@ -91,9 +91,9 @@ const TableWrapper = styled.div`
   }
 `;
 
-const ConfirmationContainer = styled.div``;
+const ReviewContainer = styled.div``;
 
-const ConfirmationWrapper = styled.div`
+const SubmitWrapper = styled.div`
   &.hide {
     display: none;
   }
@@ -111,18 +111,16 @@ const OrderPage = (props) => {
     exchangeRate,
     initializeExchangeRate,
     exchangeRateSpinning,
+    handleReview,
+    showReview,
+    setShowReview,
+    reviewData,
     handleSubmit,
-    showConfirmation,
-    setShowConfirmation,
-    confirmationSpinning,
-    confirmationData,
-    handleConfirm,
-    submitLoading,
-    showConfirmationResultDialog,
+    showSubmitResultDialog,
     handleOnOk,
-    setShowConfirmationResultDialog,
-    confirmResult,
-    confirmLoading,
+    setShowSubmitResultDialog,
+    submitResult,
+    submitLoading,
     normalPostage,
     babyFormulaPostage,
     exchangeRateInSetting,
@@ -131,8 +129,9 @@ const OrderPage = (props) => {
     showExistMessage,
   } = props;
 
-
   const searchInputEl = useRef(null);
+
+  const [searchInput, setSearchInput] = useState("");
 
   // get settings
   useEffect(() => initializeSettings(), []);
@@ -207,7 +206,7 @@ const OrderPage = (props) => {
   const packageData = [
     {
       key: "packageData",
-      id: originalOrder.get("package_id"),
+      pk_id: originalOrder.get("package_id"),
       sendTimeLocale: originalOrder.get("sendTimeLocale"),
       type: originalOrder.get("item_type"),
       weight: originalOrder.get("package_weight"),
@@ -226,8 +225,8 @@ const OrderPage = (props) => {
       children: [
         {
           title: "ID",
-          dataIndex: "id",
-          key: "id",
+          dataIndex: "pk_id",
+          key: "pk_id",
         },
         {
           title: "Date",
@@ -629,17 +628,17 @@ const OrderPage = (props) => {
     },
   ];
 
-  // get confirmation element ref
-  const confirmationRef = useRef(null);
+  // get review element ref
+  const reviewRef = useRef(null);
 
-  const handleBack = () => {
-    setShowConfirmation(false);
-  };
+  // const handleBack = () => {
+  //   setShowReview(false);
+  // };
 
-  // set time out to let system get the height of the confirmation element
-  const scrollToConfirmation = () =>
+  // set time out to let system get the height of the review element
+  const scrollToReview = () =>
     setTimeout(() => {
-      confirmationRef.current.scrollIntoView({ behavior: "smooth" });
+      reviewRef.current.scrollIntoView({ behavior: "smooth" });
     }, 100);
 
   return (
@@ -662,6 +661,8 @@ const OrderPage = (props) => {
               defaultValue="PE6488316BB"
               ref={searchInputEl}
               style={{ width: "50%" }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               onPressEnter={() =>
                 handleSearch(searchInputEl.current.state.value)
               }
@@ -686,7 +687,21 @@ const OrderPage = (props) => {
           </SearchContainer>
 
           <OrderExistMessage className={showExistMessage ? "" : "hide"}>
-            123
+            <span
+              class="material-symbols-outlined"
+              style={{ verticalAlign: "middle", color: "green" }}
+            >
+              new_releases
+            </span>
+            <span>
+              This order has already been saved. View it at package page:{" "}
+              <Link
+                to={`/dashboard/package/?pk_id=${searchInput}`}
+                target="_blank"
+              >
+                {searchInput}
+              </Link>
+            </span>
           </OrderExistMessage>
 
           <ExchangeRateWrapper href="https://www.boc.cn/sourcedb/whpj/">
@@ -729,14 +744,13 @@ const OrderPage = (props) => {
             <BtnWrapper>
               <Btn onClick={handleAdd}>Add</Btn>
               <Button
-                loading={submitLoading}
                 onClick={() => {
-                  handleSubmit({
+                  handleReview({
                     items: itemTableData,
                     package: packageData[0],
                     receiver: receiverData[0]["receiver"],
                   });
-                  scrollToConfirmation();
+                  scrollToReview();
                 }}
                 style={{
                   width: "10%",
@@ -754,87 +768,75 @@ const OrderPage = (props) => {
               </Button>
             </BtnWrapper>
           </Spin>
-          <ConfirmationContainer ref={confirmationRef}>
-            <ConfirmationWrapper className={showConfirmation ? "" : "hide"}>
-              <Spin spinning={confirmationSpinning} tip="Loading...">
-                <TableWrapper
-                  className={
-                    confirmationData["sold"].length === 0 ? "hide" : ""
+          <ReviewContainer ref={reviewRef}>
+            <SubmitWrapper className={showReview ? "" : "hide"}>
+              <TableWrapper
+                className={reviewData["sold"].length === 0 ? "hide" : ""}
+              >
+                <Table
+                  style={{ width: "100%" }}
+                  columns={soldColumns}
+                  dataSource={reviewData["sold"]}
+                  pagination={{ position: ["none", "none"] }}
+                  bordered
+                  size="small"
+                />
+              </TableWrapper>
+              <TableWrapper
+                className={reviewData["stock"].length === 0 ? "hide" : ""}
+              >
+                <Table
+                  style={{ width: "100%" }}
+                  columns={stockColumns}
+                  dataSource={reviewData["stock"]}
+                  pagination={{ position: ["none", "none"] }}
+                  bordered
+                  size="small"
+                />
+              </TableWrapper>
+              <TableWrapper
+                className={reviewData["employee"].length === 0 ? "hide" : ""}
+              >
+                <Table
+                  style={{ width: "100%" }}
+                  columns={employeeColumns}
+                  dataSource={reviewData["employee"]}
+                  pagination={{ position: ["none", "none"] }}
+                  bordered
+                  size="small"
+                />
+              </TableWrapper>
+              <BtnWrapper>
+                <Btn onClick={() => setShowReview(false)}>Back</Btn>
+                <Button
+                  style={{
+                    width: "10%",
+                    height: "50px",
+                    padding: "12px",
+                    "margin-left": "10px",
+                    "border-radius": "8px",
+                    border: "none",
+                    "text-align": "center",
+                    "background-color": "#3751ff",
+                    color: "white",
+                  }}
+                  loading={submitLoading}
+                  onClick={() =>
+                    handleSubmit(reviewData, packageData[0], receiverData[0])
                   }
                 >
-                  <Table
-                    style={{ width: "100%" }}
-                    columns={soldColumns}
-                    dataSource={confirmationData["sold"]}
-                    pagination={{ position: ["none", "none"] }}
-                    bordered
-                    size="small"
-                  />
-                </TableWrapper>
-                <TableWrapper
-                  className={
-                    confirmationData["stock"].length === 0 ? "hide" : ""
-                  }
-                >
-                  <Table
-                    style={{ width: "100%" }}
-                    columns={stockColumns}
-                    dataSource={confirmationData["stock"]}
-                    pagination={{ position: ["none", "none"] }}
-                    bordered
-                    size="small"
-                  />
-                </TableWrapper>
-                <TableWrapper
-                  className={
-                    confirmationData["employee"].length === 0 ? "hide" : ""
-                  }
-                >
-                  <Table
-                    style={{ width: "100%" }}
-                    columns={employeeColumns}
-                    dataSource={confirmationData["employee"]}
-                    pagination={{ position: ["none", "none"] }}
-                    bordered
-                    size="small"
-                  />
-                </TableWrapper>
-                <BtnWrapper>
-                  <Btn onClick={handleBack}>Back</Btn>
-                  <Button
-                    style={{
-                      width: "10%",
-                      height: "50px",
-                      padding: "12px",
-                      "margin-left": "10px",
-                      "border-radius": "8px",
-                      border: "none",
-                      "text-align": "center",
-                      "background-color": "#3751ff",
-                      color: "white",
-                    }}
-                    loading={confirmLoading}
-                    onClick={() =>
-                      handleConfirm(
-                        confirmationData,
-                        packageData[0],
-                        receiverData[0]
-                      )
-                    }
-                  >
-                    Confirm
-                  </Button>
-                </BtnWrapper>
-              </Spin>
-            </ConfirmationWrapper>
-          </ConfirmationContainer>
+                  Submit
+                </Button>
+              </BtnWrapper>
+            </SubmitWrapper>
+          </ReviewContainer>
         </OrderContainer>
       </Right>
       <BackTop />
 
       <Modal
         title={
-          confirmResult.get("success") ? (
+          submitResult.get("success") ? (
             <span class="material-icons-outlined" style={{ color: "#18a16d" }}>
               thumb_up_off_alt
             </span>
@@ -844,14 +846,14 @@ const OrderPage = (props) => {
             </span>
           )
         }
-        visible={showConfirmationResultDialog}
+        visible={showSubmitResultDialog}
         okText="Place a new order"
         cancelText="Close"
         style={{ top: "20px" }}
         onOk={handleOnOk}
-        onCancel={() => setShowConfirmationResultDialog(false)}
+        onCancel={() => setShowSubmitResultDialog(false)}
       >
-        <p>{confirmResult.get("msg")}</p>
+        <p>{submitResult.get("msg")}</p>
       </Modal>
     </Container>
   );
@@ -863,15 +865,10 @@ const mapState = (state) => ({
   exchangeRate: state.getIn(["order", "exchangeRate"]),
   exchangeRateSpinning: state.getIn(["order", "exchangeRateSpinning"]),
   submitLoading: state.getIn(["order", "submitLoading"]),
-  confirmLoading: state.getIn(["order", "confirmLoading"]),
-  showConfirmation: state.getIn(["order", "showConfirmation"]),
-  confirmationSpinning: state.getIn(["order", "confirmationSpinning"]),
-  confirmationData: state.getIn(["order", "confirmationData"]).toJS(),
-  showConfirmationResultDialog: state.getIn([
-    "order",
-    "showConfirmationResultDialog",
-  ]),
-  confirmResult: state.getIn(["order", "confirmResult"]),
+  showReview: state.getIn(["order", "showReview"]),
+  reviewData: state.getIn(["order", "reviewData"]).toJS(),
+  showSubmitResultDialog: state.getIn(["order", "showSubmitResultDialog"]),
+  submitResult: state.getIn(["order", "submitResult"]),
   normalPostage: state.getIn(["order", "normalPostage"]),
   babyFormulaPostage: state.getIn(["order", "babyFormulaPostage"]),
   exchangeRateInSetting: state.getIn(["order", "exchangeRateInSetting"]),
@@ -894,31 +891,31 @@ const mapDispatch = (dispatch) => ({
     }
   },
 
-  handleSubmit(tableData) {
-    dispatch(actionCreators.submitTableDataAction(tableData));
+  handleReview(tableData) {
+    dispatch(actionCreators.reviewTableDataAction(tableData));
   },
 
-  handleConfirm(confirmationData, packageData, receiverData) {
+  handleSubmit(reviewData, packageData, receiverData) {
     dispatch(
-      actionCreators.saveConfirmationDataAction(
-        confirmationData,
-        packageData,
-        receiverData
-      )
+      actionCreators.submitAction(reviewData, packageData, receiverData)
     );
   },
 
-  setShowConfirmation(value) {
-    dispatch({ type: actionTypes.SHOW_CONFIRMATION, value: fromJS(value) });
+  setShowReview(value) {
+    dispatch({ type: actionTypes.SHOW_REVIEW, value: fromJS(value) });
   },
 
   handleOnOk() {
-    dispatch(actionCreators.handleOnOkAction);
+    dispatch({ type: actionTypes.RESET_ORDER_STORE });
+    dispatch({
+      type: actionTypes.SHOW_SUBMIT_RESULT_DIALOG,
+      value: fromJS(false),
+    });
   },
 
-  setShowConfirmationResultDialog(value) {
+  setShowSubmitResultDialog(value) {
     dispatch({
-      type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
+      type: actionTypes.SHOW_SUBMIT_RESULT_DIALOG,
       value: fromJS(value),
     });
   },

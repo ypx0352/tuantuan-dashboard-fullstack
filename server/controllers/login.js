@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const UserModel = require("../models/user");
+const UserModel = require("../models/userModel");
 
 const login = async (req, res) => {
   // Confirm this account exists

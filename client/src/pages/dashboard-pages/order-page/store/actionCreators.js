@@ -16,7 +16,7 @@ export const searchAction = (pk_id) => {
       type: actionTypes.RESET_ORDER,
     });
 
-    dispatch({ type: actionTypes.SHOW_CONFIRMATION, value: fromJS(false) });
+    dispatch({ type: actionTypes.SHOW_REVIEW, value: fromJS(false) });
 
     try {
       const response = await axios.get(
@@ -28,7 +28,15 @@ export const searchAction = (pk_id) => {
           type: actionTypes.SPINNING,
           value: fromJS(false),
         });
-        return dispatch({ type: actionTypes.SHOW_EXIST_MESSAGE });
+        return dispatch({
+          type: actionTypes.SHOW_EXIST_MESSAGE,
+          value: fromJS(true),
+        });
+      } else {
+        dispatch({
+          type: actionTypes.SHOW_EXIST_MESSAGE,
+          value: fromJS(false),
+        });
       }
       const { result } = response.data;
       result.sendTimeLocale = new Date(result.sendTimeISO).toLocaleString();
@@ -77,9 +85,8 @@ export const initializeExchangeRateAction = async (dispatch) => {
   }
 };
 
-export const submitTableDataAction = (tableData) => {
+export const reviewTableDataAction = (tableData) => {
   return async (dispatch) => {
-    dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(true) });
     // input validation
     try {
       if (tableData.items.length === 0) {
@@ -87,117 +94,116 @@ export const submitTableDataAction = (tableData) => {
       } else {
         tableData.items.forEach((element) => {
           const { item, qty, price, weight, cost } = element;
+          delete element.sendTimeLocale;
           if (qty * price * weight * cost === 0 || item.length === 0) {
             throw new Error("error");
           }
         });
       }
 
-      dispatch({
-        type: actionTypes.SHOW_CONFIRMATION,
-        value: fromJS(true),
+      const { pk_id, exchangeRate, sendTimeISO } = tableData.package;
+      const { receiver } = tableData;
+
+      const items = [[], [], []];
+      tableData.items.forEach((element) => {
+        const { qty, stock, employee } = element;
+        const sold = qty - stock - employee;
+        const counts = [sold, stock, employee];
+        const types = ["sold", "stock", "employee"];
+
+        for (let index = 0; index < counts.length; index++) {
+          const count = counts[index];
+          if (count > 0) {
+            items[index].push({
+              ...element,
+              qty: count,
+              qty_in_cart: 0,
+              pk_id: pk_id,
+              exchangeRate,
+              sendTimeISO,
+              receiver,
+              type: types[index],
+            });
+          }
+        }
       });
 
+      const [soldItems, stockItems, employeeItems] = items;
+
+      dispatch({ type: actionTypes.SHOW_REVIEW, value: fromJS(true) });
+
       dispatch({
-        type: actionTypes.CONFIRMATION_SPINNING,
-        value: fromJS(true),
+        type: actionTypes.REVIEW_DATA,
+        value: fromJS({
+          pk_id: pk_id,
+          sold: soldItems,
+          stock: stockItems,
+          employee: employeeItems,
+        }),
       });
-
-      try {
-        const response = await axios.post(
-          serverBaseUrl + "/api/order/submit",
-          tableData
-        );
-
-        dispatch({
-          type: actionTypes.CONFIRMATION_DATA,
-          value: fromJS(response.data),
-        });
-
-        dispatch({
-          type: actionTypes.CONFIRMATION_SPINNING,
-          value: fromJS(false),
-        });
-
-        dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(false) });
-      } catch (error) {
-        dispatch({
-          type: actionTypes.CONFIRMATION_SPINNING,
-          value: fromJS(false),
-        });
-
-        dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(false) });
-        console.log(error);
-        const { msg } = error.response.data;
-        message.warning(msg);
-      }
     } catch (error) {
       dispatch({
-        type: actionTypes.SHOW_CONFIRMATION,
+        type: actionTypes.SHOW_REVIEW,
         value: fromJS(false),
       });
-      dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(false) });
+
       message.warning("Input is incompleted.");
     }
   };
 };
 
-export const saveConfirmationDataAction = (
-  confirmationData,
+export const submitAction = (
+  reviewData,
   packageData,
   receiverData
 ) => {
-  console.log(confirmationData);
   return async (dispatch) => {
-    dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(true) });
+    dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(true) });
 
-    const confirmResult = {};
+    const submitResult = {};
     delete packageData.sendTimeLocale;
     try {
-      const response = await axios.post(serverBaseUrl + "/api/order/confirm", {
-        confirmationData,
+      const response = await axios.post(serverBaseUrl + "/api/order/submit", {
+        reviewData,
         packageData,
         receiverData,
       });
       // TODO need a customised alert and reset data
       const { msg } = response.data;
-      confirmResult.success = true;
-      confirmResult.msg = msg;
+      submitResult.success = true;
+      submitResult.msg = msg;
 
-      dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(false) });
+      dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(false) });
 
       dispatch({
-        type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
+        type: actionTypes.SHOW_SUBMIT_RESULT_DIALOG,
         value: fromJS(true),
       });
     } catch (error) {
       console.log(error);
       const { msg } = error.response.data;
-      confirmResult.success = false;
-      confirmResult.msg = msg;
-
-      dispatch({ type: actionTypes.CONFIRM_LOADING, value: fromJS(false) });
-
+      submitResult.success = false;
+      submitResult.msg = msg;
+      dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(false) });
       dispatch({
-        type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
+        type: actionTypes.SHOW_SUBMIT_RESULT_DIALOG,
         value: fromJS(true),
       });
     }
-
     dispatch({
-      type: actionTypes.CONFIRM_RESULT,
-      value: fromJS(confirmResult),
+      type: actionTypes.SUBMIT_RESULT,
+      value: fromJS(submitResult),
     });
   };
 };
 
-export const handleOnOkAction = (dispatch) => {
-  dispatch({ type: actionTypes.RESET_ORDER_STORE });
-  dispatch({
-    type: actionTypes.SHOW_CONFIRMATION_RESULT_DIALOG,
-    value: fromJS(false),
-  });
-};
+// export const handleOnOkAction = (dispatch) => {
+//   dispatch({ type: actionTypes.RESET_ORDER_STORE });
+//   dispatch({
+//     type: actionTypes.SHOW_SUBMIT_RESULT_DIALOG,
+//     value: fromJS(false),
+//   });
+// };
 
 export const initializeSettingsAction = async (dispatch) => {
   try {

@@ -2,7 +2,12 @@ import { fromJS } from "immutable";
 import { actionTypes } from ".";
 
 const defaultState = fromJS({
-  tableData: { packageData: [], reveiverData: [], itemData: [], trackData: [] },
+  tableData: {
+    packageData: [],
+    reveiverData: [],
+    itemData: [],
+    trackData: [],
+  },
   tablesDisplayed: false,
   tableSpinning: false,
   latestPackagesSpinning: false,

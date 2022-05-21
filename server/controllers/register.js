@@ -1,12 +1,9 @@
 const bcrypt = require("bcrypt");
 const Joi = require("@hapi/joi");
-const UserModel = require("../models/user");
+const UserModel = require("../models/userModel");
 const registerValidationSchema = require("../models/registerValidation");
 
 const register = async (req, res) => {
-  
-  
-
   // Check duplication of email address in database
   try {
     const result = await UserModel.findOne({ email: req.body.email });

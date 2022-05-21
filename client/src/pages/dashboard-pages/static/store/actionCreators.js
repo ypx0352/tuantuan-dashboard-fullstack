@@ -2,7 +2,7 @@ import axios from "axios";
 import { message } from "antd";
 import { actionTypes } from ".";
 import { fromJS } from "immutable";
-import { actionCreators } from "../../checkout-page/store";
+import { actionCreators as checkoutActionCreators } from "../../checkout-page/store";
 
 const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
 
@@ -44,12 +44,30 @@ export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
       );
       const { msg } = response.data;
       message.success(msg);
-      dispatch(actionCreators.getAllItemsAction);
+      dispatch(checkoutActionCreators.getAllItemsAction);
       dispatch(initializeCartAction);
     } catch (error) {
       console.log(error);
       const { msg } = error.response.data;
       message.error(msg);
+    }
+  };
+};
+
+export const updateNoteAction = (info) => {
+  return async () => {
+    const { newNote, note, type, _id } = info;
+    if (newNote !== undefined && note !== newNote) {
+      try {
+        const response = await axios.put(
+          serverBaseUrl + "/api/checkout/update_note",
+          { newNote, type, _id }
+        );
+        message.success(response.data.msg);
+      } catch (error) {
+        console.log(error);
+        message.error(error.response.data.msg);
+      }
     }
   };
 };
