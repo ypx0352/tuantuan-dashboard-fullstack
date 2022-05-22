@@ -59,17 +59,22 @@ export const getAllItemsAction = async (dispatch) => {
 
 export const addToCartAction = (record) => {
   return async (dispatch) => {
-    const { addToCart, _id, type } = record;
-    var payload = { addToCart, _id, type };
-    if (type !== "employee") {
-      if (type === "exception") {
-        const { subtotal, payAmountEach } = record;
-        payload = { addToCart, _id, type, subtotal, payAmountEach };
-      } else {
-        const { subtotal } = record;
-        payload = { addToCart, _id, type, subtotal };
-      }
-    }
+    const { addToCart, _id, type, pk_id, subtotal } = record;
+    const payload =
+      type !== "employee"
+        ? { addToCart, _id, type, subtotal }
+        : { addToCart, _id, type };
+
+    // var payload = { addToCart, _id, type };
+    // if (type !== "employee") {
+    //   if (type === "exception") {
+    //     const { subtotal, payAmountEach } = record;
+    //     payload = { addToCart, _id, type, subtotal, payAmountEach };
+    //   } else {
+    //     const { subtotal } = record;
+    //     payload = { addToCart, _id, type, subtotal };
+    //   }
+    // }
     try {
       const response = await axios.post(
         serverBaseUrl + "/api/cart/add_to_cart",
@@ -102,23 +107,6 @@ export const approveExceptionItemAction = (_id) => {
     }
   };
 };
-
-// export const updateNoteAction = (record) => {
-//   return async (dispatch) => {
-//     const { newNote, type, _id } = record;
-//     try {
-//       const response = await axios.put(
-//         serverBaseUrl + "/api/checkout/update_note",
-//         { newNote, type, _id }
-//       );
-//       message.success(response.data.msg);
-//       dispatch(getAllItemsAction);
-//     } catch (error) {
-//       console.log(error);
-//       message.error(error.response.data.msg);
-//     }
-//   };
-// };
 
 export const transferItemAction = (
   original_id,

@@ -227,7 +227,7 @@ const validateAndGetSourceRecord = async (sourceType, item_id, transferQty) => {
     if (sourceRecord === null) {
       return {
         ok: 0,
-        msg: `Failed to transfer the item. Can not find the item in the ${sourceType} collection or there are not sufficient items for this action.`,
+        msg: `Failed. Can not find the item in the ${sourceType} collection or there are not sufficient items for this action.`,
       };
     }
 
@@ -235,7 +235,7 @@ const validateAndGetSourceRecord = async (sourceType, item_id, transferQty) => {
     if (sourceRecord.qty - sourceRecord.qty_in_cart < transferQty) {
       return {
         ok: 0,
-        msg: `Failed to transfer the item. The item has only ${sourceRecord.qty_available} quantity available.`,
+        msg: `Failed. The item has only ${sourceRecord.qty_available} quantity available.`,
       };
     }
 

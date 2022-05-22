@@ -46,7 +46,7 @@ const generalHandle = async (action, res) => {
     console.log(error);
     await session.abortTransaction();
     res.status(500).json({
-      msg: "Server error!",
+      msg: "Failed. Server error!",
     });
   }
   session.endSession();
@@ -161,40 +161,118 @@ const getSettingValues = async () => {
   }
 };
 
-const calculatePostageInRMB = async (type, weight) => {
+const calculatePostageInRMB = async (type, weightEach, qty) => {
   try {
     const { normalPostage, babyFormulaPostage, exchangeRate } =
       await getSettingValues();
-
-    if (type == "babyFormula") {
+    if (type === "normal") {
+      return (
+        floatMultiply100ToInt(
+          (floatMultiply100ToInt(normalPostage) *
+            floatMultiply100ToInt(weightEach) *
+            floatMultiply100ToInt(exchangeRate) *
+            qty) /
+            1000000
+        ) / 100
+      );
+    } else if (type === "babyFormula") {
       // The return value is not rounded.
-      return (((babyFormulaPostage * 100) / 3) * weight * exchangeRate) / 100;
-    } else if (type == "normal") {
-      // The return value is not rounded.
-      return (normalPostage * 100 * weight * exchangeRate) / 100;
+      return (
+        floatMultiply100ToInt(
+          (floatMultiply100ToInt(
+            floatMultiply100ToInt(babyFormulaPostage) / 3
+          ) *
+            floatMultiply100ToInt(exchangeRate) *
+            qty) /
+            1000000
+        ) / 100
+      );
     }
   } catch (error) {
     throw error;
   }
 };
 
-const test = async () => {
-  console.log(await calculateItemCostInRMB(3.3, 2));
-};
-
 const calculateItemCostInRMB = async (pharmacyPriceEach, qty) => {
   try {
     const { exchangeRate } = await getSettingValues();
-    return (pharmacyPriceEach * 100 * qty * exchangeRate) / 100;
+    return (
+      floatMultiply100ToInt(
+        (floatMultiply100ToInt(pharmacyPriceEach) *
+          qty *
+          floatMultiply100ToInt(exchangeRate)) /
+          10000
+      ) / 100
+    );
   } catch (error) {
     throw error;
   }
 };
 
-test();
+const calculateCost = async (pharmacyPriceEach, type, weightEach, qty) => {
+  try {
+    const postage = await calculatePostageInRMB(type, weightEach, qty);
+    const itemCost = await calculateItemCostInRMB(pharmacyPriceEach, qty);
+    const cost =
+      floatMultiply100ToInt(
+        (floatMultiply100ToInt(postage) + floatMultiply100ToInt(itemCost)) / 100
+      ) / 100;
+    return cost;
+  } catch (error) {
+    throw error;
+  }
+};
 
-//calculatePostageInRMB("normal",2.1)
-//calculatePostageInRMB("formula", 1);
+const calculateProfits = (payAmountFromCustomer, cost)=>{
+  const profits = floatMultiply100ToInt((floatMultiply100ToInt(payAmountFromCustomer) - floatMultiply100ToInt(cost)) /100) /100
+  return profits
+}
+
+const floatMultiply100ToInt = (float) => {
+  return Number((float * 100).toFixed(0));
+};
+
+const validateAndGetSourceRecord = async (sourceType, item_id, transferQty) => {
+  try {
+    // Make sure the item exists in the database.
+    const model = typeToModel(sourceType);
+    const sourceRecord = await model.findById(item_id);
+    if (sourceRecord === null) {
+      return {
+        ok: 0,
+        msg: `Failed. Can not find the item in the ${sourceType} collection. `,
+      };
+    }
+
+    // Make sure the item has enough quantity to transfer.
+    if (sourceRecord.qty - sourceRecord.qty_in_cart < transferQty) {
+      return {
+        ok: 0,
+        msg: `Failed. The item has only ${sourceRecord.qty_available} quantity available.`,
+      };
+    }
+
+    return { ok: 1, sourceRecord };
+  } catch (error) {
+    throw error;
+  }
+};
+
+const test = async () => {
+  //console.log(await calculatePostageInRMB("normal", 1.5, 2));
+  // console.log(await calculateItemCostInRMB(1.1, 2));
+  //console.log(await calculateCost(29.99, "babyFormula", 1.3, 3));
+  // console.log(1.8*100*2*485/10000);
+  // console.log(4.85*100);
+  //console.log(Number(((20 * 100) / 3).toFixed(2)) * 100);
+  //console.log(floatMultiply100ToInt(4.85));
+  //  console.log(
+  //   floatMultiply100ToInt(floatMultiply100ToInt(20) / 3)
+  //  );
+  // console.log(calculateProfits(260,60));
+};
+
+//test();
 
 // const firstLetterToUpperCase = (word) => {
 //   return word.charAt(0).toUpperCase() + word.slice(1);
@@ -208,4 +286,6 @@ module.exports = {
   typeToModel,
   getOrderModels,
   generalHandleWithoutTransaction,
+  validateAndGetSourceRecord,
+  getSettingValues,
 };
