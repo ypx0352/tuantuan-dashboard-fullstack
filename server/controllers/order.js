@@ -6,7 +6,7 @@ const {
   getOrderModels,
   generalHandle,
   generalHandleWithoutTransaction,
-  writeLog
+  writeLog,
 } = require("./static");
 
 const PackageModel = require("../models/packageModel");
@@ -256,9 +256,9 @@ const submitOrder = async (req, res) => {
       pk_id,
       session
     );
-     if (logResult.insertedCount !== 1) {
-       throw new Error("Failed to write the log.");
-     }
+    if (logResult.insertedCount !== 1) {
+      throw new Error("Failed to write the log.");
+    }
 
     return "The order has been saved to database successfully!";
   }, res);

@@ -10,6 +10,7 @@ const {
   generalHandle,
   validateAndGetSourceRecord,
   getSettingValues,
+  generalHandleWithoutTransaction,
 } = require("./static");
 const CartModel = require("../models/cartModels");
 
@@ -102,9 +103,9 @@ const getPackageType = async (pk_id) => {
   try {
     const result = await typeToModel("package").findOne({ pk_id: pk_id });
     if (result === null) {
-      return { success: false, msg: "Failed to get the package type." };
+      throw new Error("Failed to get the package type.");
     } else {
-      return { success: true, packageType: result.type };
+      return result.type;
     }
   } catch (error) {
     throw error;
@@ -112,7 +113,7 @@ const getPackageType = async (pk_id) => {
 };
 
 const addToCart = (req, res) => {
-  const user_id = "Pengxiang Yue";
+  const user_id = "tuantuan";
   generalHandle(async (session) => {
     const { addToCart, _id, type } = req.body;
     // Make sure the item exists in database and has sufficient qty. Get the record in database.
@@ -129,22 +130,17 @@ const addToCart = (req, res) => {
       sourceRecordResult.sourceRecord;
 
     // Get the package type.
-    const packageTypeResult = await getPackageType(pk_id);
-    if (!packageTypeResult.success) {
-      throw new Error(packageTypeResult.msg);
-    }
+    const packageType = await getPackageType(pk_id);
 
     // Calculate the cost.
-    const cost = await calculateCost(
-      price,
-      packageTypeResult.packageType,
-      weight,
-      addToCart
-    );
+    const cost = await calculateCost(price, packageType, weight, addToCart);
 
     //Calculate the profits and payAmountToSender, except for employee items.
     if (type !== "employee") {
-      const { subtotal } = req.body;
+      var { subtotal } = req.body;
+      if (type === "exception") {
+        subtotal = sourceRecordResult.sourceRecord.subtotal;
+      }
       const profits = calculateProfits(subtotal, cost);
       const payAmountToSender = calculatePayAmountToSender(cost, profits);
       await typeToModel("cart").findOneAndUpdate(
@@ -162,12 +158,13 @@ const addToCart = (req, res) => {
                 payAmountToSender,
                 originalType: type,
                 receiver,
+                pk_id,
                 note,
               },
             ],
           },
         },
-        { session: session, upsert: true }
+        { session: session }
       );
     } else {
       await typeToModel("cart").findOneAndUpdate(
@@ -183,12 +180,13 @@ const addToCart = (req, res) => {
                 payAmountToSender: cost,
                 originalType: type,
                 receiver,
+                pk_id,
                 note,
               },
             ],
           },
         },
-        { session: session, upsert: true }
+        { session: session }
       );
     }
 
@@ -196,92 +194,52 @@ const addToCart = (req, res) => {
     await typeToModel(type).findByIdAndUpdate(_id, {
       $inc: { qty_in_cart: addToCart },
     });
-
     return `${addToCart} ${item} has been added to the cart successfully.`;
   }, res);
 };
 
+const setReturnAllProfitsItem = (req, res) => {
+  generalHandleWithoutTransaction(
+    async () => {
+      //const {_id} = req.body
+      const _id = "628ba8a18b4537666ff79a00";
+      const result = await typeToModel("cart").findOne({
+        user_id: user_id,
+      });
+      const targetItem = result.items.filter((item) => item._id == _id)[0];
+      if (targetItem === undefined) {
+        throw new Error("Failed to find the item in database.");
+      }
+
+      if (["employee", "exception"].includes(targetItem.originalType)) {
+        throw new Error(
+          "Can not set return all profits to employee or exception item."
+        );
+      }
+      const payAmountFromCustomer = targetItem.payAmountFromCustomer;
+
+      await typeToModel("cart").findOneAndUpdate(
+        {
+          user_id: user_id,
+          "items._id": _id,
+        },
+        {
+          $set: {
+            "items.$.returnAllProfits": true,
+            "items.$.payAmountToSender": payAmountFromCustomer,
+          },
+        }
+      );
+    },
+    res,
+    "Failed to set this item to return all profits item."
+  );
+};
+
+setReturnAllProfitsItem();
 const test = async () => {
   console.log(getPayAmountToSender(199, -100));
 };
-//test();
-
-// const addToCart = async (req, res) => {
-//   const { addToCart, _id, type } = req.body;
-//   const types = ["sold", "stock", "employee", "exception"];
-//   const models = [
-//     SoldItemsModel,
-//     StockItemsModel,
-//     EmployeeItemsModel,
-//     ExceptionItemModel,
-//   ];
-//   const typeIndex = types.indexOf(type);
-
-//   try {
-//     // Make sure the item exists in the original collection.
-//     const originalItem = await models[typeIndex].findById(_id);
-//     if (originalItem === null) {
-//       return res
-//         .status(400)
-//         .json({ msg: "Failed to add to cart. Item does not exist!" });
-//     } else {
-//       // Add the qty_in_cart of the item in the original collection
-//       await models[typeIndex].findByIdAndUpdate(_id, {
-//         $inc: { qty_in_cart: addToCart },
-//       });
-
-//       const { item, cost, type, receiver, pk_id } = originalItem;
-
-//       original_id = _id;
-//       const user_id = "tuantuan";
-//       var payAmount = 0;
-//       if (type !== "employee") {
-//         const { subtotal } = req.body;
-//         if (type === "exception") {
-//           payAmount = Number((req.body.payAmountEach * addToCart).toFixed(2));
-//         } else {
-//           const profits = subtotal - cost * addToCart;
-//           const halfProfits = profits / 2;
-//           payAmount = Number((cost * addToCart + halfProfits).toFixed(2));
-//         }
-//       } else {
-//         payAmount = Number((cost * addToCart).toFixed(2));
-//       }
-//       cartItem = {
-//         item,
-//         original_id,
-//         cost,
-//         qty: addToCart,
-//         originalType: type,
-//         payAmount,
-//         receiver,
-//         pk_id,
-//       };
-
-//       const result = await CartModel.findOne({ user_id: user_id });
-//       if (result === null) {
-//         await CartModel.create({
-//           user_id: user_id,
-//           items: [cartItem],
-//         });
-//         return res.status(200).json({
-//           msg: `${addToCart} ${item} has been added to cart successfully.`,
-//         });
-//       } else {
-//         await CartModel.findOneAndUpdate(
-//           { user_id: user_id },
-//           { $push: { items: [cartItem] } }
-//         );
-//         return res.status(200).json({
-//           msg: `${addToCart} ${item} has been added to cart successfully.`,
-//         });
-//       }
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(400).json({ msg: "Failed to add to cart. Server error!" });
-//   }
-// };
 
 const getCartItems = async (req, res) => {
   try {

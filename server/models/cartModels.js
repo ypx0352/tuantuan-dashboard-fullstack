@@ -8,7 +8,7 @@ const itemSchema = new mongoose.Schema(
     original_id: { type: String, required: true },
     cost: { type: Number, required: true }, //total cost
     qty: { type: Number, required: true },
-    profits: { type: Number}, //total profits
+    profits: { type: Number }, //total profits
     payAmountFromCustomer: { type: Number, required: true }, // total money received from customers
     payAmountToSender: { type: Number, required: true }, //total money pay back to the sender
     originalType: { type: String, required: true },
@@ -17,6 +17,7 @@ const itemSchema = new mongoose.Schema(
     receiver: { type: String, required: true },
     pk_id: { type: String, required: true },
     note: { type: String, required: true },
+    returnAllProfits: { type: Boolean, required: true, default: false },
   },
   { timestamps: true }
 );

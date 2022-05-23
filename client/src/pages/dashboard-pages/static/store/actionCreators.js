@@ -1,5 +1,6 @@
 import axios from "axios";
 import { message } from "antd";
+import bigDecimal from "js-big-decimal";
 import { actionTypes } from ".";
 import { fromJS } from "immutable";
 import { actionCreators as checkoutActionCreators } from "../../checkout-page/store";
@@ -15,8 +16,18 @@ export const initializeCartAction = async (dispatch) => {
     var cartSubtotal = 0;
     result.forEach((element) => {
       cartItemsCount += element.qty;
-      cartSubtotal += element.payAmount;
+      cartSubtotal += element.payAmountToSender;
+      element.cost = element.cost.toFixed(2);
+      element.payAmountToSender = element.payAmountToSender.toFixed(2);
+      if (element.originalType !== "employee") {
+        element.payAmountFromCustomer =
+          element.payAmountFromCustomer.toFixed(2);
+        element.profits = element.profits.toFixed(2);
+      }
     });
+    const roundedPrettyCartSubtotal = new bigDecimal(
+      cartSubtotal.toFixed(2)
+    ).getPrettyValue();
 
     dispatch({ type: actionTypes.GET_CART_ITEMS, value: fromJS(result) });
     dispatch({
@@ -25,7 +36,7 @@ export const initializeCartAction = async (dispatch) => {
     });
     dispatch({
       type: actionTypes.CART_SUBTOTAL,
-      value: fromJS(Number(cartSubtotal.toFixed(2))),
+      value: fromJS(roundedPrettyCartSubtotal),
     });
   } catch (error) {
     console.log(error);

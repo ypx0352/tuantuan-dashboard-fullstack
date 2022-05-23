@@ -1,5 +1,6 @@
 import { fromJS } from "immutable";
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { Empty } from "antd";
@@ -11,14 +12,14 @@ const CartContainer = styled.div`
       height: 0;
     }
     to {
-      height: 50%;
+      height: 70vh;
     }
   }
 
   display: flex;
   position: relative;
   flex-direction: column;
-  height: 50%;
+  height: 70vh;
   background-color: #363740;
   padding: 20px;
   animation-name: display_cart;
@@ -30,15 +31,15 @@ const CartContainer = styled.div`
 
 const Header = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   color: #bcbbb4;
   font-weight: bold;
-  padding-bottom: 15px;
+  padding: 15px;
   border-bottom: 2px solid rgba(255, 254, 242, 0.1);
 `;
 
 const Items = styled.div`
-  height: 40%;
+  height: 70%;
   overflow: auto;
 `;
 
@@ -46,18 +47,22 @@ const Record = styled.div`
   display: flex;
   justify-content: flex-start;
   color: #bcbbb4;
-  padding: 15px 0;
+  padding: 15px;
   border-bottom: 1px solid rgba(255, 254, 242, 0.1);
   :hover {
     border-bottom: 0.1px solid white;
     .remove {
-      visibility: visible;
+      display: inline;
+    }
+    .payAmountToSender {
+      display: none;
     }
   }
 `;
 
 const Remove = styled.span`
-  visibility: hidden;
+  display: none;
+  color: red;
   cursor: pointer;
 `;
 
@@ -72,7 +77,7 @@ const CartSummary = styled.div`
   }
   display: flex;
   position: absolute;
-  bottom: 25px;
+  bottom: 10px;
   right: 15px;
   flex-direction: column;
   color: #bcbbb4;
@@ -125,26 +130,49 @@ const Cart = (props) => {
     initializeCart();
   }, []);
 
-  const getCartItem = () => {
+  const generateCartItem = () => {
     return cartItems.map((item, index) => {
       return (
         <Record key={index}>
-          <span style={{ width: "40%" }}>
+          <span style={{ width: "35%" }}>
             {item.get("item") + " "}
             {item.get("originalType") !== "sold" ? (
-              <Tag type={item.get("originalType")}>{item.get("originalType")}</Tag>
+              <Tag type={item.get("originalType")}>
+                {item.get("originalType")}
+              </Tag>
             ) : (
               ""
             )}
           </span>
-          <span style={{ width: "13%" }}>{item.get("qty")}</span>
-          <span style={{ width: "20%" }}>
+          <span style={{ width: "10%" }}>{item.get("qty")}</span>
+          <span style={{ width: "15%" }}>
             <span>{item.get("receiver")} </span>
-            <span> {item.get("pk_id")}</span>
+
+            <Link
+              to={`/dashboard/package/?pk_id=${item.get("pk_id")}`}
+              target="_blank"
+            >
+              {item.get("pk_id")}
+            </Link>
+          </span>
+
+          <span style={{ width: "10%" }}>
+            {item.get("originalType") === "employee"
+              ? "——"
+              : `￥${item.get("payAmountFromCustomer")}`}
+          </span>
+          <span style={{ width: "10%" }}>
+            {item.get("originalType") === "employee"
+              ? "——"
+              : `￥${item.get("profits")}`}
+          </span>
+          <span style={{ width: "15%" }}>{item.get("note")}</span>
+          <span style={{ width: "5%" }} className="payAmountToSender">
+            ￥ {item.get("payAmountToSender")}
           </span>
           <Remove
             className="remove"
-            style={{ width: "27%" }}
+            style={{ width: "5%" }}
             onClick={() =>
               handleRemove(
                 item.get("_id"),
@@ -156,7 +184,6 @@ const Cart = (props) => {
           >
             Remove
           </Remove>
-          <span style={{ width: "7%" }}>￥ {item.get("payAmount")}</span>
         </Record>
       );
     });
@@ -165,9 +192,14 @@ const Cart = (props) => {
   return (
     <CartContainer className={props.className}>
       <Header>
-        <span style={{ width: "22%" }}>Item</span>
-        <span style={{ width: "48%" }}>Quantity</span>
+        <span style={{ width: "35%" }}>Item</span>
+        <span style={{ width: "10%" }}>Quantity</span>
+        <span style={{ width: "15%" }}>Receiver</span>
+        <span style={{ width: "10%" }}>Customer pay</span>
+        <span style={{ width: "10%" }}>Profits</span>
+        <span style={{ width: "15%" }}>Note</span>
         <span
+          style={{ width: "5%" }}
           className="material-icons-outlined"
           onClick={() => setShowCart(false)}
           style={{ cursor: "pointer" }}
@@ -186,7 +218,7 @@ const Cart = (props) => {
           description={<span>Your cart is empty</span>}
         />
       ) : (
-        <Items>{getCartItem()}</Items>
+        <Items>{generateCartItem()}</Items>
       )}
 
       {cartItems.size === 0 ? (

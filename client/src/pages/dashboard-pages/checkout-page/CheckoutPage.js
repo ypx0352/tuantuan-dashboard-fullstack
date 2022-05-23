@@ -750,6 +750,7 @@ const CheckoutPage = (props) => {
       const blockIndex = blockNames.indexOf(name);
       return (
         <Block
+          key={name}
           onClick={() => handleBlockClicked(name)}
           className={blockSelected === name ? "selected" : ""}
           name={name}

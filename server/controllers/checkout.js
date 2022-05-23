@@ -186,7 +186,7 @@ const addItemToCollection = async (
               originalType: item.type,
               payAmountEach: payAmountEach,
               price: item.price,
-              subtotal: item.subtotal,
+              subtotal: subtotal,
               approved: false,
               receiver: item.receiver,
               sendTimeISO: item.sendTimeISO,
