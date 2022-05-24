@@ -13,9 +13,6 @@ const {
   EmployeeItemsModel,
   ExceptionItemModel,
 } = require("../models/orderModels");
-// const {
-//   getLatestPackagesAction,
-// } = require("../../client/src/pages/dashboard-pages/package-page/store/actionCreators");
 
 const writeLog = async (user, action, pk_id, session) => {
   try {
@@ -52,9 +49,9 @@ const generalHandle = async (action, res) => {
   session.endSession();
 };
 
-const generalHandleWithoutTransaction = (action, res, errorMeg) => {
+const generalHandleWithoutTransaction = async (action, res, errorMeg) => {
   try {
-    action();
+    await action();
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: errorMeg });
@@ -165,7 +162,7 @@ const calculatePostageInRMB = async (type, weightEach, qty) => {
   try {
     const { normalPostage, babyFormulaPostage, exchangeRate } =
       await getSettingValues();
-    if (type === "normal") {
+    if (type === "非奶粉") {
       return (
         floatMultiply100ToInt(
           (floatMultiply100ToInt(normalPostage) *
@@ -175,7 +172,7 @@ const calculatePostageInRMB = async (type, weightEach, qty) => {
             1000000
         ) / 100
       );
-    } else if (type === "babyFormula") {
+    } else if (type === "奶粉") {
       // The return value is not rounded.
       return (
         floatMultiply100ToInt(
@@ -212,6 +209,7 @@ const calculateItemCostInRMB = async (pharmacyPriceEach, qty) => {
 const calculateCost = async (pharmacyPriceEach, type, weightEach, qty) => {
   try {
     const postage = await calculatePostageInRMB(type, weightEach, qty);
+
     const itemCost = await calculateItemCostInRMB(pharmacyPriceEach, qty);
     const cost =
       floatMultiply100ToInt(
@@ -223,10 +221,15 @@ const calculateCost = async (pharmacyPriceEach, type, weightEach, qty) => {
   }
 };
 
-const calculateProfits = (payAmountFromCustomer, cost)=>{
-  const profits = floatMultiply100ToInt((floatMultiply100ToInt(payAmountFromCustomer) - floatMultiply100ToInt(cost)) /100) /100
-  return profits
-}
+const calculateProfits = (payAmountFromCustomer, cost) => {
+  const profits =
+    floatMultiply100ToInt(
+      (floatMultiply100ToInt(payAmountFromCustomer) -
+        floatMultiply100ToInt(cost)) /
+        100
+    ) / 100;
+  return profits;
+};
 
 const floatMultiply100ToInt = (float) => {
   return Number((float * 100).toFixed(0));
@@ -288,4 +291,7 @@ module.exports = {
   generalHandleWithoutTransaction,
   validateAndGetSourceRecord,
   getSettingValues,
+  calculateCost,
+  calculateProfits,
+  floatMultiply100ToInt,
 };

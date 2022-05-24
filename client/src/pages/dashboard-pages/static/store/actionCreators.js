@@ -65,6 +65,23 @@ export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
   };
 };
 
+export const setReturnAllProfitsItemAction = (_id, returnAllProfits) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.put(
+        serverBaseUrl + "/api/cart/set_return_all_profits_item",
+        { _id, returnAllProfits }
+      );
+      message.success(response.data.msg);
+      dispatch(initializeCartAction);
+    } catch (error) {
+      console.log(error);
+      const { msg } = error.response.data;
+      message.error(msg);
+    }
+  };
+};
+
 export const updateNoteAction = (info) => {
   return async () => {
     const { newNote, note, type, _id } = info;

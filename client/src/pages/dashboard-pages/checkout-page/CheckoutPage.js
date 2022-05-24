@@ -38,7 +38,7 @@ const Left = styled.div`
 
 const Right = styled.div`
   min-width: 88%;
-  padding: 20px;
+  padding: 5px 10px;
   &.expand {
     width: 100%;
   }

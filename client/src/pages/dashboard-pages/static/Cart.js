@@ -57,6 +57,9 @@ const Record = styled.div`
     .payAmountToSender {
       display: none;
     }
+    .allProfits {
+      display: inline;
+    }
   }
 `;
 
@@ -112,6 +115,8 @@ const colors = {
   stock: "sandybrown",
   employee: "#18a16d",
   exception: "#DF362D",
+  allProfitsNotSelected: "#EC8FD0",
+  allProfitsSelected: "#D43790",
 };
 const Tag = styled.span.attrs((props) => ({
   style: { backgroundColor: colors[`${props.type}`] },
@@ -120,11 +125,27 @@ const Tag = styled.span.attrs((props) => ({
   padding: 2px 5px;
   border-radius: 10px;
   color: white;
+  &.allProfits {
+    display: none;
+    cursor: pointer;
+  }
+  &.keep {
+    display: inline;
+  }
+  &.hide {
+    display: none;
+  }
 `;
 
 const Cart = (props) => {
-  const { setShowCart, cartItems, initializeCart, cartSubtotal, handleRemove } =
-    props;
+  const {
+    setShowCart,
+    cartItems,
+    initializeCart,
+    cartSubtotal,
+    handleRemove,
+    handleSetReturnAllProfitsItem,
+  } = props;
 
   useEffect(() => {
     initializeCart();
@@ -143,6 +164,28 @@ const Cart = (props) => {
             ) : (
               ""
             )}
+            <Tag
+              type={
+                item.get("returnAllProfits")
+                  ? "allProfitsSelected"
+                  : "allProfitsNotSelected"
+              }
+              className={
+                ["employee", "exception"].includes(item.get("originalType"))
+                  ? "hide"
+                  : item.get("returnAllProfits")
+                  ? "keep allProfits"
+                  : "allProfits"
+              }
+              onClick={() =>
+                handleSetReturnAllProfitsItem(
+                  item.get("_id"),
+                  !item.get("returnAllProfits")
+                )
+              }
+            >
+              All profits
+            </Tag>
           </span>
           <span style={{ width: "10%" }}>{item.get("qty")}</span>
           <span style={{ width: "15%" }}>
@@ -158,12 +201,12 @@ const Cart = (props) => {
 
           <span style={{ width: "10%" }}>
             {item.get("originalType") === "employee"
-              ? "——"
+              ? "————"
               : `￥${item.get("payAmountFromCustomer")}`}
           </span>
           <span style={{ width: "10%" }}>
             {item.get("originalType") === "employee"
-              ? "——"
+              ? "———— "
               : `￥${item.get("profits")}`}
           </span>
           <span style={{ width: "15%" }}>{item.get("note")}</span>
@@ -260,6 +303,13 @@ const mapDispatch = (dispatch) => ({
   handleRemove(record_id, solid_id, type, addToCart) {
     dispatch(
       actionCreators.removeFromCartAction(record_id, solid_id, type, addToCart)
+    );
+  },
+
+  handleSetReturnAllProfitsItem(_id, returnAllProfits) {
+    console.log(_id, returnAllProfits);
+    dispatch(
+      actionCreators.setReturnAllProfitsItemAction(_id, returnAllProfits)
     );
   },
 });
