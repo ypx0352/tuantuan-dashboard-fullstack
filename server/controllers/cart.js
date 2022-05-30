@@ -6,6 +6,7 @@ const {
   calculateCost,
   calculateProfits,
   floatMultiply100ToInt,
+  getSettingValuesOfOnePackage,
 } = require("./static");
 
 const user_id = "tuantuan";
@@ -51,8 +52,18 @@ const addToCart = (req, res) => {
     // Get the package type.
     const packageType = await getPackageType(pk_id);
 
+    // Get setting values of this package
+    const settingValues = await getSettingValuesOfOnePackage(pk_id);
+
     // Calculate the cost.
-    const cost = await calculateCost(price, packageType, weight, addToCart);
+    const cost = await calculateCost(
+      price,
+      packageType,
+      weight,
+      addToCart,
+      settingValues
+    );
+    
 
     //Calculate the profits and payAmountToSender, except for employee items.
     if (type !== "employee") {
@@ -83,7 +94,7 @@ const addToCart = (req, res) => {
             ],
           },
         },
-        { session: session }
+        { session: session, upsert:true }
       );
     } else {
       await typeToModel("cart").findOneAndUpdate(
@@ -105,7 +116,7 @@ const addToCart = (req, res) => {
             ],
           },
         },
-        { session: session }
+        { session: session, upsert: true }
       );
     }
 

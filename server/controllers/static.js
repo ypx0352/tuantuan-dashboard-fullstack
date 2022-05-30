@@ -13,6 +13,7 @@ const {
   EmployeeItemsModel,
   ExceptionItemModel,
 } = require("../models/orderModels");
+const TransactionModel = require("../models/transactionModel");
 
 const writeLog = async (user, action, pk_id, session) => {
   try {
@@ -131,6 +132,7 @@ const typeToModel = (type) => {
     package: PackageModel,
     setting: SettingModel,
     user: UserModel,
+    transaction: TransactionModel,
   };
   return modelsMap[type];
 };
@@ -158,10 +160,22 @@ const getSettingValues = async () => {
   }
 };
 
-const calculatePostageInRMB = async (type, weightEach, qty) => {
+const getSettingValuesOfOnePackage = async (pk_id) => {
   try {
-    const { normalPostage, babyFormulaPostage, exchangeRate } =
-      await getSettingValues();
+    const result = await typeToModel("package").findOne({ pk_id, pk_id });
+    return {
+      exchangeRate: result.exchangeRate,
+      normalPostage: result.normalPostage,
+      babyFormulaPostage: result.babyFormulaPostage,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+const calculatePostageInRMB = async (type, weightEach, qty, settingValues) => {
+  try {
+    const { normalPostage, babyFormulaPostage, exchangeRate } = settingValues;
     if (type === "非奶粉") {
       return (
         floatMultiply100ToInt(
@@ -190,9 +204,8 @@ const calculatePostageInRMB = async (type, weightEach, qty) => {
   }
 };
 
-const calculateItemCostInRMB = async (pharmacyPriceEach, qty) => {
+const calculateItemCostInRMB = async (pharmacyPriceEach, qty, exchangeRate) => {
   try {
-    const { exchangeRate } = await getSettingValues();
     return (
       floatMultiply100ToInt(
         (floatMultiply100ToInt(pharmacyPriceEach) *
@@ -206,11 +219,27 @@ const calculateItemCostInRMB = async (pharmacyPriceEach, qty) => {
   }
 };
 
-const calculateCost = async (pharmacyPriceEach, type, weightEach, qty) => {
+const calculateCost = async (
+  pharmacyPriceEach,
+  type,
+  weightEach,
+  qty,
+  settingValues
+) => {
   try {
-    const postage = await calculatePostageInRMB(type, weightEach, qty);
+    const { exchangeRate } = settingValues;
+    const postage = await calculatePostageInRMB(
+      type,
+      weightEach,
+      qty,
+      settingValues
+    );
 
-    const itemCost = await calculateItemCostInRMB(pharmacyPriceEach, qty);
+    const itemCost = await calculateItemCostInRMB(
+      pharmacyPriceEach,
+      qty,
+      exchangeRate
+    );
     const cost =
       floatMultiply100ToInt(
         (floatMultiply100ToInt(postage) + floatMultiply100ToInt(itemCost)) / 100
@@ -262,17 +291,12 @@ const validateAndGetSourceRecord = async (sourceType, item_id, transferQty) => {
 };
 
 const test = async () => {
-  //console.log(await calculatePostageInRMB("normal", 1.5, 2));
-  // console.log(await calculateItemCostInRMB(1.1, 2));
-  //console.log(await calculateCost(29.99, "babyFormula", 1.3, 3));
-  // console.log(1.8*100*2*485/10000);
-  // console.log(4.85*100);
-  //console.log(Number(((20 * 100) / 3).toFixed(2)) * 100);
-  //console.log(floatMultiply100ToInt(4.85));
-  //  console.log(
-  //   floatMultiply100ToInt(floatMultiply100ToInt(20) / 3)
-  //  );
-  // console.log(calculateProfits(260,60));
+  try {
+    console.log(await getSettingValuesOfOnePackage("PE6598587AD"));
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
 
 //test();
@@ -294,4 +318,5 @@ module.exports = {
   calculateCost,
   calculateProfits,
   floatMultiply100ToInt,
+  getSettingValuesOfOnePackage,
 };

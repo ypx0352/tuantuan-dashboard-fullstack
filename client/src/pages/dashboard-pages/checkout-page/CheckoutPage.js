@@ -419,7 +419,6 @@ const CheckoutPage = (props) => {
               record.type === "exception"
             ) {
               handleAddToCart(record);
-              console.log(record);
             } else {
               setExceptionItem(record);
               setShowModal(true);
@@ -877,7 +876,6 @@ const mapDispatch = (dispatch) => ({
 
   handleAddToCart(record) {
     const { addToCart } = record;
-    console.log(record);
     if (addToCart === undefined) {
       message.warning("Invalid input!");
     } else {

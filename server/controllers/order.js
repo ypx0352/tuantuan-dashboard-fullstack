@@ -7,6 +7,7 @@ const {
   generalHandle,
   generalHandleWithoutTransaction,
   writeLog,
+  getSettingValues,
 } = require("./static");
 
 const PackageModel = require("../models/packageModel");
@@ -241,13 +242,23 @@ const submitOrder = async (req, res) => {
       }
     }
 
-    // Save package information to package collection.
+    //Add settings value and save package information to package collection.
     delete packageData.key;
     delete receiverData.key;
-    const savePackageResult = await PackageModel.create(
-      [Object.assign(packageData, receiverData)],
-      { session: session }
-    );
+    const settingValues = await getSettingValues();
+    [
+      packageData.exchangeRate,
+      packageData.normalPostage,
+      packageData.babyFormulaPostage,
+    ] = [
+      settingValues.exchangeRate,
+      settingValues.normalPostage,
+      settingValues.babyFormulaPostage,
+    ];
+
+    await PackageModel.create([Object.assign(packageData, receiverData)], {
+      session: session,
+    });
 
     // Write log.
     const logResult = await writeLog(

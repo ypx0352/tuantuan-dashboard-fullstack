@@ -1,10 +1,12 @@
 import { fromJS } from "immutable";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { Empty } from "antd";
+import { Empty, Modal, Card, message } from "antd";
 import { actionCreators, actionTypes } from "./store";
+import wechatQRCode from "../../../image/wechat_qr_code.jpg";
+import alipayQRCode from "../../../image/alipay_qr_code.jpg";
 
 const CartContainer = styled.div`
   @keyframes display_cart {
@@ -111,6 +113,7 @@ const CompanyLogo = styled.div`
   align-items: baseline;
   margin-top: 15px;
 `;
+
 const colors = {
   stock: "sandybrown",
   employee: "#18a16d",
@@ -118,6 +121,7 @@ const colors = {
   allProfitsNotSelected: "#EC8FD0",
   allProfitsSelected: "#D43790",
 };
+
 const Tag = styled.span.attrs((props) => ({
   style: { backgroundColor: colors[`${props.type}`] },
 }))`
@@ -145,11 +149,67 @@ const Cart = (props) => {
     cartSubtotal,
     handleRemove,
     handleSetReturnAllProfitsItem,
+    handleFinishPayment,
   } = props;
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalActiveTabKey, setModalActiveTabKey] = useState("alipay");
 
   useEffect(() => {
     initializeCart();
   }, []);
+
+  const modalContent = {
+    alipay: (
+      <img src={alipayQRCode} style={{ maxWidth: "100%", maxHeight: "100%" }} />
+    ),
+    wechat: (
+      <img src={wechatQRCode} style={{ maxWidth: "100%", maxHeight: "100%" }} />
+    ),
+    bank: (
+      <div>
+        <p>
+          Account: 6216698100004652476
+          <span
+            className="material-symbols-outlined"
+            style={{ cursor: "pointer" }}
+            onClick={() => copyTextToClipboard("6216698100004652476")}
+          >
+            content_copy
+          </span>
+        </p>
+        <p>Account Bank: 中国银行大同市分行营业部 </p>
+      </div>
+    ),
+  };
+
+  const copyTextToClipboard = async (text) => {
+    try {
+      if ("clipboard" in navigator) {
+        await navigator.clipboard.writeText(text);
+        message.success("Copied.");
+      } else {
+        throw new Error("Your broswer does not support this action.");
+      }
+    } catch (error) {
+      message.warn(error.message);
+    }
+  };
+
+  const modalTabList = [
+    {
+      key: "alipay",
+      tab: <span className="iconfont icon-zhifubaozhifu-copy-copy"></span>,
+    },
+    {
+      key: "wechat",
+      tab: <span className="iconfont icon-weixinzhifu1-copy-copy"></span>,
+    },
+    {
+      key: "bank",
+      tab: <span className="iconfont icon-zhongguoyinhang"> </span>,
+    },
+  ];
 
   const generateCartItem = () => {
     return cartItems.map((item, index) => {
@@ -272,16 +332,47 @@ const Cart = (props) => {
             <span style={{ fontSize: "15px" }}>Subtotal</span>
             <span style={{ fontSize: "25px" }}>￥ {cartSubtotal}</span>
           </Subtotal>
-          <Button>Checkout</Button>
+          <Button onClick={() => setModalVisible(true)}>Checkout</Button>
           <CompanyLogo>
             <span
               className="iconfont icon-zhifubaozhifu-copy-copy"
               style={{ marginRight: "10px" }}
             ></span>
-            <span className="iconfont icon-weixinzhifu1-copy-copy"> </span>
+            <span
+              className="iconfont icon-weixinzhifu1-copy-copy"
+              style={{ marginRight: "10px" }}
+            ></span>
+            <span className="iconfont icon-zhongguoyinhang"> </span>
           </CompanyLogo>
         </CartSummary>
       )}
+
+      <Modal
+        title={
+          <>
+            <span>Please pay </span>{" "}
+            <span
+              style={{
+                color: "#145DA0",
+                fontWeight: "bold",
+                fontSize: "large",
+              }}
+            >{`￥${cartSubtotal}`}</span>
+          </>
+        }
+        visible={modalVisible}
+        okText="Paid"
+        onCancel={() => setModalVisible(false)}
+        onOk={() => handleFinishPayment()}
+      >
+        <Card
+          tabList={modalTabList}
+          activeTabKey={modalActiveTabKey}
+          onTabChange={(key) => setModalActiveTabKey(key)}
+        >
+          {modalContent[modalActiveTabKey]}
+        </Card>
+      </Modal>
     </CartContainer>
   );
 };
@@ -307,10 +398,13 @@ const mapDispatch = (dispatch) => ({
   },
 
   handleSetReturnAllProfitsItem(_id, returnAllProfits) {
-    console.log(_id, returnAllProfits);
     dispatch(
       actionCreators.setReturnAllProfitsItemAction(_id, returnAllProfits)
     );
+  },
+
+  handleFinishPayment() {
+    console.log("finish");
   },
 });
 

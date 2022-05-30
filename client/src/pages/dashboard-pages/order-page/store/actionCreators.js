@@ -152,11 +152,7 @@ export const reviewTableDataAction = (tableData) => {
   };
 };
 
-export const submitAction = (
-  reviewData,
-  packageData,
-  receiverData
-) => {
+export const submitAction = (reviewData, packageData, receiverData) => {
   return async (dispatch) => {
     dispatch({ type: actionTypes.SUBMIT_LOADING, value: fromJS(true) });
 
@@ -168,7 +164,7 @@ export const submitAction = (
         packageData,
         receiverData,
       });
-      // TODO need a customised alert and reset data
+
       const { msg } = response.data;
       submitResult.success = true;
       submitResult.msg = msg;

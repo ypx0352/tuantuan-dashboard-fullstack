@@ -29,7 +29,9 @@ const Title = styled.span`
 
 const Right = styled.div`
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: baseline;
+  margin-top: 20px;
 `;
 
 const UserWrapper = styled.div`
@@ -59,6 +61,31 @@ const Cart = styled.div`
   }
 `;
 
+const CartIconWrapper = styled.div`
+  position: relative;
+`;
+
+const CartIcon = styled.span.attrs({ className: "material-symbols-outlined" })`
+  font-size: 35px;
+`;
+
+const CartItemCount = styled.div`
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  top: -15px;
+  right: -10px;
+  background-color: #145DA0;
+  color:white;
+  border-radius: 50%;
+  &.hide{
+    display: none;
+  }
+`;
+
 const Header = (props) => {
   const { setShowCart, showSidebar, handleShowSidebar } = props;
 
@@ -80,7 +107,10 @@ const Header = (props) => {
           className={props.cartCount === "hide" ? "hide" : ""}
           onClick={() => setShowCart(true)}
         >
-          Cart {props.cartCount}
+          <CartIconWrapper>
+            <CartIcon>shopping_cart_checkout</CartIcon>
+            <CartItemCount className={props.cartCount === 0? "hide":""}>{props.cartCount}</CartItemCount>
+          </CartIconWrapper>
         </Cart>
       </Right>
     </Container>

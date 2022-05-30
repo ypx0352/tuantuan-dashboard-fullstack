@@ -11,6 +11,8 @@ const packageSchema = new mongoose.Schema(
     count: { type: Number, required: true },
     postage: { type: Number, required: true },
     exchangeRate: { type: Number, required: true },
+    normalPostage: { type: Number, required: true },
+    babyFormulaPostage: { type: Number, required: true },
     receiver: { type: String, required: true },
     phone: { type: String, required: true },
     address: { type: String, required: true },
