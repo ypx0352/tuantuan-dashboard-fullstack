@@ -63,7 +63,6 @@ const addToCart = (req, res) => {
       addToCart,
       settingValues
     );
-    
 
     //Calculate the profits and payAmountToSender, except for employee items.
     if (type !== "employee") {
@@ -94,7 +93,7 @@ const addToCart = (req, res) => {
             ],
           },
         },
-        { session: session, upsert:true }
+        { session: session, upsert: true }
       );
     } else {
       await typeToModel("cart").findOneAndUpdate(

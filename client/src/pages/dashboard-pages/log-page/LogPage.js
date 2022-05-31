@@ -72,10 +72,11 @@ const LogPage = (props) => {
       key: "action",
       filters: [
         { text: "Create order", value: "Create order" },
+        { text: "Create transaction", value: "Create transaction" },
         { text: "Transfer", value: "Transfer" },
-        { text: "Approve", value: "Approve" },
+        { text: "Approve exception", value: "Approve exception" },
+        { text: "Approve transaction", value: "Approve transaction" },
         { text: "Login", value: "Login" },
-        { text: "Checkout", value: "Checkout" },
         { text: "Register", value: "Register" },
       ],
       onFilter: (value, record) => record.action.indexOf(value) === 0,

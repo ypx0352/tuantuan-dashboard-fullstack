@@ -4,6 +4,7 @@ const {
   typeToModel,
   generalHandleWithoutTransaction,
   getOrderModels,
+  removeItemFromCollection
 } = require("./static");
 
 const allItems = (req, res) => {
@@ -55,7 +56,7 @@ const approveExceptionItem = (req, res) => {
     // Logging this action.
     const logResult = await writeLog(
       "Pengxiang Yue",
-      `Approve ${sourceRecordResult.sourceRecord.qty} ${sourceRecordResult.sourceRecord.item}.`,
+      `Approve exception ${sourceRecordResult.sourceRecord.qty} ${sourceRecordResult.sourceRecord.item}.`,
       sourceRecordResult.sourceRecord.pk_id,
       session
     );
@@ -104,6 +105,7 @@ const transferItem = (req, res) => {
       sourceType,
       sourceRecordResult.sourceRecord,
       transferQty,
+      0,
       session
     );
     if (removeResult.ok !== 1) {
@@ -126,7 +128,7 @@ const transferItem = (req, res) => {
 
     // Write the log.
     const logResult = await writeLog(
-      "Pengxiang Yue",
+      "Pengxiang Yue", //TODO change to variable
       `Transfer ${transferQty} ${sourceRecordResult.sourceRecord.item} to ${targetType} from ${sourceType}.`,
       sourceRecordResult.sourceRecord.pk_id,
       session
@@ -245,38 +247,38 @@ const validateAndGetSourceRecord = async (sourceType, item_id, transferQty) => {
   }
 };
 
-const removeItemFromCollection = async (
-  collectionType,
-  originalRecord,
-  removeQty,
-  session
-) => {
-  try {
-    const model = typeToModel(collectionType);
+// const removeItemFromCollection = async (
+//   collectionType,
+//   originalRecord,
+//   removeQty,
+//   session
+// ) => {
+//   try {
+//     const model = typeToModel(collectionType);
 
-    // If the new qty does not becomes 0, update the qty.
-    if (originalRecord.qty - removeQty !== 0) {
-      const result = await model.findByIdAndUpdate(
-        originalRecord._id,
-        {
-          $inc: { qty: -removeQty },
-        },
-        { rawResult: true, session: session }
-      );
-      return result;
-    }
-    // If the qty in the original collection becomes 0 after updating, delete the record in the original collection.
-    else {
-      const result = await model.findByIdAndDelete(originalRecord._id, {
-        rawResult: true,
-        session: session,
-      });
-      return result;
-    }
-  } catch (error) {
-    throw error;
-  }
-};
+//     // If the new qty does not becomes 0, update the qty.
+//     if (originalRecord.qty - removeQty !== 0) {
+//       const result = await model.findByIdAndUpdate(
+//         originalRecord._id,
+//         {
+//           $inc: { qty: -removeQty },
+//         },
+//         { rawResult: true, session: session }
+//       );
+//       return result;
+//     }
+//     // If the qty in the original collection becomes 0 after updating, delete the record in the original collection.
+//     else {
+//       const result = await model.findByIdAndDelete(originalRecord._id, {
+//         rawResult: true,
+//         session: session,
+//       });
+//       return result;
+//     }
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 module.exports = {
   allItems,

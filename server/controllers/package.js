@@ -2,6 +2,7 @@ const {
   trackParcel,
   getOrderModels,
   generalHandleWithoutTransaction,
+  typeToModel,
 } = require("./static");
 const PackageModel = require("../models/packageModel");
 
@@ -10,16 +11,24 @@ const getSearchedPackage = (req, res) => {
     async () => {
       const { pk_id } = req.query;
       const trackRecords = await trackParcel(pk_id, "sendTimeAndTrack");
+
+      // Get items not yet paid (items in Sold, Stock, Employee, Exception collections)
       var itemRecords = [];
       for (const model of getOrderModels()) {
         const result = await model.find({ pk_id: pk_id });
         result.forEach((item) => itemRecords.push(item));
-        itemRecords.concat(result);
+        //itemRecords.concat(result); //TODO: delete this row
       }
+
+      //Get paid items (items in the Transaction collection)
+
+      const result = await typeToModel("transaction").find({
+        "items.pk_id": pk_id,
+      });
 
       const packageRecord = await PackageModel.findOne({ pk_id: pk_id });
 
-      if (packageRecord === null || itemRecords.length === 0) {
+      if (packageRecord === null && itemRecords.length === 0) {
         return res.status(400).json({
           msg: "Can not find this package in the database. Check your input.",
         });

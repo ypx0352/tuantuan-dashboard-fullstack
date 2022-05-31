@@ -290,6 +290,118 @@ const validateAndGetSourceRecord = async (sourceType, item_id, transferQty) => {
   }
 };
 
+const addItemToCollection = async (
+  collectionType,
+  item,
+  addQty,
+  subtotal,
+  session
+) => {
+  try {
+    // Create a new record or update the record in the target collection depending on whether there is a same item saved in the target collection. Same items have the same pk_id, item, cost and price (and payAmountEach in exception collection).
+    const model = typeToModel(collectionType);
+
+    var payAmountEach;
+
+    if (collectionType === "exception") {
+      payAmountEach = Number(((subtotal * 100) / addQty / 100).toFixed(2));
+    }
+
+    const filter =
+      collectionType === "exception"
+        ? {
+            pk_id: item.pk_id,
+            item: item.item,
+            cost: item.cost,
+            price: item.price,
+            payAmountEach: payAmountEach,
+          }
+        : {
+            pk_id: item.pk_id,
+            item: item.item,
+            cost: item.cost,
+            price: item.price,
+          };
+
+    const update =
+      collectionType === "exception"
+        ? {
+            $set: {
+              original_id: item._id,
+              weight: item.weight,
+              note: item.note,
+              exchangeRate: item.exchangeRate,
+              type: collectionType,
+              originalType: item.type,
+              payAmountEach: payAmountEach,
+              price: item.price,
+              subtotal: subtotal,
+              approved: false,
+              receiver: item.receiver,
+              sendTimeISO: item.sendTimeISO,
+              updatedAt: new Date(),
+            },
+            $inc: { qty: addQty, qty_in_cart: 0, payAmount: subtotal },
+          }
+        : {
+            $set: {
+              weight: item.weight,
+              note: item.note,
+              exchangeRate: item.exchangeRate,
+              receiver: item.receiver,
+              sendTimeISO: item.sendTimeISO,
+              type: collectionType,
+              updatedAt: new Date(),
+            },
+            $inc: { qty: addQty, qty_in_cart: 0 },
+          };
+
+    const result = await model.findOneAndUpdate(filter, update, {
+      upsert: true,
+      rawResult: true,
+      timestamps: true,
+      session: session,
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const removeItemFromCollection = async (
+  collectionType,
+  originalRecord,
+  removeQty,
+  removeQtyInCart,
+  session
+) => {
+  try {
+    const model = typeToModel(collectionType);
+
+    // If the new qty does not becomes 0, update the qty.
+    if (originalRecord.qty - removeQty !== 0) {
+      const result = await model.findByIdAndUpdate(
+        originalRecord._id,
+        {
+          $inc: { qty: -removeQty, qty_in_cart: -removeQtyInCart },
+        },
+        { rawResult: true, session: session }
+      );
+      return result;
+    }
+    // If the qty in the original collection becomes 0 after updating, delete the record in the original collection.
+    else {
+      const result = await model.findByIdAndDelete(originalRecord._id, {
+        rawResult: true,
+        session: session,
+      });
+      return result;
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 const test = async () => {
   try {
     console.log(await getSettingValuesOfOnePackage("PE6598587AD"));
@@ -319,4 +431,6 @@ module.exports = {
   calculateProfits,
   floatMultiply100ToInt,
   getSettingValuesOfOnePackage,
+  addItemToCollection,
+  removeItemFromCollection,
 };

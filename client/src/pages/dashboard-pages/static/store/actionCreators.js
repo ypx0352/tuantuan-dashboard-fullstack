@@ -99,3 +99,17 @@ export const updateNoteAction = (info) => {
     }
   };
 };
+
+export const finishPaymentAction = async (dispatch) => {
+  try {
+    const response = await axios.post(
+      serverBaseUrl + "/api/transaction/add_transaction"
+    );
+    message.success(response.data.msg);
+    dispatch(initializeCartAction);
+    dispatch(checkoutActionCreators.getAllItemsAction);
+  } catch (error) {
+    console.log(error);
+    message.error(error.response.data.msg);
+  }
+};

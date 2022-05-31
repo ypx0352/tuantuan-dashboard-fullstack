@@ -4,17 +4,20 @@ const mongoose = require("mongoose");
 const itemSchema = new mongoose.Schema(
   {
     item: { type: String, required: true },
-    original_id: { type: String, required: true },
+    //original_id: { type: String, required: true },
     cost: { type: Number, required: true }, //total cost
     qty: { type: Number, required: true },
     profits: { type: Number }, //total profits
     payAmountFromCustomer: { type: Number }, // total money received from customers
     payAmountToSender: { type: Number, required: true }, //total money pay back to the sender
     originalType: { type: String, required: true },
+    type: { type: String, default: "transaction" },
     receiver: { type: String, required: true },
     pk_id: { type: String, required: true },
-    note: { type: String },
+    note: { type: String, default: "" },
     returnAllProfits: { type: Boolean, required: true, default: false },
+    price: { type: Number, required: true },
+    weight: { type: Number, required: true },
   },
   { timestamps: true }
 );

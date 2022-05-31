@@ -9,7 +9,7 @@ const itemSchema = new mongoose.Schema(
     cost: { type: Number, required: true }, //total cost
     qty: { type: Number, required: true },
     profits: { type: Number }, //total profits
-    payAmountFromCustomer: { type: Number }, // total money received from customers
+    payAmountFromCustomer: { type: Number }, // total money received from customers, employee items do not have this property
     payAmountToSender: { type: Number, required: true }, //total money pay back to the sender
     originalType: { type: String, required: true },
     //payAmount: { type: Number, required: true },
@@ -29,8 +29,8 @@ const cartSchema = new mongoose.Schema(
       required: true,
     },
     items: [itemSchema],
-    // payAmountToSender: { type: Number, required: true, min: 0 },
-    // qty: { type: Number, required: true, min: 0 },
+    // cartSubtotal: { type: Number, default: 0, min: 0 },
+    // qty: { type: Number, default: 0, min: 0 },
   },
   { timestamps: true }
 );

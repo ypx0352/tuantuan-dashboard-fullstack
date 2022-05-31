@@ -363,7 +363,11 @@ const Cart = (props) => {
         visible={modalVisible}
         okText="Paid"
         onCancel={() => setModalVisible(false)}
-        onOk={() => handleFinishPayment()}
+        onOk={() => {
+          handleFinishPayment();
+          setModalVisible(false);
+          setShowCart(false);
+        }}
       >
         <Card
           tabList={modalTabList}
@@ -404,7 +408,7 @@ const mapDispatch = (dispatch) => ({
   },
 
   handleFinishPayment() {
-    console.log("finish");
+    dispatch(actionCreators.finishPaymentAction);
   },
 });
 
