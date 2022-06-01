@@ -16,8 +16,8 @@ const itemSchema = new mongoose.Schema(
     pk_id: { type: String, required: true },
     note: { type: String, default: "" },
     returnAllProfits: { type: Boolean, required: true, default: false },
-    price: { type: Number, required: true },
-    weight: { type: Number, required: true },
+    price: { type: Number, required: true }, // price per unit
+    weight: { type: Number, required: true }, // weight per unit
   },
   { timestamps: true }
 );

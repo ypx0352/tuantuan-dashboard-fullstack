@@ -1,40 +1,45 @@
-const {generalHandleWithoutTransaction} = require('./static')
-const SettingModel = require("../models/settingModels");
+const {
+  generalHandleWithoutTransaction,
+  typeToModel,
+  generalHandle,
+  writeLog,
+} = require("./static");
 
-// Some parameter that should be stored in setting file
-const normalPostage = 7.4;
-const babyFormulaPostage = 18.9;
-const exchangeRateInSetting = 4.7;
-
-const getSetting = async (req, res) => {
+const getSetting = (req, res) => {
   generalHandleWithoutTransaction(
-    async () => {const result = await SettingModel.find();
-    return res.status(200).json({ result: result });},
+    async () => {
+      const result = await typeToModel("setting").find();
+      return res.status(200).json({ result: result });
+    },
     res,
     "Failed to get settings. Server error"
   );
-  // try {
-  //   const result = await SettingModel.find();
-  //   return res.status(200).json({ result: result });
-  // } catch (error) {
-  //   console.log(error);
-  //   res.status(400).json({ msg: "Failed to get settings. Server error" });
-  // }
 };
 
 const setSetting = async (req, res) => {
-  const { name, value } = req.body;
-  console.log(name, value);
-  try {
-    await SettingModel.findOneAndUpdate(
+  generalHandle(async (session) => {
+    const { name, value } = req.body;
+    const user_id = "tuantuan";
+
+    await typeToModel("setting").findOneAndUpdate(
       { name: name },
-      { $set: { value: value } }
+      { $set: { value: value } },
+      { session: session }
     );
-    return res.status(200).json({ msg: "Updated successfully!" });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({ msg: "Failed to update setting. Server error." });
-  }
+    // Write the log.
+    const logResult = await writeLog(
+      user_id,
+      `Update setting ${name} to ${value}.`,
+      "",
+      session
+    );
+    if (logResult.insertedCount !== 1) {
+      // If the writeLog function returns an error, rollback the transaction.
+      throw new Error("Failed to write the log.");
+    }
+
+    return "Updated successfully!";
+  }, res);
 };
 
 module.exports = { getSetting, setSetting };

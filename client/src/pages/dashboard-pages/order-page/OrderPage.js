@@ -666,6 +666,7 @@ const OrderPage = (props) => {
               onPressEnter={() =>
                 handleSearch(searchInputEl.current.state.value)
               }
+              allowClear
             />
             <Button
               style={{

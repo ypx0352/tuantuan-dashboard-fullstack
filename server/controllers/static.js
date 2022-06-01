@@ -15,14 +15,14 @@ const {
 } = require("../models/orderModels");
 const TransactionModel = require("../models/transactionModel");
 
-const writeLog = async (user, action, pk_id, session) => {
+const writeLog = async (user, action, id, session) => {
   try {
     const result = await LogModel.insertMany(
       [
         {
           user: user,
           action: action,
-          package: pk_id,
+          id: id,
         },
       ],
       { session: session, rawResult: true }

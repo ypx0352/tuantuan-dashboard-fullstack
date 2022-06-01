@@ -94,6 +94,15 @@ const Sidebar = (props) => {
           <ListItemText>Checkout</ListItemText>
         </ListItemWrapper>
         <ListItemWrapper
+          href="/dashboard/transaction"
+          className={selected === "transaction" ? "selected" : ""}
+        >
+          <ListItemIcon className="material-icons-outlined">
+            shopping_cart_checkout
+          </ListItemIcon>
+          <ListItemText>Transaction</ListItemText>
+        </ListItemWrapper>
+        <ListItemWrapper
           href="/dashboard/package"
           className={selected === "package" ? "selected" : ""}
         >

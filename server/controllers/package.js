@@ -22,8 +22,30 @@ const getSearchedPackage = (req, res) => {
 
       //Get paid items (items in the Transaction collection)
 
-      const result = await typeToModel("transaction").find({
+      const transactionResult = await typeToModel("transaction").find({
         "items.pk_id": pk_id,
+      });
+
+      transactionResult.forEach((transaction) => {
+        var transactionObj = transaction.toObject();
+        const approved = transactionObj.approved;
+        const transaction_id = transactionObj._id
+        transactionObj.items.forEach((item) => {
+          if (item.pk_id === pk_id) {
+            // Change items' type property according to their transactions' approved proverty.
+            // if (approved) {
+            //   item.type = "completed";
+            // } else {
+            //   item.type = "pending";
+            // }
+
+            // Add transaction_id, transactionApproved and type property in transaction items
+            item.transaction_id = transaction_id
+            item.type = item.originalType
+            item.transactionApproved = approved
+            itemRecords.push(item);
+          }
+        });
       });
 
       const packageRecord = await PackageModel.findOne({ pk_id: pk_id });

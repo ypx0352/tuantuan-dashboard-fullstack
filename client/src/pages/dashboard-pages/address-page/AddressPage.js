@@ -479,6 +479,7 @@ const AddressPage = (props) => {
             <StyledInput
               onChange={(e) => handleSearch(e.target.value)}
               defaultValue={receiverFromUrl}
+              allowClear
             />
             <StyledButton
               type="add"

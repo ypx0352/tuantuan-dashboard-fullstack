@@ -5,8 +5,8 @@ const getAllLogs = (req, res) => {
     async () => {
       const rawResult = await typeToModel("log").find().sort({ createdAt: -1 });
       const result = rawResult.map((item) => {
-        const { action, user, package, createdAt, ...rest } = item;
-        return { action, user, package, createdAt };
+        const { action, user, id, createdAt, ...rest } = item;
+        return { action, user, id, createdAt };
       });
 
       return res.status(200).json({ result });

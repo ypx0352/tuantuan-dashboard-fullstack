@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { connect } from "react-redux";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import userImage from "../../../image/tuan-logo.jpeg";
-import { Button, Input, Table, Steps, Spin, message, Select } from "antd";
+import {
+  Button,
+  Input,
+  Table,
+  Steps,
+  Spin,
+  message,
+  Select,
+  Badge,
+} from "antd";
 import { actionCreators } from "./store";
 import { updateNoteAction } from "../static/store/actionCreators";
 const { TextArea } = Input;
@@ -88,6 +97,8 @@ const colors = {
   stock: "sandybrown",
   employee: "#18a16d",
   exception: "#DF362D",
+  pending: "#04D4F0",
+  completed: "#059DC0",
   奶粉: "#E8B4B8",
   非奶粉: "#189AB4",
 };
@@ -278,9 +289,7 @@ const PackagePage = (props) => {
           dataIndex: "item",
           key: "item",
           width: "20%",
-          render: (text) => {
-            return <TextArea bordered={false} autoSize value={text} />;
-          },
+          render: (text) => <TextArea bordered={false} autoSize value={text} />,
         },
         {
           title: "Qty",
@@ -323,6 +332,39 @@ const PackagePage = (props) => {
           dataIndex: "cost",
           key: "cost",
           render: (text) => "￥ " + text,
+        },
+        {
+          title: "Transaction",
+          dataIndex: "transaction_id",
+          key: "transaction_id",
+          render: (text, record) =>
+            text === undefined ? (
+              <Badge status="error" text="Unpaid" />
+            ) : record.transactionApproved ? (
+              <>
+                <Badge status="success" text="Completed" />
+                <p>
+                  <Link
+                    to={`/dashboard/transaction/?transaction_id=${record.transaction_id}`}
+                    target="_blank"
+                  >
+                    {record.transaction_id}
+                  </Link>
+                </p>
+              </>
+            ) : (
+              <>
+                <Badge status="warning" text="Pending" />
+                <p>
+                  <Link
+                    to={`/dashboard/transaction/?transaction_id=${record.transaction_id}`}
+                    target="_blank"
+                  >
+                    {record.transaction_id}
+                  </Link>
+                </p>
+              </>
+            ),
         },
         {
           title: "Note",
@@ -399,6 +441,7 @@ const PackagePage = (props) => {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onPressEnter={() => searchPackage(searchInput)}
+              allowClear
             />
             <StyledButton
               type="search"

@@ -1,7 +1,11 @@
-const { addTransaction } = require("../controllers/transaction");
+const { addTransaction, getTransaction, approveTransaction } = require("../controllers/transaction");
 
 const router = require("express").Router();
 
-router.post('/add_transaction',addTransaction)
+router.post('/add',addTransaction);
+
+router.get('/all',getTransaction);
+
+router.put('/approve',approveTransaction)
 
 module.exports = router

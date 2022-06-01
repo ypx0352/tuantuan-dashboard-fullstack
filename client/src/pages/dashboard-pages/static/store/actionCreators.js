@@ -102,9 +102,7 @@ export const updateNoteAction = (info) => {
 
 export const finishPaymentAction = async (dispatch) => {
   try {
-    const response = await axios.post(
-      serverBaseUrl + "/api/transaction/add_transaction"
-    );
+    const response = await axios.post(serverBaseUrl + "/api/transaction/add");
     message.success(response.data.msg);
     dispatch(initializeCartAction);
     dispatch(checkoutActionCreators.getAllItemsAction);

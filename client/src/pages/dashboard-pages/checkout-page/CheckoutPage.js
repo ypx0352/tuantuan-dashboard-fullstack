@@ -189,8 +189,7 @@ const StyledSpan = styled.span.attrs((props) => ({
 `;
 
 const ExpandedRow = (props) => {
-  const { price, weight, exchangeRate, createdAt, log, updatedAt } =
-    props.record;
+  const { price, weight, exchangeRate, createdAt, updatedAt } = props.record;
   const localCreatedAt = new Date(createdAt).toLocaleString();
   const localUpdatedAt = new Date(updatedAt).toLocaleString();
   return (
@@ -607,7 +606,7 @@ const CheckoutPage = (props) => {
                 title: "Approved",
                 dataIndex: "approved",
                 key: "approved",
-                render: (text, record, index) => {
+                render: (text) => {
                   return text ? (
                     <span
                       style={{ color: "green" }}
@@ -805,6 +804,7 @@ const CheckoutPage = (props) => {
               onChange={(e) => {
                 handleSearch(e.target.value);
               }}
+              allowClear
             />
           </SearchWrapper>
           <TableWrapper>

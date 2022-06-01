@@ -77,6 +77,7 @@ const LogPage = (props) => {
         { text: "Approve exception", value: "Approve exception" },
         { text: "Approve transaction", value: "Approve transaction" },
         { text: "Login", value: "Login" },
+        { text: "Update setting", value: "Update setting" },
         { text: "Register", value: "Register" },
       ],
       onFilter: (value, record) => record.action.indexOf(value) === 0,
@@ -92,11 +93,17 @@ const LogPage = (props) => {
       onFilter: (value, record) => record.user.indexOf(value) === 0,
     },
     {
-      title: "Package",
-      dataIndex: "package",
-      key: "package",
+      title: "Transaction / package ID",
+      dataIndex: "id",
+      key: "id",
       render: (text) => {
-        return <Link to={`/dashboard/package/?pk_id=${text}`}>{text}</Link>;
+        return text === "" ? (
+          text
+        ) : text.length === 11 ? (
+          <Link to={`/dashboard/package/?pk_id=${text}`}>{text}</Link>
+        ) : (
+          text
+        );
       },
     },
     { title: "Time", dataIndex: "createdAtLocale", key: "createdAtLocale" },
@@ -136,6 +143,7 @@ const LogPage = (props) => {
             onChange={(e) => {
               handleSearch(e.target.value);
             }}
+            allowClear
           />
         </SearchContainer>
         <ContentWrapper>

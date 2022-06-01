@@ -5,6 +5,7 @@ const {
   typeToModel,
   removeItemFromCollection,
   writeLog,
+  generalHandleWithoutTransaction,
 } = require("./static");
 
 const addTransaction = (req, res) => {
@@ -42,7 +43,6 @@ const addTransaction = (req, res) => {
         throw new Error("Failed to manipulate the original record.");
       }
     }
-    console.log(itemsInCart);
 
     // Calculate payAmountToSender and qty.
     var payAmountToSender = 0;
@@ -92,4 +92,41 @@ const addTransaction = (req, res) => {
   }, res);
 };
 
-module.exports = { addTransaction };
+const getTransaction = (req, res) => {
+  generalHandleWithoutTransaction(
+    async () => {
+      const result = await typeToModel("transaction").find().sort({createdAt:-1});
+      res.status(200).json({ result });
+    },
+    res,
+    "Failed to get transactions. Server error."
+  );
+};
+
+const approveTransaction = (req, res) => {
+  const { transaction_id } = req.body;
+  const user_id = "tuantuan";
+  generalHandle(async (session) => {
+    await typeToModel("transaction").findOneAndUpdate(
+      { _id: transaction_id },
+      { $set: { approved: true } },
+      { session: session }
+    );
+
+    // Write the log.
+    const logResult = await writeLog(
+      user_id,
+      `Approve transaction ${transaction_id}.`,
+      transaction_id,
+      session
+    );
+    if (logResult.insertedCount !== 1) {
+      // If the writeLog function returns an error, rollback the transaction.
+      throw new Error("Failed to write the log.");
+    }
+
+    return "The transaction has been approved.";
+  }, res);
+};
+
+module.exports = { addTransaction, getTransaction, approveTransaction };
