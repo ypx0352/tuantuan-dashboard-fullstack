@@ -17,13 +17,22 @@ const userSchema = new mongoose.Schema(
       unique: [true, "User is already exist."],
       validate: [emailValidater, "Please fill a valid email address"],
     },
-    name: { type: String, required: true },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: [true, "User is already exist."],
+    },
     password: {
       type: String,
       required: "Name is required.",
       minlength: [9, "Password must be at least 9 characters."],
     },
-    admin: { type: Boolean, default: false },
+    role: {
+      type: String,
+      enum: ["admin", "user", "visitor"],
+      required: [true, "Invalid user role."],
+    },
   },
   { timestamps: true }
 );

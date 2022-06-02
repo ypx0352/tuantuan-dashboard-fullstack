@@ -1,44 +1,35 @@
-import axios from "axios";
 import { fromJS } from "immutable";
 import { message } from "antd";
 import { actionTypes } from ".";
 import { actionTypes as registerActionTypes } from "../../register-page/store";
+import { generalHandle } from "../../general-handler/errorHandler";
+import { normalAxios } from "../../general-handler/requestHandler";
 
-const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
-
-export const showPassword = (showPassword) => ({
-  type: actionTypes.SHOW_PASSWORD,
-  value: fromJS(showPassword),
-});
 
 export const loginAction = (loginInfo) => {
   return async (dispatch) => {
-    try {
-      const response = await axios.post(
-        serverBaseUrl + "/api/login",
-        loginInfo
-      );
-      const { msg, token, name,admin } = response.data;
-      message.success(msg);
-      console.log(response.data);
-      // Save token to local storage
-      localStorage.setItem("user", JSON.stringify(response.data));     
-      dispatch({type:actionTypes.LOGIN_SUCCESS, value:fromJS({name,admin})});
-          
-    } catch (error) {
-      console.log(error);
-      const { errorObject, msg } = error.response.data;
+    generalHandle(
+      async () => {
+        const response = await normalAxios.post("/api/login", loginInfo);
+        const { msg, token, name, role } = response.data;
+        message.success(msg);
 
-      if (errorObject !== undefined) {
-        dispatch({
-          type: registerActionTypes.INPUT_ERROR_OBJECT,
-          value: fromJS(errorObject),
-        });
+        // Save token,name and admin to local storage
+        localStorage.setItem("token", token);
+        localStorage.setItem("name", name);
+        localStorage.setItem("role", role);
+        dispatch({ type: actionTypes.LOGIN_SUCCESS });
+      },
+      dispatch,
+      (dispatch, error) => {
+        const { errorObject } = error.response.data;
+        if (errorObject !== undefined) {
+          dispatch({
+            type: registerActionTypes.INPUT_ERROR_OBJECT,
+            value: fromJS(errorObject),
+          });
+        }
       }
-
-      if (msg !== undefined) {
-        message.warn(msg);
-      }
-    }
+    );
   };
 };

@@ -1,33 +1,41 @@
 const bcrypt = require("bcrypt");
-const Joi = require("@hapi/joi");
-const UserModel = require("../models/userModel");
-const registerValidationSchema = require("../models/registerValidation");
+const { typeToModel, generalHandle, writeLog } = require("./static");
 
 const register = async (req, res) => {
-  // Check duplication of email address in database
-  try {
-    const result = await UserModel.findOne({ email: req.body.email });
+  generalHandle(async (session) => {
+    var { name, email, registerCode, password } = req.body;
+    
+    // Check duplication of email address in database
+    const result = await typeToModel("user").findOne({
+      $or: [{ name: name }, { email: email }],
+    });
     if (result !== null) {
       return res.status(400).json({ msg: "User exists, please login." });
     }
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json({ msg: "Failed to check duplication." });
-  }
 
-  // Save register data to database
-  try {
-    req.body.password = await bcrypt.hash(req.body.password, 10);
-    await UserModel.create(req.body);
-    return res
-      .status(200)
-      .json({ msg: "Your account has been registered successfully." });
-  } catch (error) {
-    console.log(error.properties);
-    return res
-      .status(400)
-      .json({ msg: "Failed to register user to database." });
-  }
+    // Assign user's role according to register code
+    const registerCodeToRole = {
+      TUANTUAN_ADMIN: "admin",
+      TUANTUAN_USER: "user",
+      VISITOR: "visitor",
+    };
+
+    const role = registerCodeToRole[registerCode];
+    if (role === undefined) {
+      return res.status(400).json({ msg: "Register code is incorrect." });
+    }
+
+    // Save register data to database
+    password = await bcrypt.hash(password, 10);
+    await typeToModel("user").create([{ name, email, password, role }], {
+      session: session,
+    });
+
+    // Write the log
+    await writeLog(name, "Register", "", session);
+
+    return "Your account has been registered successfully. Please login.";
+  }, res);
 };
 
 module.exports = register;

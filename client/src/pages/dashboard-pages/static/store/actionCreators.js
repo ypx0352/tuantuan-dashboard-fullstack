@@ -111,3 +111,11 @@ export const finishPaymentAction = async (dispatch) => {
     message.error(error.response.data.msg);
   }
 };
+
+export const logoutAction = () => {
+  try {
+    localStorage.clear();
+  } catch (error) {
+    console.log(error);
+  }
+};

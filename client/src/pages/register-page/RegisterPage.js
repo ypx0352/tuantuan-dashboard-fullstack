@@ -1,10 +1,10 @@
 import { fromJS } from "immutable";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators, actionTypes } from "./store";
-import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   height: 100vh;
@@ -137,13 +137,18 @@ const Warning = styled.small`
 `;
 
 const RegisterPage = (props) => {
-  const {
-    showPassword,
-    handleShowPassword,
-    handleSubmit,
-    inputErrorObject,
-    modifyInputErrorObject,
-  } = props;
+  const { handleSubmit, inputErrorObject, modifyInputErrorObject, registered } =
+    props;
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (registered) {
+      navigate("/login");
+    }
+  }, [registered]);
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [registerInfo, setRegisterInfo] = useState({
     name: "",
@@ -157,8 +162,6 @@ const RegisterPage = (props) => {
     delete inputErrorObject[e.target.name];
     modifyInputErrorObject(inputErrorObject);
   };
-  const location = useLocation();
-  console.log(location);
 
   return (
     <Container>
@@ -209,7 +212,7 @@ const RegisterPage = (props) => {
           />
           <ShowPassword
             className="material-icons-outlined"
-            onClick={() => handleShowPassword(!showPassword)}
+            onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? "visibility_off" : "visibility"}
           </ShowPassword>
@@ -249,17 +252,15 @@ const RegisterPage = (props) => {
 };
 
 const mapState = (state) => ({
-  showPassword: state.getIn(["login", "showPassword"]),
   inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
+  registered: state.getIn(["register", "registered"]),
 });
 
 const mapDispatch = (dispatch) => ({
-  handleShowPassword(showPassword) {
-    dispatch(actionCreators.showPassword(showPassword));
-  },
   handleSubmit(registerInfo) {
     dispatch(actionCreators.submitRegisterAction(registerInfo));
   },
+
   modifyInputErrorObject(newObject) {
     dispatch({
       type: actionTypes.MODIFY_INPUT_ERROR_OBJECT,

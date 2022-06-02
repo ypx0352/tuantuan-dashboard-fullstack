@@ -132,22 +132,19 @@ const Warning = styled.small`
 `;
 
 const LoginPage = (props) => {
-  const {
-    showPassword,
-    handleShowPassword,
-    handleSubmit,
-    inputErrorObject,
-    modifyInputErrorObject,
-    login
-  } = props;
+  const { handleSubmit, inputErrorObject, modifyInputErrorObject, login } =
+    props;
 
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
-  useEffect(() => {if(login){
-    navigate("/dashboard/overview");
-  }},[login])
+  useEffect(() => {
+    if (login) {
+      navigate("/dashboard/overview");
+    }
+  }, [login]);
 
   const handleInput = (e) => {
     setLoginInfo({ ...loginInfo, [e.target.name]: e.target.value });
@@ -187,7 +184,7 @@ const LoginPage = (props) => {
           <ForgotPassword>Forgot password?</ForgotPassword>
           <ShowPassword
             className="material-icons-outlined"
-            onClick={() => handleShowPassword(!showPassword)}
+            onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? "visibility_off" : "visibility"}
           </ShowPassword>
@@ -209,16 +206,11 @@ const LoginPage = (props) => {
 };
 
 const mapState = (state) => ({
-  showPassword: state.getIn(["login", "showPassword"]),
   inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
-  login: state.getIn(["login","user", "login"]),
+  login: state.getIn(["login", "login"]),
 });
 
 const mapDispatch = (dispatch) => ({
-  handleShowPassword(showPassword) {
-    dispatch(actionCreators.showPassword(showPassword));
-  },
-
   handleSubmit(loginInfo) {
     dispatch(actionCreators.loginAction(loginInfo));
   },

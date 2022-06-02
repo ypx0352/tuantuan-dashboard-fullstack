@@ -1,42 +1,64 @@
 import { message } from "antd";
-import axios from "axios";
 import { fromJS } from "immutable";
 import { actionTypes } from ".";
-
-const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
+import { generalHandle } from "../../../general-handler/errorHandler";
+import { authAxios } from "../../../general-handler/requestHandler";
 
 export const initializeAddressAction = async (dispatch) => {
-  try {
-    dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(true) });
-    const response = await axios.get(
-      serverBaseUrl + "/api/address/all_address"
-    );
+  generalHandle(
+    async () => {
+      dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(true) });
+      const response = await authAxios.get("/api/address/all_address");
+      const allAddress = response.data.result.map((item) => {
+        const newItem = item;
+        newItem.createdAtLocale = new Date(item.createdAt).toLocaleString();
+        newItem.key = item._id;
+        return newItem;
+      });
 
-    const allAddress = response.data.result.map((item) => {
-      const newItem = item;
-      newItem.createdAtLocale = new Date(item.createdAt).toLocaleString();
-      newItem.key = item._id;
-      return newItem;
-    });
+      dispatch({
+        type: actionTypes.INITIALIZE_ADDRESS,
+        value: fromJS(allAddress),
+      });
 
-    dispatch({
-      type: actionTypes.INITIALIZE_ADDRESS,
-      value: fromJS(allAddress),
-    });
+      dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(false) });
+    },
+    dispatch,
+    () => dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(false) })
+  );
 
-    dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(false) });
-  } catch (error) {
-    console.log(error);
-  }
+  // try {
+  //   dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(true) });
+  //   const response = await authAxios.get("/api/address/all_address");
+  //   const allAddress = response.data.result.map((item) => {
+  //     const newItem = item;
+  //     newItem.createdAtLocale = new Date(item.createdAt).toLocaleString();
+  //     newItem.key = item._id;
+  //     return newItem;
+  //   });
+
+  //   dispatch({
+  //     type: actionTypes.INITIALIZE_ADDRESS1,
+  //     value: fromJS(allAddress),
+  //   });
+
+  //   dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(false) });
+  // } catch (error) {
+  //   console.log(error);
+  // }
 };
 
 export const submitNewAddressAction = (address) => {
   return async (dispatch) => {
+    generalHandle(async () => {
+      const response = await authAxios.post("/api/address/add", address);
+      const { msg } = response.data;
+      message.success(msg);
+      dispatch(initializeAddressAction);
+    });
+
     try {
-      const response = await axios.post(
-        serverBaseUrl + "/api/address/add",
-        address
-      );
+      const response = await authAxios.post("/api/address/add", address);
       const { msg } = response.data;
       message.success(msg);
       dispatch(initializeAddressAction);
@@ -51,10 +73,9 @@ export const submitNewAddressAction = (address) => {
 export const deleteAddressAction = (_id) => {
   return async (dispatch) => {
     try {
-      const response = await axios.delete(
-        serverBaseUrl + "/api/address/delete",
-        { data: { _id } }
-      );
+      const response = await authAxios.delete("/api/address/delete", {
+        data: { _id },
+      });
       message.success(response.data.msg);
       dispatch(initializeAddressAction);
     } catch (error) {
@@ -80,10 +101,7 @@ export const updateAddressAction = (updatedAddress) => {
     };
 
     try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/address/update",
-        newAddress
-      );
+      const response = await authAxios.put("/api/address/update", newAddress);
       message.success(response.data.msg);
       dispatch(initializeAddressAction);
       dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(false) });

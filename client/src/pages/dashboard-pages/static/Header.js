@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { actionTypes } from "./store";
+import { Link } from "react-router-dom";
+import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
 
 const Container = styled.div`
@@ -30,14 +31,17 @@ const Title = styled.span`
 const Right = styled.div`
   display: flex;
   align-items: center;
-  justify-content: baseline;
+  justify-content: center;
   margin-top: 20px;
 `;
 
 const UserWrapper = styled.div`
   display: flex;
   align-items: center;
-  cursor: pointer;
+  justify-content: center;
+  &.hide {
+    display: none;
+  }
 `;
 
 const Name = styled.span`
@@ -47,7 +51,7 @@ const Name = styled.span`
 const UserImage = styled.img`
   width: 40px;
   height: 40px;
-  margin-left: 10px;
+  margin: 0 10px;
   border-radius: 20px;
 `;
 
@@ -55,7 +59,7 @@ const Cart = styled.div`
   margin-left: 10px;
   font-weight: bold;
   cursor: pointer;
-  text-decoration-line: underline;
+  margin-right: 10px;
   &.hide {
     display: none;
   }
@@ -78,16 +82,29 @@ const CartItemCount = styled.div`
   height: 25px;
   top: -15px;
   right: -10px;
-  background-color: #145DA0;
-  color:white;
+  background-color: #145da0;
+  color: white;
   border-radius: 50%;
-  &.hide{
+  &.hide {
     display: none;
   }
 `;
 
 const Header = (props) => {
-  const { setShowCart, showSidebar, handleShowSidebar } = props;
+  const { setShowCart, showSidebar, handleShowSidebar, handleLogout } = props;
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const name = localStorage.getItem("name");
+    if (name === null) {
+      setLoggedIn(false);
+    } else {
+      setLoggedIn(true);
+    }
+  }, []);
+
+  const name = localStorage.getItem("name");
 
   return (
     <Container>
@@ -99,19 +116,30 @@ const Header = (props) => {
       </Left>
 
       <Right>
-        <UserWrapper>
-          <Name>{props.userName}</Name>
-          <UserImage src={props.userImage}></UserImage>
-        </UserWrapper>
         <Cart
           className={props.cartCount === "hide" ? "hide" : ""}
           onClick={() => setShowCart(true)}
         >
           <CartIconWrapper>
             <CartIcon>shopping_cart_checkout</CartIcon>
-            <CartItemCount className={props.cartCount === 0? "hide":""}>{props.cartCount}</CartItemCount>
+            <CartItemCount className={props.cartCount === 0 ? "hide" : ""}>
+              {props.cartCount}
+            </CartItemCount>
           </CartIconWrapper>
         </Cart>
+        <UserWrapper className={loggedIn ? "" : "hide"}>
+          <Name>{name}</Name>
+          <UserImage src={props.userImage}></UserImage>
+          <Link to={"/"}>
+            <span
+              className="material-symbols-outlined"
+              style={{ cursor: "pointer" }}
+              onClick={handleLogout}
+            >
+              logout
+            </span>
+          </Link>
+        </UserWrapper>
       </Right>
     </Container>
   );
@@ -128,6 +156,9 @@ const mapDispatch = (dispatch) => ({
 
   handleShowSidebar(value) {
     dispatch({ type: actionTypes.SET_SHOW_SIDEBAR, value: fromJS(value) });
+  },
+  handleLogout() {
+    dispatch(actionCreators.logoutAction);
   },
 });
 
