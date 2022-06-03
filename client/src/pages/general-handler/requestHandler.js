@@ -9,8 +9,15 @@ const authAxios = axios.create({
   },
 });
 
+const resetToken = (response) => {
+  console.log(response.headers);
+  return response
+};
+
+authAxios.interceptors.response.use((response) => resetToken(response));
+
 const normalAxios = axios.create({
   baseURL: serverBaseUrl,
 });
 
-export { authAxios,normalAxios };
+export { authAxios, normalAxios };

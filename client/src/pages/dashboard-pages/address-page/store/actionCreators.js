@@ -8,7 +8,7 @@ export const initializeAddressAction = async (dispatch) => {
   generalHandle(
     async () => {
       dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(true) });
-      const response = await authAxios.get("/api/address/all_address");
+      const response = await authAxios.request("/api/address/all_address");
       const allAddress = response.data.result.map((item) => {
         const newItem = item;
         newItem.createdAtLocale = new Date(item.createdAt).toLocaleString();

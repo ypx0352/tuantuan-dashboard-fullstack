@@ -13,28 +13,6 @@ const {
 const PackageModel = require("../models/packageModel");
 
 let mtoken = "";
-// login the account of the post office and get cookies
-// const login = async () => {
-//   var bodyFormData = new FormData();
-//   bodyFormData.append(
-//     "refer",
-//     "https%253A%252F%252Fwww.polarexpress.com.au%252Fmember"
-//   );
-//   bodyFormData.append("member_email", process.env.EMAIL);
-//   bodyFormData.append("member_passwd", process.env.PASSWORD);
-//   try {
-//     const response = await axios({
-//       method: "post",
-//       url: "https://www.polarexpress.com.au/ajax_common/login_check",
-//       data: bodyFormData,
-//       headers: bodyFormData.getHeaders(),
-//     });
-//     cookies = response.headers["set-cookie"];
-//     console.log(response.data);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 const login = async () => {
   try {
