@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
+import Modal from "antd/lib/modal/Modal";
+import { Button } from "antd";
+import userImage from "../../../image/tuan-logo.jpeg";
+import LoginPage from "../../login-page/LoginPage";
 
 const Container = styled.div`
   display: flex;
@@ -91,18 +95,31 @@ const CartItemCount = styled.div`
 `;
 
 const Header = (props) => {
-  const { setShowCart, showSidebar, handleShowSidebar, handleLogout } = props;
+  const {
+    setShowCart,
+    showSidebar,
+    handleShowSidebar,
+    handleLogout,
+    loginSuccess,
+  } = props;
 
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [logged, setLogged] = useState(false);
 
   useEffect(() => {
-    const name = localStorage.getItem("name");
-    if (name === null) {
-      setLoggedIn(false);
+    const token = localStorage.getItem("token");
+    if (token === null) {
+      setLogged(false);
+      setShowLoginModal(true);
     } else {
-      setLoggedIn(true);
+      setLogged(true);
+      setShowLoginModal(false);
     }
-  }, []);
+  });
+
+  // useEffect(() => {
+  //   setShowLoginModal(!loginSuccess);
+  // }, [loginSuccess]);
 
   const name = localStorage.getItem("name");
 
@@ -127,9 +144,9 @@ const Header = (props) => {
             </CartItemCount>
           </CartIconWrapper>
         </Cart>
-        <UserWrapper className={loggedIn ? "" : "hide"}>
+        <UserWrapper className={logged ? "" : "hide"}>
           <Name>{name}</Name>
-          <UserImage src={props.userImage}></UserImage>
+          <UserImage src={userImage}></UserImage>
           <Link to={"/"}>
             <span
               className="material-symbols-outlined"
@@ -141,12 +158,43 @@ const Header = (props) => {
           </Link>
         </UserWrapper>
       </Right>
+
+      <Modal
+        title="Please login again"
+        visible={showLoginModal}
+        closable={false}
+        footer={
+          <Link to="/">
+            <Button
+              type="primary"
+              onClick={() => {
+                setShowLoginModal(false);
+                handleLogout();
+              }}
+            >
+              Log out
+            </Button>
+          </Link>
+        }
+      >
+        {
+          <LoginPage
+            redirectTo={useLocation().pathname}
+            containerHeight="100%"
+            parentCallback={(childData) => {
+              setShowLoginModal(!childData);
+              setLogged(childData);
+            }}
+          />
+        }
+      </Modal>
     </Container>
   );
 };
 
 const mapState = (state) => ({
   showSidebar: state.getIn(["static", "showSidebar"]),
+  loginSuccess: state.getIn(["login", "loginSuccess"]),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -157,6 +205,7 @@ const mapDispatch = (dispatch) => ({
   handleShowSidebar(value) {
     dispatch({ type: actionTypes.SET_SHOW_SIDEBAR, value: fromJS(value) });
   },
+
   handleLogout() {
     dispatch(actionCreators.logoutAction);
   },

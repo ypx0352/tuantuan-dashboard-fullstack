@@ -36,7 +36,7 @@ const login = async (req, res) => {
 
       // Return token to front-end
       const token = jwt.sign({ name, role }, process.env.JWT_KEY, {
-        expiresIn: "1h", // 1 hour
+        expiresIn: '1h', // 1 hour
       });
       return res
         .status(200)

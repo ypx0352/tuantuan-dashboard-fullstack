@@ -9,8 +9,6 @@ const {
   getSettingValuesOfOnePackage,
 } = require("./static");
 
-const user_id = "tuantuan";
-
 const calculatePayAmountToSender = (cost, profits) => {
   return (
     (floatMultiply100ToInt(cost) +
@@ -33,9 +31,8 @@ const getPackageType = async (pk_id) => {
 };
 
 const addToCart = (req, res) => {
-  const user_id = "tuantuan";
   generalHandle(async (session) => {
-    const { addToCart, _id, type } = req.body;
+    const { addToCart, _id, type, username } = req.body;
     // Make sure the item exists in database and has sufficient qty. Get the record in database.
     const sourceRecordResult = await validateAndGetSourceRecord(
       type,
@@ -73,7 +70,7 @@ const addToCart = (req, res) => {
       const profits = calculateProfits(subtotal, cost);
       const payAmountToSender = calculatePayAmountToSender(cost, profits);
       await typeToModel("cart").findOneAndUpdate(
-        { user_id: user_id },
+        { username: username },
         {
           $push: {
             items: [
@@ -97,7 +94,7 @@ const addToCart = (req, res) => {
       );
     } else {
       await typeToModel("cart").findOneAndUpdate(
-        { user_id: user_id },
+        { username: username },
         {
           $push: {
             items: [
@@ -130,10 +127,10 @@ const addToCart = (req, res) => {
 const setReturnAllProfitsItem = (req, res) => {
   generalHandleWithoutTransaction(
     async () => {
-      const { _id, returnAllProfits } = req.body;
+      const { _id, returnAllProfits, username } = req.body;
       var payAmountToSender = null;
       const result = await typeToModel("cart").findOne({
-        user_id: user_id,
+        username: username,
       });
       const targetItem = result.items.filter((item) => item._id == _id)[0];
       if (targetItem === undefined) {
@@ -156,7 +153,7 @@ const setReturnAllProfitsItem = (req, res) => {
 
       await typeToModel("cart").findOneAndUpdate(
         {
-          user_id: user_id,
+          username: username,
           "items._id": _id,
         },
         {
@@ -179,7 +176,9 @@ const setReturnAllProfitsItem = (req, res) => {
 const getCartItems = (req, res) => {
   generalHandleWithoutTransaction(
     async () => {
-      const result = await typeToModel("cart").findOne({ user_id: user_id });
+      const result = await typeToModel("cart").findOne({
+        username: req.body.username,
+      });
       if (result === null) {
         return res.status(200).json({ result: [] });
       } else {
@@ -193,7 +192,7 @@ const getCartItems = (req, res) => {
 
 const removeCartItem = async (req, res) => {
   generalHandle(async (session) => {
-    const { record_id, solid_id, type, addToCart } = req.body;
+    const { record_id, solid_id, type, addToCart, username } = req.body;
     // Make sure the item exists in the original collection.
     const result = await typeToModel(type).findById(solid_id);
     if (result === null) {
@@ -211,7 +210,7 @@ const removeCartItem = async (req, res) => {
 
     // Remove the item from cart collection.
     await typeToModel("cart").findOneAndUpdate(
-      { user_id: user_id },
+      { username: username },
       { $pull: { items: { _id: record_id } } },
       { session: session }
     );

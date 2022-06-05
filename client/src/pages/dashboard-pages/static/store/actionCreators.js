@@ -1,15 +1,13 @@
-import axios from "axios";
 import { message } from "antd";
 import bigDecimal from "js-big-decimal";
 import { actionTypes } from ".";
 import { fromJS } from "immutable";
 import { actionCreators as checkoutActionCreators } from "../../checkout-page/store";
-
-const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
+import { authAxios } from "../../../general-handler/requestHandler";
 
 export const initializeCartAction = async (dispatch) => {
   try {
-    const response = await axios.get(serverBaseUrl + "/api/cart/items");
+    const response = await authAxios.get("/api/cart/items");
     const { result } = response.data;
 
     var cartItemsCount = 0;
@@ -49,10 +47,12 @@ export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
   console.log(record_id, solid_id, type, addToCart);
   return async (dispatch) => {
     try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/cart/remove_item",
-        { record_id, solid_id, type, addToCart }
-      );
+      const response = await authAxios.put("/api/cart/remove_item", {
+        record_id,
+        solid_id,
+        type,
+        addToCart,
+      });
       const { msg } = response.data;
       message.success(msg);
       dispatch(checkoutActionCreators.getAllItemsAction);
@@ -68,8 +68,8 @@ export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
 export const setReturnAllProfitsItemAction = (_id, returnAllProfits) => {
   return async (dispatch) => {
     try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/cart/set_return_all_profits_item",
+      const response = await authAxios.put(
+        "/api/cart/set_return_all_profits_item",
         { _id, returnAllProfits }
       );
       message.success(response.data.msg);
@@ -87,10 +87,11 @@ export const updateNoteAction = (info) => {
     const { newNote, note, type, _id } = info;
     if (newNote !== undefined && note !== newNote) {
       try {
-        const response = await axios.put(
-          serverBaseUrl + "/api/checkout/update_note",
-          { newNote, type, _id }
-        );
+        const response = await authAxios.put("/api/checkout/update_note", {
+          newNote,
+          type,
+          _id,
+        });
         message.success(response.data.msg);
       } catch (error) {
         console.log(error);
@@ -102,7 +103,7 @@ export const updateNoteAction = (info) => {
 
 export const finishPaymentAction = async (dispatch) => {
   try {
-    const response = await axios.post(serverBaseUrl + "/api/transaction/add");
+    const response = await authAxios.post("/api/transaction/add");
     message.success(response.data.msg);
     dispatch(initializeCartAction);
     dispatch(checkoutActionCreators.getAllItemsAction);

@@ -1,29 +1,28 @@
-import { message } from "antd";
-import axios from "axios";
 import { fromJS } from "immutable";
 import { actionTypes } from ".";
-
-const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
+import { generalHandle } from "../../../general-handler/errorHandler";
+import { authAxios } from "../../../general-handler/requestHandler";
 
 export const getAllLogsAction = async (dispatch) => {
-  try {
-    dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(true) });
-    const response = await axios.get(serverBaseUrl + "/api/log/all_logs");
-    const rawResult = response.data.result;
-    const result = rawResult.map((item) => {
-      const { createdAt, ...rest } = item;
-      const createdAtLocale = new Date(createdAt).toLocaleString();
-      return { createdAtLocale, ...rest };
-    });
-    dispatch({
-      type: actionTypes.ALL_LOGS,
-      value: fromJS(result),
-    });
-    dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(false) });
-  } catch (error) {
-    console.log(error);
-    dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(false) });
-    const { msg } = error.response.data;
-    message.error(msg);
-  }
+  generalHandle(
+    async () => {
+      dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(true) });
+      const response = await authAxios.get("/api/log/all_logs");
+      const rawResult = response.data.result;
+      const result = rawResult.map((item) => {
+        const { createdAt, ...rest } = item;
+        const createdAtLocale = new Date(createdAt).toLocaleString();
+        return { createdAtLocale, ...rest };
+      });
+      dispatch({
+        type: actionTypes.ALL_LOGS,
+        value: fromJS(result),
+      });
+      dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(false) });
+    },
+    dispatch,
+    () => {
+      dispatch({ type: actionTypes.TABLE_SPINNING, value: fromJS(false) });
+    }
+  );
 };

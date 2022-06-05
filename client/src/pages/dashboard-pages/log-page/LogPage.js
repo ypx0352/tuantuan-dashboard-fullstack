@@ -102,7 +102,7 @@ const LogPage = (props) => {
         ) : text.length === 11 ? (
           <Link to={`/dashboard/package/?pk_id=${text}`}>{text}</Link>
         ) : (
-          text
+          <Link to={`/dashboard/transaction/?transaction_id=${text}`}>{text}</Link>
         );
       },
     },

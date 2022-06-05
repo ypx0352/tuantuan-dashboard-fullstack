@@ -24,7 +24,7 @@ const itemSchema = new mongoose.Schema(
 
 const transactionSchema = new mongoose.Schema(
   {
-    user_id: {
+    username: {
       type: String,
       required: true,
     },

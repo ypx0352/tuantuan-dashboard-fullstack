@@ -8,6 +8,12 @@ const authentication = async (req, res, next) => {
       if (typeof header !== "undefined") {
         const bearer = header.split(" ");
         const token = bearer[1];
+
+        if (token === "null") {
+          return res
+            .status(401)
+            .json({ msg: "Token missing. Please login again." });
+        }
         const tokenPayload = await jwt.verify(token, process.env.JWT_KEY);
         const { name, role } = tokenPayload;
         req.body.username = name;
@@ -17,16 +23,15 @@ const authentication = async (req, res, next) => {
         const nextToken = jwt.sign({ name, role }, process.env.JWT_KEY, {
           expiresIn: "1h", // 1 hour
         });
-        res.setHeader('token',nextToken);
-        res.setHeader("Access-Control-Expose-Headers", 'token')
-
+        res.setHeader("next-token", nextToken);
+        res.setHeader("Access-Control-Expose-Headers", "next-token");
         next();
       } else {
-        res.status(403).json({ msg: "Token missing. Please login again." });
+        res.status(401).json({ msg: "Token missing. Please login again." });
       }
     },
     res,
-    "Token expires. Please login again."
+    "Authentication failed. Server error."
   );
 };
 

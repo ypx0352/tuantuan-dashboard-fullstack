@@ -5,8 +5,7 @@ import { actionTypes as registerActionTypes } from "../../register-page/store";
 import { generalHandle } from "../../general-handler/errorHandler";
 import { normalAxios } from "../../general-handler/requestHandler";
 
-
-export const loginAction = (loginInfo) => {
+export const loginAction = (loginInfo, parentCallback) => {
   return async (dispatch) => {
     generalHandle(
       async () => {
@@ -18,10 +17,13 @@ export const loginAction = (loginInfo) => {
         localStorage.setItem("token", token);
         localStorage.setItem("name", name);
         localStorage.setItem("role", role);
-        dispatch({ type: actionTypes.LOGIN_SUCCESS });
+        dispatch({ type: actionTypes.LOGIN_SUCCESS, value: fromJS(1) }); // 1=true
+        parentCallback !== undefined && parentCallback(true);
       },
       dispatch,
       (dispatch, error) => {
+        dispatch({ type: actionTypes.LOGIN_SUCCESS, value: fromJS(false) });
+        parentCallback !== undefined && parentCallback(false);
         const { errorObject } = error.response.data;
         if (errorObject !== undefined) {
           dispatch({

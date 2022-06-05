@@ -4,7 +4,7 @@ const {
   typeToModel,
   generalHandleWithoutTransaction,
   getOrderModels,
-  removeItemFromCollection
+  removeItemFromCollection,
 } = require("./static");
 
 const allItems = (req, res) => {
@@ -246,39 +246,6 @@ const validateAndGetSourceRecord = async (sourceType, item_id, transferQty) => {
     throw error;
   }
 };
-
-// const removeItemFromCollection = async (
-//   collectionType,
-//   originalRecord,
-//   removeQty,
-//   session
-// ) => {
-//   try {
-//     const model = typeToModel(collectionType);
-
-//     // If the new qty does not becomes 0, update the qty.
-//     if (originalRecord.qty - removeQty !== 0) {
-//       const result = await model.findByIdAndUpdate(
-//         originalRecord._id,
-//         {
-//           $inc: { qty: -removeQty },
-//         },
-//         { rawResult: true, session: session }
-//       );
-//       return result;
-//     }
-//     // If the qty in the original collection becomes 0 after updating, delete the record in the original collection.
-//     else {
-//       const result = await model.findByIdAndDelete(originalRecord._id, {
-//         rawResult: true,
-//         session: session,
-//       });
-//       return result;
-//     }
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 module.exports = {
   allItems,

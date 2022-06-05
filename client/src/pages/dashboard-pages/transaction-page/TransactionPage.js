@@ -90,6 +90,8 @@ const TransactionPage = (props) => {
     approveTransaction,
   } = props;
 
+  const userRole = localStorage.getItem("role");
+
   const [params] = useSearchParams();
   const transaction_idFromUrl = params.get("transaction_id");
 
@@ -126,23 +128,6 @@ const TransactionPage = (props) => {
       );
     }
   };
-  //   const handleSearch = (searchInput) => {
-  //     if (searchInput.trim() === "") {
-  //       setTableData(blockSelected);
-  //     } else {
-  //       const searchPatten = new RegExp(`\W*${searchInput.trim()}\W*`);
-  //       setTableDataState(
-  //         getTableData(blockSelected).filter((item) => {
-  //           return (
-  //             searchPatten.test(item.item) ||
-  //             searchPatten.test(item.receiver) ||
-  //             searchPatten.test(item.pk_id) ||
-  //             searchPatten.test(item.sendTimeLocale)
-  //           );
-  //         })
-  //       );
-  //     }
-  //   };
 
   const mainColumns = [
     {
@@ -157,8 +142,8 @@ const TransactionPage = (props) => {
     },
     {
       title: "User",
-      dataIndex: "user_id",
-      key: "user_id",
+      dataIndex: "username",
+      key: "username",
     },
     {
       title: "Qty",
@@ -169,6 +154,7 @@ const TransactionPage = (props) => {
       title: "Subtotal",
       dataIndex: "payAmountToSender",
       key: "payAmountToSender",
+      render: (text) => <span>￥{text}</span>,
     },
     {
       title: "Approved",
@@ -184,18 +170,20 @@ const TransactionPage = (props) => {
             <span style={{ color: "red" }} className="material-icons-outlined">
               clear
             </span>
-            <Button
-              style={{
-                backgroundColor: "#18a16d",
-                color: "white",
-                borderRadius: "5px",
-                border: "none",
-                marginLeft: "10px",
-              }}
-              onClick={() => approveTransaction(record._id)}
-            >
-              Approve
-            </Button>
+            {userRole === "admin" && (
+              <Button
+                style={{
+                  backgroundColor: "#18a16d",
+                  color: "white",
+                  borderRadius: "5px",
+                  border: "none",
+                  marginLeft: "10px",
+                }}
+                onClick={() => approveTransaction(record._id)}
+              >
+                Approve
+              </Button>
+            )}
           </div>
         );
       },
@@ -230,7 +218,13 @@ const TransactionPage = (props) => {
         title: "Profits",
         dataIndex: "profits",
         key: "profits",
-        render: (text) => <span>￥ {text}</span>,
+        render: (text) => {
+          return typeof text === "undefined" ? (
+            <span>——</span>
+          ) : (
+            <span>￥ {text}</span>
+          );
+        },
       },
       {
         title: "Price each",
@@ -276,7 +270,13 @@ const TransactionPage = (props) => {
         title: "Customer pay",
         dataIndex: "payAmountFromCustomer",
         key: "payAmountFromCustomer",
-        render: (text) => <span>￥ {text}</span>,
+        render: (text) => {
+          return typeof text === "undefined" ? (
+            <span>——</span>
+          ) : (
+            <span>￥ {text}</span>
+          );
+        },
       },
       {
         title: "Pay sender",
@@ -344,7 +344,7 @@ const TransactionPage = (props) => {
               bordered
               sticky
               loading={tableLoading}
-              scroll={{x:"100%"}}
+              scroll={{ x: "100%" }}
             />
           </TableWrapper>
         </ContentWrapper>

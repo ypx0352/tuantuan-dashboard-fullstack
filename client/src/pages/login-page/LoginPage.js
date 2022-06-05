@@ -8,7 +8,8 @@ import { actionCreators } from "./store";
 import { actionTypes as registerActionTypes } from "../register-page/store";
 
 const Container = styled.div`
-  height: 100vh;
+  height: ${(props) =>
+    props.containerHeight === undefined ? "100vh" : "100%"};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -132,8 +133,12 @@ const Warning = styled.small`
 `;
 
 const LoginPage = (props) => {
-  const { handleSubmit, inputErrorObject, modifyInputErrorObject, login } =
-    props;
+  const {
+    handleSubmit,
+    inputErrorObject,
+    modifyInputErrorObject,
+    loginSuccess,
+  } = props;
 
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -141,10 +146,14 @@ const LoginPage = (props) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (login) {
-      navigate("/dashboard/overview");
+    if (localStorage.getItem("token") !== null) {
+      navigate(
+        props.redirectTo === undefined
+          ? "/dashboard/overview"
+          : props.redirectTo
+      );
     }
-  }, [login]);
+  });
 
   const handleInput = (e) => {
     setLoginInfo({ ...loginInfo, [e.target.name]: e.target.value });
@@ -153,7 +162,7 @@ const LoginPage = (props) => {
   };
 
   return (
-    <Container>
+    <Container containerHeight={props.containerHeight}>
       <Wrapper>
         <LogoImage src={Logo}></LogoImage>
         <LogoText>Tuantuan Dashboard</LogoText>
@@ -195,7 +204,9 @@ const LoginPage = (props) => {
           {inputErrorObject.password}
         </Warning>
 
-        <Button onClick={() => handleSubmit(loginInfo)}>Log In</Button>
+        <Button onClick={() => handleSubmit(loginInfo, props.parentCallback)}>
+          Log In
+        </Button>
         <TextWrapper>
           <Text>Don't have an account?</Text>
           <Link href="/register">Sign up</Link>
@@ -207,13 +218,14 @@ const LoginPage = (props) => {
 
 const mapState = (state) => ({
   inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
-  login: state.getIn(["login", "login"]),
+  loginSuccess: state.getIn(["login", "loginSuccess"]),
 });
 
 const mapDispatch = (dispatch) => ({
-  handleSubmit(loginInfo) {
-    dispatch(actionCreators.loginAction(loginInfo));
+  handleSubmit(loginInfo, parentCallback) {
+    dispatch(actionCreators.loginAction(loginInfo, parentCallback));
   },
+
   modifyInputErrorObject(newObject) {
     dispatch({
       type: registerActionTypes.MODIFY_INPUT_ERROR_OBJECT,

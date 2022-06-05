@@ -55,6 +55,11 @@ const generalHandleWithoutTransaction = async (action, res, errorMeg) => {
     await action();
   } catch (error) {
     console.log(error);
+    if (error.message === "jwt expired") {
+      return res
+        .status(403)
+        .json({ msg: "Token expires. Please login again." });
+    }
     res.status(500).json({ msg: errorMeg });
   }
 };

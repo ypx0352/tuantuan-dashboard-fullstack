@@ -10,15 +10,20 @@ const {
 
 const addTransaction = (req, res) => {
   generalHandle(async (session) => {
-    //const { user_id } = req.body; //get user_id from authentication middleware
-    const user_id = "tuantuan";
+    const { username } = req.body; //get username from authentication middleware
 
     // Get all items from the cart collection.
     const resultInCart = await typeToModel("cart").findOne({
-      user_id: user_id,
+      username: username,
     });
+    // Make sure the user exists in the cart collection
     if (resultInCart === null) {
-      throw new Error("Can not find the item in the cart.");
+      throw new Error("Can not find the user in the cart.");
+    }
+
+    //Make sure the items exist in the user's cart
+    if (resultInCart.items.length === 0) {
+      throw new Error("The cart is empty.");
     }
     const itemsInCart = resultInCart.toObject().items;
 
@@ -56,7 +61,7 @@ const addTransaction = (req, res) => {
     await typeToModel("transaction").create(
       [
         {
-          user_id,
+          username,
           items: itemsInCart,
           payAmountToSender,
           qty,
@@ -67,7 +72,7 @@ const addTransaction = (req, res) => {
 
     // Clear the cart collection.
     await typeToModel("cart").findOneAndUpdate(
-      { user_id: user_id },
+      { username: username },
       { $set: { items: [] } },
       { session, session }
     );
@@ -78,7 +83,7 @@ const addTransaction = (req, res) => {
 
     // Write the log.
     const logResult = await writeLog(
-      user_id,
+      username,
       `Create transaction with ${qty} items and ￥${roundedPrettyCartSubtotal}.`,
       "",
       session
@@ -95,7 +100,9 @@ const addTransaction = (req, res) => {
 const getTransaction = (req, res) => {
   generalHandleWithoutTransaction(
     async () => {
-      const result = await typeToModel("transaction").find().sort({createdAt:-1});
+      const result = await typeToModel("transaction")
+        .find()
+        .sort({ createdAt: -1 });
       res.status(200).json({ result });
     },
     res,
@@ -104,8 +111,7 @@ const getTransaction = (req, res) => {
 };
 
 const approveTransaction = (req, res) => {
-  const { transaction_id } = req.body;
-  const user_id = "tuantuan";
+  const { transaction_id, username } = req.body;
   generalHandle(async (session) => {
     await typeToModel("transaction").findOneAndUpdate(
       { _id: transaction_id },
@@ -115,7 +121,7 @@ const approveTransaction = (req, res) => {
 
     // Write the log.
     const logResult = await writeLog(
-      user_id,
+      username,
       `Approve transaction ${transaction_id}.`,
       transaction_id,
       session

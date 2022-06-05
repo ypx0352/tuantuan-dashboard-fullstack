@@ -189,9 +189,10 @@ const StyledSpan = styled.span.attrs((props) => ({
 `;
 
 const ExpandedRow = (props) => {
-  const { price, weight, exchangeRate, createdAt, updatedAt } = props.record;
-  const localCreatedAt = new Date(createdAt).toLocaleString();
-  const localUpdatedAt = new Date(updatedAt).toLocaleString();
+  const { price, weight, exchangeRate, localCreatedAt, localUpdatedAt } =
+    props.record;
+  // const localCreatedAt = new Date(createdAt).toLocaleString();
+  // const localUpdatedAt = new Date(updatedAt).toLocaleString();
   return (
     <>
       <ul style={{ display: "inline-block", width: "33%" }}>
@@ -233,9 +234,10 @@ const CheckoutPage = (props) => {
     handleExceptionItemApprove,
     updateNote,
     showSidebar,
-    login,
     transferItem,
   } = props;
+
+  const userRole = localStorage.getItem("role");
 
   useEffect(() => {
     getAllItems();
@@ -469,7 +471,7 @@ const CheckoutPage = (props) => {
                 title: "Type",
                 dataIndex: "type",
                 key: "type",
-                render: (text, record, index) => {
+                render: (text) => {
                   return <StyledSpan type={text}>{text}</StyledSpan>;
                 },
               },
@@ -477,7 +479,7 @@ const CheckoutPage = (props) => {
                 title: "Parcel",
                 dataIndex: "parcel",
                 key: "parcel",
-                render: (text, record, index) => {
+                render: (text, record) => {
                   return (
                     <>
                       <div>
@@ -505,7 +507,7 @@ const CheckoutPage = (props) => {
                 title: "Note",
                 dataIndex: "note",
                 key: "note",
-                render: (text, record, index) => {
+                render: (text, record) => {
                   return (
                     <TextArea
                       defaultValue={text}
@@ -526,7 +528,7 @@ const CheckoutPage = (props) => {
                 title: "Add to",
                 dataIndex: "add",
                 key: "add",
-                render: (text, record, index) => {
+                render: (text, record) => {
                   return (
                     <ButtonWrapper>
                       {record.type === "sold" && (
@@ -552,7 +554,8 @@ const CheckoutPage = (props) => {
                         <>
                           {record.approved
                             ? generateButton(record, "cart")
-                            : generateButton(record, "approve")}
+                            : userRole === "admin" &&
+                              generateButton(record, "approve")}
                           {generateButton(record, "recover")}
                         </>
                       )}
@@ -628,7 +631,7 @@ const CheckoutPage = (props) => {
                 title: "Parcel",
                 dataIndex: "parcel",
                 key: "parcel",
-                render: (text, record, index) => {
+                render: (text, record) => {
                   return (
                     <>
                       <div>
@@ -656,7 +659,7 @@ const CheckoutPage = (props) => {
                 title: "Note",
                 dataIndex: "note",
                 key: "note",
-                render: (text, record, index) => {
+                render: (text, record) => {
                   return (
                     <TextArea
                       defaultValue={text}
@@ -677,12 +680,14 @@ const CheckoutPage = (props) => {
                 title: "Add to",
                 dataIndex: "add",
                 key: "add",
-                render: (text, record, index) => {
+                render: (text, record) => {
                   return (
                     <ButtonWrapper>
                       {record.approved && generateButton(record, "cart")}
                       {generateButton(record, "recover")}
-                      {!record.approved && generateButton(record, "approve")}
+                      {!record.approved &&
+                        userRole === "admin" &&
+                        generateButton(record, "approve")}
                     </ButtonWrapper>
                   );
                 },
@@ -862,7 +867,6 @@ const mapState = (state) => ({
   cartItemsCount: state.getIn(["static", "cartItemsCount"]),
   showModal: state.getIn(["checkout", "showModal"]),
   showSidebar: state.getIn(["static", "showSidebar"]),
-  login: state.getIn(["login", "user", "login"]),
 });
 
 const mapDispatch = (dispatch) => ({

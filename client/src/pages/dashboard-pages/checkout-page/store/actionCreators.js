@@ -1,10 +1,9 @@
 import { fromJS } from "immutable";
 import { message } from "antd";
 import { actionTypes } from ".";
-import axios from "axios";
 import { actionCreators } from "../../static/store";
-
-const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
+import { authAxios } from "../../../general-handler/requestHandler";
+import { generalHandle } from "../../../general-handler/errorHandler";
 
 const getItemsCount = (allItems) => {
   const counts = [];
@@ -22,89 +21,66 @@ const getItemsCount = (allItems) => {
 };
 
 export const getAllItemsAction = async (dispatch) => {
-  dispatch({ type: actionTypes.COUNT_SPINNING, value: fromJS(true) });
-  try {
-    const response = await axios.get(serverBaseUrl + "/api/checkout/all_items");
-    const allItems = response.data.result;
+  generalHandle(
+    async () => {
+      dispatch({ type: actionTypes.COUNT_SPINNING, value: fromJS(true) });
+      const response = await authAxios.get("/api/checkout/all_items");
+      const allItems = response.data.result;
 
-    // Add date entry in item object to record the updated date
-    // Add qty_available entry
-
-    Object.entries(allItems).forEach((entry) => {
-      entry[1].forEach((item) => {
-        item.dateTime = new Date(item.updatedAt).toLocaleString();
-        item.qty_available = item.qty - item.qty_in_cart;
-        item.sendTimeLocale = new Date(item.sendTimeISO).toLocaleString();
+      // Transfer ISO time to local time
+      // Add qty_available entry
+      Object.entries(allItems).forEach((entry) => {
+        entry[1].forEach((item) => {
+          item.qty_available = item.qty - item.qty_in_cart;
+          item.sendTimeLocale = new Date(item.sendTimeISO).toLocaleString();
+          item.localCreatedAt = new Date(item.createdAt).toLocaleString();
+          item.localUpdatedAt = new Date(item.updatedAt).toLocaleString();
+        });
       });
-    });
-
-    dispatch({
-      type: actionTypes.SET_ALL_ITEMS,
-      value: fromJS(allItems),
-    });
-
-    dispatch({
-      type: actionTypes.SET_ITEMS_COUNT,
-      value: fromJS(getItemsCount(allItems)),
-    });
-
-    dispatch({ type: actionTypes.COUNT_SPINNING, value: fromJS(false) });
-  } catch (error) {
-    console.log(error);
-    dispatch({ type: actionTypes.COUNT_SPINNING, value: fromJS(false) });
-    const { msg } = error.response.data;
-    message.error(msg);
-  }
+      dispatch({
+        type: actionTypes.SET_ALL_ITEMS,
+        value: fromJS(allItems),
+      });
+      dispatch({
+        type: actionTypes.SET_ITEMS_COUNT,
+        value: fromJS(getItemsCount(allItems)),
+      });
+      dispatch({ type: actionTypes.COUNT_SPINNING, value: fromJS(false) });
+    },
+    dispatch,
+    () => {
+      dispatch({ type: actionTypes.COUNT_SPINNING, value: fromJS(false) });
+    }
+  );
 };
 
 export const addToCartAction = (record) => {
   return async (dispatch) => {
-    const { addToCart, _id, type, pk_id, subtotal } = record;
-    const payload =
-      type !== "employee"
-        ? { addToCart, _id, type, subtotal }
-        : { addToCart, _id, type };
-
-    // var payload = { addToCart, _id, type };
-    // if (type !== "employee") {
-    //   if (type === "exception") {
-    //     const { subtotal, payAmountEach } = record;
-    //     payload = { addToCart, _id, type, subtotal, payAmountEach };
-    //   } else {
-    //     const { subtotal } = record;
-    //     payload = { addToCart, _id, type, subtotal };
-    //   }
-    // }
-    try {
-      const response = await axios.post(
-        serverBaseUrl + "/api/cart/add_to_cart",
-        payload
-      );
+    generalHandle(async () => {
+      const { addToCart, _id, type, subtotal } = record;
+      const payload =
+        type !== "employee"
+          ? { addToCart, _id, type, subtotal }
+          : { addToCart, _id, type };
+      const response = await authAxios.post("/api/cart/add_to_cart", payload);
       const { msg } = response.data;
       message.success(msg);
       dispatch(getAllItemsAction);
       dispatch(actionCreators.initializeCartAction);
-    } catch (error) {
-      console.log(error);
-      const { msg } = error.response.data;
-      message.error(msg);
-    }
+    });
   };
 };
 
 export const approveExceptionItemAction = (_id) => {
   return async (dispatch) => {
-    try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/checkout/approve_exception_item",
+    generalHandle(async () => {
+      const response = await authAxios.put(
+        "/api/checkout/approve_exception_item",
         { _id }
       );
       dispatch(getAllItemsAction);
       message.success(response.data.msg);
-    } catch (error) {
-      console.log(error);
-      message.error(error.response.data.msg);
-    }
+    });
   };
 };
 
@@ -116,19 +92,19 @@ export const transferItemAction = (
   subtotal
 ) => {
   return async (dispatch) => {
-    try {
-      const response = await axios.put(
-        serverBaseUrl + "/api/checkout/transfer_item",
-        { original_id, sourceType, targetType, transferQty, subtotal }
-      );
+    generalHandle(async () => {
+      const response = await authAxios.put("/api/checkout/transfer_item", {
+        original_id,
+        sourceType,
+        targetType,
+        transferQty,
+        subtotal,
+      });
       message.success(response.data.msg);
       if (targetType === "exception") {
         dispatch({ type: actionTypes.SHOW_MODAL, value: fromJS(false) });
       }
       dispatch(getAllItemsAction);
-    } catch (error) {
-      console.log(error);
-      message.error(error.response.data.msg);
-    }
+    });
   };
 };

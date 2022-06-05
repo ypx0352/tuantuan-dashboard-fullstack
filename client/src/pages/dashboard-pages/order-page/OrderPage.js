@@ -51,6 +51,7 @@ const SearchContainer = styled.div`
 
 const OrderExistMessage = styled.div`
   text-align: center;
+  margin-bottom: 15px;
   &.hide {
     display: none;
   }
@@ -81,6 +82,9 @@ const ExchangeRateWrapper = styled.a.attrs({ target: "_blank" })`
   color: #3751ff;
   padding: 0 10px;
   font-weight: bold;
+  &.hide{
+    display: none;
+  }
 `;
 
 const TableWrapper = styled.div`
@@ -129,6 +133,8 @@ const OrderPage = (props) => {
     showExistMessage,
   } = props;
 
+  const userRole = localStorage.getItem("role");
+
   const searchInputEl = useRef(null);
 
   const [searchInput, setSearchInput] = useState("");
@@ -137,7 +143,10 @@ const OrderPage = (props) => {
   useEffect(() => initializeSettings(), []);
 
   // get current exchange rate
-  useEffect(() => initializeExchangeRate(exchangeRate), []);
+  useEffect(
+    () => userRole === "admin" && initializeExchangeRate(exchangeRate),
+    []
+  );
 
   // fetch receiver data from store
   const receiverData = [
@@ -658,7 +667,6 @@ const OrderPage = (props) => {
           <SearchContainer>
             <Input
               placeholder="Please enter the package ID"
-              defaultValue="PE6488316BB"
               ref={searchInputEl}
               style={{ width: "50%" }}
               value={searchInput}
@@ -705,7 +713,10 @@ const OrderPage = (props) => {
             </span>
           </OrderExistMessage>
 
-          <ExchangeRateWrapper href="https://www.boc.cn/sourcedb/whpj/">
+          <ExchangeRateWrapper
+            href="https://www.boc.cn/sourcedb/whpj/"
+            className={userRole === "admin" ? "" : "hide"}
+          >
             Current exchange rate:{" "}
             <Spin spinning={exchangeRateSpinning} indicator={antIcon} />
             {exchangeRate}

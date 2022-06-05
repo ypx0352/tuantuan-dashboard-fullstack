@@ -17,7 +17,7 @@ const addAddress = async (req, res) => {
 const getAllAddress = async (req, res) => {
   generalHandleWithoutTransaction(
     async () => {
-      const result = await AddressModel.find();
+      const result = await AddressModel.find().sort({ createdAt: -1 });
       return res.status(200).json({ result });
     },
     res,

@@ -1,88 +1,86 @@
-import axios from "axios";
 import { message } from "antd";
 import { fromJS } from "immutable";
 import { actionTypes } from ".";
-
-const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
+import {
+  authAxios,
+  normalAxios,
+} from "../../../general-handler/requestHandler";
+import { generalHandle } from "../../../general-handler/errorHandler";
 
 export const searchAction = (pk_id) => {
   return async (dispatch) => {
-    dispatch({
-      type: actionTypes.SPINNING,
-      value: fromJS(true),
-    });
-
-    dispatch({
-      type: actionTypes.RESET_ORDER,
-    });
-
-    dispatch({ type: actionTypes.SHOW_REVIEW, value: fromJS(false) });
-
-    try {
-      const response = await axios.get(
-        serverBaseUrl + `/api/order/${pk_id.trim()}`
-      );
-      const { exist } = response.data;
-      if (exist) {
+    generalHandle(
+      async () => {
+        dispatch({
+          type: actionTypes.SPINNING,
+          value: fromJS(true),
+        });
+        dispatch({
+          type: actionTypes.RESET_ORDER,
+        });
+        dispatch({ type: actionTypes.SHOW_REVIEW, value: fromJS(false) });
+        const response = await authAxios.get(`/api/order/${pk_id.trim()}`);
+        const { exist } = response.data;
+        if (exist) {
+          dispatch({
+            type: actionTypes.SPINNING,
+            value: fromJS(false),
+          });
+          return dispatch({
+            type: actionTypes.SHOW_EXIST_MESSAGE,
+            value: fromJS(true),
+          });
+        } else {
+          dispatch({
+            type: actionTypes.SHOW_EXIST_MESSAGE,
+            value: fromJS(false),
+          });
+        }
+        const { result } = response.data;
+        result.sendTimeLocale = new Date(result.sendTimeISO).toLocaleString();
+        dispatch({
+          type: actionTypes.INITIAL_ORDER,
+          value: fromJS(result),
+        });
         dispatch({
           type: actionTypes.SPINNING,
           value: fromJS(false),
         });
-        return dispatch({
-          type: actionTypes.SHOW_EXIST_MESSAGE,
-          value: fromJS(true),
-        });
-      } else {
+      },
+      dispatch,
+      () => {
         dispatch({
-          type: actionTypes.SHOW_EXIST_MESSAGE,
+          type: actionTypes.SPINNING,
           value: fromJS(false),
         });
       }
-      const { result } = response.data;
-      result.sendTimeLocale = new Date(result.sendTimeISO).toLocaleString();
-
-      dispatch({
-        type: actionTypes.INITIAL_ORDER,
-        value: fromJS(result),
-      });
-
-      dispatch({
-        type: actionTypes.SPINNING,
-        value: fromJS(false),
-      });
-    } catch (error) {
-      console.log(error);
-      const { msg } = error.response.data;
-      message.warning(msg);
-
-      dispatch({
-        type: actionTypes.SPINNING,
-        value: fromJS(false),
-      });
-    }
+    );
   };
 };
 
 export const initializeExchangeRateAction = async (dispatch) => {
-  dispatch({ type: actionTypes.EXCHANGE_RATE_SPINNING, value: fromJS(true) });
-  try {
-    const response = await axios.get(
-      serverBaseUrl + "/api/order/tools/exchange_rate"
-    );
-    const { result } = response.data;
-    dispatch({ type: actionTypes.EXCHANGE_RATE, value: fromJS(result) });
-    dispatch({
-      type: actionTypes.EXCHANGE_RATE_SPINNING,
-      value: fromJS(false),
-    });
-  } catch (error) {
-    const { msg } = error.response.data;
-    message.warning(msg);
-    dispatch({
-      type: actionTypes.EXCHANGE_RATE_SPINNING,
-      value: fromJS(false),
-    });
-  }
+  generalHandle(
+    async () => {
+      dispatch({
+        type: actionTypes.EXCHANGE_RATE_SPINNING,
+        value: fromJS(true),
+      });
+      const response = await normalAxios.get("/api/order/tools/exchange_rate");
+      const { result } = response.data;
+      dispatch({ type: actionTypes.EXCHANGE_RATE, value: fromJS(result) });
+      dispatch({
+        type: actionTypes.EXCHANGE_RATE_SPINNING,
+        value: fromJS(false),
+      });
+    },
+    dispatch,
+    () => {
+      dispatch({
+        type: actionTypes.EXCHANGE_RATE_SPINNING,
+        value: fromJS(false),
+      });
+    }
+  );
 };
 
 export const reviewTableDataAction = (tableData) => {
@@ -159,7 +157,7 @@ export const submitAction = (reviewData, packageData, receiverData) => {
     const submitResult = {};
     delete packageData.sendTimeLocale;
     try {
-      const response = await axios.post(serverBaseUrl + "/api/order/submit", {
+      const response = await authAxios.post("/api/order/submit", {
         reviewData,
         packageData,
         receiverData,
@@ -193,17 +191,9 @@ export const submitAction = (reviewData, packageData, receiverData) => {
   };
 };
 
-// export const handleOnOkAction = (dispatch) => {
-//   dispatch({ type: actionTypes.RESET_ORDER_STORE });
-//   dispatch({
-//     type: actionTypes.SHOW_SUBMIT_RESULT_DIALOG,
-//     value: fromJS(false),
-//   });
-// };
-
 export const initializeSettingsAction = async (dispatch) => {
-  try {
-    const response = await axios.get(serverBaseUrl + "/api/setting");
+  generalHandle(async () => {
+    const response = await normalAxios.get("/api/setting");
     const { result } = response.data;
     const setting = {};
     result.forEach((item) => {
@@ -220,9 +210,5 @@ export const initializeSettingsAction = async (dispatch) => {
       }
     });
     dispatch({ type: actionTypes.INITIAL_SETTINGS, value: fromJS(setting) });
-  } catch (error) {
-    console.log(error);
-    const { msg } = error.response.data;
-    message.error(msg);
-  }
+  });
 };

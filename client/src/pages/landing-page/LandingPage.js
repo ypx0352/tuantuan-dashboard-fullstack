@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Koala from "../../image/koala.png";
 import Bg from "../../image/landing-page-bg.jpeg";
@@ -39,7 +39,7 @@ const Subtitle = styled.span`
   color: crimson;
 `;
 
-const Wrapper = styled.div`
+const ButtonContainer = styled.div`
   width: 50%;
   display: flex;
   flex-direction: row;
@@ -47,6 +47,8 @@ const Wrapper = styled.div`
 `;
 
 const Button = styled.a`
+  display: flex;
+  align-items: center;
   margin-top: 50px;
   font-size: 20px;
   padding: 10px 15px;
@@ -58,7 +60,10 @@ const Button = styled.a`
   border-radius: 10px;
   text-decoration: none;
   :hover {
-    color: green;
+    color: crimson;
+  }
+  &.hide {
+    display: none;
   }
 `;
 
@@ -71,14 +76,30 @@ const Image = styled.img`
 `;
 
 const LandingPage = () => {
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const name = localStorage.getItem("name");
+    if (name !== null) setUsername(name);
+  });
+
   return (
     <Container>
       <Left>
         <Title>Tuantuan Dashboard</Title>
         <Subtitle>Easy business, happy life.</Subtitle>
-        <Wrapper>
-          <Button href="/login">GET STARTED</Button>
-        </Wrapper>
+        <ButtonContainer>
+          <Button className={username === "" ? "" : "hide"} href="/login">
+            GET STARTED <span class="material-symbols-outlined">login</span>
+          </Button>
+          <Button
+            className={username === "" ? "hide" : ""}
+            href="/dashboard/overview"
+          >
+            Continue as {username}{" "}
+            <span class="material-symbols-outlined">arrow_circle_right</span>
+          </Button>
+        </ButtonContainer>
       </Left>
       <Right>
         <Image src={Koala}></Image>
