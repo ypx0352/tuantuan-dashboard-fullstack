@@ -6,12 +6,11 @@ import { actionTypes } from "./store";
 
 const SidebarWrapper = styled.div`
   height: 100%;
-  // min-width: 150px;
   width: 160px;
   display: flex;
   flex-direction: column;
   background-color: #363740;
-  transition: width 1s ease-in-out;
+  transition:  1s ease-in-out;
   overflow: auto;
   &.hide {
     width: 0px;
@@ -120,11 +119,14 @@ const Sidebar = (props) => {
           </ListItemIcon>
           <ListItemText>Address</ListItemText>
         </ListItemWrapper>
-        <ListItemWrapper href="/dashboard/product">
+        <ListItemWrapper
+          href="/dashboard/tool"
+          className={selected === "tool" ? "selected" : ""}
+        >
           <ListItemIcon className="material-icons-outlined">
-            loyalty
+            <span class="material-symbols-outlined">home_repair_service</span>
           </ListItemIcon>
-          <ListItemText>Product</ListItemText>
+          <ListItemText>Tool</ListItemText>
         </ListItemWrapper>
         <ListItemWrapper
           href="/dashboard/log"

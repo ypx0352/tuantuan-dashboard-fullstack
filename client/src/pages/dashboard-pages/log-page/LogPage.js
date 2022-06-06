@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import userImage from "../../../image/tuan-logo.jpeg";
 import { Table, Spin, Input } from "antd";
 import { actionCreators } from "./store";
 
@@ -102,7 +101,9 @@ const LogPage = (props) => {
         ) : text.length === 11 ? (
           <Link to={`/dashboard/package/?pk_id=${text}`}>{text}</Link>
         ) : (
-          <Link to={`/dashboard/transaction/?transaction_id=${text}`}>{text}</Link>
+          <Link to={`/dashboard/transaction/?transaction_id=${text}`}>
+            {text}
+          </Link>
         );
       },
     },
@@ -132,12 +133,7 @@ const LogPage = (props) => {
         <Sidebar selected="log" />
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
-        <Header
-          title="Log"
-          userName="Tuantuan"
-          userImage={userImage}
-          cartCount="hide"
-        />
+        <Header title="Log" cartCount="hide" />
         <SearchContainer>
           <StyledInput
             onChange={(e) => {

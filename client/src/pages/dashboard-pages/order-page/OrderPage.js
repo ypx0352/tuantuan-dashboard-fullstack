@@ -7,7 +7,6 @@ import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import userImage from "../../../image/tuan-logo.jpeg";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
 
@@ -82,7 +81,7 @@ const ExchangeRateWrapper = styled.a.attrs({ target: "_blank" })`
   color: #3751ff;
   padding: 0 10px;
   font-weight: bold;
-  &.hide{
+  &.hide {
     display: none;
   }
 `;
@@ -521,7 +520,7 @@ const OrderPage = (props) => {
           dataIndex: "cost",
           key: "cost",
           width: "8%",
-          render: (text, record, index) => {
+          render: (text) => {
             return <span>￥{text}</span>;
           },
         },
@@ -640,11 +639,7 @@ const OrderPage = (props) => {
   // get review element ref
   const reviewRef = useRef(null);
 
-  // const handleBack = () => {
-  //   setShowReview(false);
-  // };
-
-  // set time out to let system get the height of the review element
+  // set time to let system get the height of the review element
   const scrollToReview = () =>
     setTimeout(() => {
       reviewRef.current.scrollIntoView({ behavior: "smooth" });
@@ -656,12 +651,7 @@ const OrderPage = (props) => {
         <Sidebar selected="order" />
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
-        <Header
-          title="Order"
-          userName="Tuantuan"
-          userImage={userImage}
-          cartCount="hide"
-        />
+        <Header title="Order" cartCount="hide" />
 
         <OrderContainer>
           <SearchContainer>

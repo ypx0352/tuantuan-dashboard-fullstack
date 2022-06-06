@@ -4,7 +4,6 @@ import { useSearchParams, Link } from "react-router-dom";
 import { connect } from "react-redux";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import userImage from "../../../image/tuan-logo.jpeg";
 import {
   Button,
   Input,
@@ -427,12 +426,7 @@ const PackagePage = (props) => {
         <Sidebar selected="package" />
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
-        <Header
-          title="Package"
-          userName="Tuantuan"
-          userImage={userImage}
-          cartCount="hide"
-        />
+        <Header title="Package" cartCount="hide" />
 
         <ContentWrapper>
           <SearchContainer>

@@ -8,9 +8,11 @@ const serverBaseUrl = process.env.REACT_APP_SERVER_BASE_URL;
 
 const authAxios = axios.create({
   baseURL: serverBaseUrl,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
+});
+
+authAxios.interceptors.request.use((config) => {
+  config.headers["Authorization"] = "Bearer " + localStorage.getItem("token");
+  return config;
 });
 
 authAxios.interceptors.response.use(

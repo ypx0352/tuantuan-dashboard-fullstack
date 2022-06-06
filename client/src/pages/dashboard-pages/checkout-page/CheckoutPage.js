@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import {
   InputNumber,
@@ -238,6 +238,8 @@ const CheckoutPage = (props) => {
   } = props;
 
   const userRole = localStorage.getItem("role");
+  const [params] = useSearchParams();
+  const typeFromUrl = params.get("type");
 
   useEffect(() => {
     getAllItems();
@@ -261,6 +263,12 @@ const CheckoutPage = (props) => {
   useEffect(() => {
     setColumnsState(setColumns(blockSelected));
   }, [blockSelected]);
+
+  useEffect(() => {
+    if (typeFromUrl !== null) {
+      handleBlockClicked(typeFromUrl);
+    }
+  }, []);
 
   const capitalizeFirstLetter = (word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
@@ -386,7 +394,9 @@ const CheckoutPage = (props) => {
                       size="small"
                       min={0}
                       controls={false}
+                      value={record.subtotal}
                       defaultValue={null}
+                      disabled={record.addToCart === undefined}
                       onChange={(e) => {
                         record.subtotal = e;
                         record.profits = Number(
@@ -880,8 +890,8 @@ const mapDispatch = (dispatch) => ({
 
   handleAddToCart(record) {
     const { addToCart } = record;
-    if (addToCart === undefined) {
-      message.warning("Invalid input!");
+    if (addToCart === undefined || addToCart === null) {
+      message.warning("Incompleted input!");
     } else {
       dispatch(actionCreators.addToCartAction(record));
     }

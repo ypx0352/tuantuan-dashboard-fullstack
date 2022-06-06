@@ -182,8 +182,12 @@ const Header = (props) => {
             redirectTo={useLocation().pathname}
             containerHeight="100%"
             parentCallback={(childData) => {
-              setShowLoginModal(!childData);
-              setLogged(childData);
+              if(childData){
+                setShowLoginModal(false);
+                setLogged(true);
+                window.location.reload()
+              }
+              
             }}
           />
         }

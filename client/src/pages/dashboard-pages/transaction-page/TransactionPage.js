@@ -5,7 +5,6 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Table, Badge, Button, Input } from "antd";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import userImage from "../../../image/tuan-logo.jpeg";
 import { actionCreators } from "./store";
 
 const PageContainer = styled.div`
@@ -107,7 +106,6 @@ const TransactionPage = (props) => {
   }, [allTransactions]);
 
   useEffect(() => {
-    console.log(transaction_idFromUrl);
     if (transaction_idFromUrl !== null && tableData !== undefined) {
       searchTransaction(transaction_idFromUrl);
     }
@@ -309,12 +307,7 @@ const TransactionPage = (props) => {
         <Sidebar selected="transaction" />
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
-        <Header
-          title="Transaction"
-          userName="Tuantuan"
-          userImage={userImage}
-          cartCount="hide"
-        />
+        <Header title="Transaction" cartCount="hide" />
 
         <SearchContainer>
           <StyledInput

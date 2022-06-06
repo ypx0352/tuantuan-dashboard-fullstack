@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Button, InputNumber, message } from "antd";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import userImage from "../../../image/tuan-logo.jpeg";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
 
@@ -56,7 +55,7 @@ const SettingPage = (props) => {
     updateSetting,
     settingsInput,
     handleSettingsInput,
-    showSidebar
+    showSidebar,
   } = props;
 
   useEffect(() => getSettings(), []);
@@ -72,12 +71,7 @@ const SettingPage = (props) => {
         <Sidebar selected="setting" />
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
-        <Header
-          title="Setting"
-          userName="Tuantuan"
-          userImage={userImage}
-          cartCount="hide"
-        />
+        <Header title="Setting" cartCount="hide" />
         <ContentWrapper>
           <Title>
             <span style={{ width: "30%" }}></span>

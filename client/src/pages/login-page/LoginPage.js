@@ -133,12 +133,7 @@ const Warning = styled.small`
 `;
 
 const LoginPage = (props) => {
-  const {
-    handleSubmit,
-    inputErrorObject,
-    modifyInputErrorObject,
-    loginSuccess,
-  } = props;
+  const { handleSubmit, inputErrorObject, modifyInputErrorObject } = props;
 
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -218,7 +213,6 @@ const LoginPage = (props) => {
 
 const mapState = (state) => ({
   inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
-  loginSuccess: state.getIn(["login", "loginSuccess"]),
 });
 
 const mapDispatch = (dispatch) => ({

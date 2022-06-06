@@ -14,7 +14,6 @@ import {
 } from "antd";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import userImage from "../../../image/tuan-logo.jpeg";
 import { province, city, area } from "province-city-china/data";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
@@ -191,7 +190,7 @@ const AddressPage = (props) => {
       title: "Operation",
       dataIndex: "operation",
       key: "operation",
-      render: (text, record, index) => {
+      render: (text, record) => {
         return (
           <>
             <div>{generateButton(record, "Update")}</div>
@@ -204,7 +203,7 @@ const AddressPage = (props) => {
 
   const generateOption = (provinceCode, cityCode) => {
     if (provinceCode === undefined) {
-      return province.map((item, index) => (
+      return province.map((item) => (
         <Option value={item.name} provincecode={item.province}>
           {item.name}
         </Option>
@@ -468,12 +467,7 @@ const AddressPage = (props) => {
         <Sidebar selected="address" />
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
-        <Header
-          title="Address"
-          userName="Tuantuan"
-          userImage={userImage}
-          cartCount="hide"
-        />
+        <Header title="Address" cartCount="hide" />
         <ContentWrapper>
           <SearchContainer>
             <StyledInput

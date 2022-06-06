@@ -9,6 +9,7 @@ import { reducer as addressReducer } from "../pages/dashboard-pages/address-page
 import { reducer as packageReducer } from "../pages/dashboard-pages/package-page/store";
 import { reducer as logReducer } from "../pages/dashboard-pages/log-page/store";
 import { reducer as transactionReducer } from "../pages/dashboard-pages/transaction-page/store";
+import { reducer as overviewReducer } from "../pages/dashboard-pages/overview-page/store";
 
 const reducers = combineReducers({
   login: loginReducer,
@@ -21,6 +22,7 @@ const reducers = combineReducers({
   package: packageReducer,
   log: logReducer,
   transaction: transactionReducer,
+  overview: overviewReducer,
 });
 
 export default reducers;

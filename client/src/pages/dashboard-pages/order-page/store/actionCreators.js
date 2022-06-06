@@ -193,7 +193,7 @@ export const submitAction = (reviewData, packageData, receiverData) => {
 
 export const initializeSettingsAction = async (dispatch) => {
   generalHandle(async () => {
-    const response = await normalAxios.get("/api/setting");
+    const response = await authAxios.get("/api/setting");
     const { result } = response.data;
     const setting = {};
     result.forEach((item) => {
