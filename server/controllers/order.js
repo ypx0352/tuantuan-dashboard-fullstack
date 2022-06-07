@@ -8,30 +8,12 @@ const {
   generalHandleWithoutTransaction,
   writeLog,
   getSettingValues,
+  login,
 } = require("./static");
 
 const PackageModel = require("../models/packageModel");
 
 let mtoken = "";
-
-const login = async () => {
-  try {
-    console.log("Login...");
-    var bodyFormData = new FormData();
-    bodyFormData.append("username", process.env.EMAIL);
-    bodyFormData.append("password", process.env.PASSWORD);
-
-    const response = await axios({
-      method: "post",
-      url: "https://poldata.cdnchina360.com/index/member/login",
-      data: bodyFormData,
-      headers: bodyFormData.getHeaders(),
-    });
-    mtoken = response.data.data.mtoken;
-  } catch (error) {
-    throw error;
-  }
-};
 
 // search for a specific package
 const getOnePackage = async (pk_id) => {
@@ -43,7 +25,7 @@ const getOnePackage = async (pk_id) => {
     packageSearchData.append("msearch_text[idnum]", pk_id);
     const response = await axios({
       method: "post",
-      url: "https://poldata.cdnchina360.com/package/poladmin/package_list",
+      url: process.env.POLAR_PACKAGE_LIST_URL,
       data: packageSearchData,
       headers: packageSearchData.getHeaders({
         mtoken: mtoken,
@@ -125,11 +107,11 @@ const getOrder = async (req, res) => {
         return res.status(200).json({ exist: true });
       }
 
-      // When mtoken is not null, try to get package message
+      // When mtoken is not null, try to get package message, otherwise try to relogin
       if (mtoken !== "") {
         result = await getOnePackage(pk_id);
       } else {
-        await login();
+        mtoken = await login();
         result = await getOnePackage(pk_id);
       }
 
@@ -143,11 +125,11 @@ const getOrder = async (req, res) => {
               .status(400)
               .json({ msg: "Package not found, please check your input!" });
 
-          // try to login again when token expire
+          // Try to login again when token expire
           case "need to login":
             if (index !== 3) {
               console.log("relogin...");
-              await login();
+              mtoken = await login();
               result = await getOnePackage(pk_id);
             } else {
               return res
@@ -171,10 +153,10 @@ const getOrder = async (req, res) => {
 const getExchangeRate = async (req, res) => {
   generalHandleWithoutTransaction(
     async () => {
-      // request html from the bank
+      // Request html from the bank
       const response = await axios.get("https://www.boc.cn/sourcedb/whpj/");
 
-      // parse html
+      // Parse html
       const $ = cheerio.load(response.data);
       const exchangeRate = $("tr").eq(3).children().eq(3).text();
       res.status(200).json({ result: exchangeRate });

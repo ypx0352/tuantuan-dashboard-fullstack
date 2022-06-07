@@ -1,10 +1,15 @@
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 const {
   trackParcel,
   getOrderModels,
   generalHandleWithoutTransaction,
   typeToModel,
+  login,
 } = require("./static");
 const PackageModel = require("../models/packageModel");
+let mtoken = "";
 
 const getSearchedPackage = (req, res) => {
   generalHandleWithoutTransaction(
@@ -21,7 +26,6 @@ const getSearchedPackage = (req, res) => {
       }
 
       //Get paid items (items in the Transaction collection)
-
       const transactionResult = await typeToModel("transaction").find({
         "items.pk_id": pk_id,
       });
@@ -29,20 +33,13 @@ const getSearchedPackage = (req, res) => {
       transactionResult.forEach((transaction) => {
         var transactionObj = transaction.toObject();
         const approved = transactionObj.approved;
-        const transaction_id = transactionObj._id
+        const transaction_id = transactionObj._id;
         transactionObj.items.forEach((item) => {
           if (item.pk_id === pk_id) {
-            // Change items' type property according to their transactions' approved proverty.
-            // if (approved) {
-            //   item.type = "completed";
-            // } else {
-            //   item.type = "pending";
-            // }
-
             // Add transaction_id, transactionApproved and type property in transaction items
-            item.transaction_id = transaction_id
-            item.type = item.originalType
-            item.transactionApproved = approved
+            item.transaction_id = transaction_id;
+            item.type = item.originalType;
+            item.transactionApproved = approved;
             itemRecords.push(item);
           }
         });
@@ -83,4 +80,28 @@ const getLatestPackages = (req, res) => {
   );
 };
 
-module.exports = { getSearchedPackage, getLatestPackages };
+const getPostSlip = async (req, res) => {
+  const { pk_id } = req.query;
+  const slicedPk_id = pk_id.slice(2, -2);
+  console.log(slicedPk_id);
+  const testToken = async () => {
+    const pdf = await axios.get(
+      `${process.env.PLOAR_POST_SLIP_BASE_URL}?pkg_id=${slicedPk_id}&mtoken=${mtoken}`,
+      { responseType: "blob" }
+    );
+    console.log(
+      `${process.env.PLOAR_POST_SLIP_BASE_URL}?pkg_id=${slicedPk_id}&mtoken=${mtoken}`
+    );
+    res.setHeader("Content-Type", "application/pdf");
+
+    return res.status(200).send(pdf.data);
+  };
+  if (mtoken !== "") {
+    testToken();
+  } else {
+    mtoken = await login();
+    testToken();
+  }
+};
+
+module.exports = { getSearchedPackage, getLatestPackages, getPostSlip };

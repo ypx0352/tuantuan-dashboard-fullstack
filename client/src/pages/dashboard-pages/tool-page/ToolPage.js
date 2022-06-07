@@ -1,9 +1,11 @@
-import React, { Children, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import bigDecimal from "js-big-decimal";
+
 import styled from "styled-components";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import { Table, Input, Radio, Badge } from "antd";
+import { Table, Input, Radio, Badge, message, Button } from "antd";
 import { actionCreators as settingActionCreators } from "../setting-page/store";
 
 const PageContainer = styled.div`
@@ -39,11 +41,6 @@ const CostCalculatorContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-const PriceCalculatorContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
 const TableWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -53,16 +50,68 @@ const TableWrapper = styled.div`
 `;
 
 const ToolPage = (props) => {
-  const { showSidebar, getSettings } = props;
+  const { showSidebar, getSettings, settingValueFetched, settings } = props;
+  const [costData, setCostData] = useState([
+    { extraPostageAU: 0, domesticPostage: 0 },
+  ]);
 
   useEffect(() => {
     getSettings();
   }, []);
 
   const typeOptions = [
-    { label: "Normal item", value: "normal" },
-    { label: "Baby formula", value: "baby formula" },
+    { label: "Normal item", value: "normalPostage" },
+    { label: "Baby formula", value: "babyFormulaPostage" },
   ];
+
+  const handleInput = (record, target, value) => {
+    record[target] = value;
+    setCostData([record]);
+  };
+
+  const calculateCost = (record) => {
+    try {
+      if (!settingValueFetched) {
+        return message.warn(
+          "Failed to get exchange and postage rate. Refresh the page."
+        );
+      }
+      if (record.price && record.qty && record.type) {
+        const { price, qty, weight, type, extraPostageAU, domesticPostage } =
+          record;
+        var cost = 0;
+        if (type === "babyFormulaPostage") {
+          cost =
+            ((price + settings[type].value / 3) * qty + extraPostageAU) *
+              settings.exchangeRateInSetting.value +
+            domesticPostage;
+        } else {
+          if (weight) {
+            cost =
+              ((price + weight * settings[type].value) * qty + extraPostageAU) *
+                settings.exchangeRateInSetting.value +
+              domesticPostage;
+          } else {
+            message.warn("Incompleted input.");
+          }
+        }
+        const roundedPrettyCost = new bigDecimal(
+          cost.toFixed(2)
+        ).getPrettyValue();
+        record.cost = roundedPrettyCost;
+        setCostData([record]);
+      } else {
+        message.warn("Incompleted input.");
+      }
+    } catch (error) {
+      console.log(error);
+      message.warn("Oops, something wrong.");
+    }
+  };
+
+  const clearRecord = () => {
+    setCostData([{ extraPostageAU: 0, domesticPostage: 0 }]);
+  };
 
   const costColumns = [
     {
@@ -72,52 +121,129 @@ const ToolPage = (props) => {
           title: "Price / unit",
           key: "price",
           dataIndex: "price",
-          render: () => <Input type="number" suffix="AUD" min={0} />,
+          render: (text, record) => {
+            return (
+              <Input
+                value={text}
+                type="number"
+                suffix="AUD"
+                min={0}
+                onChange={(e) =>
+                  handleInput(record, "price", Number(e.target.value))
+                }
+              />
+            );
+          },
         },
         {
           title: "Qty",
           key: "qty",
           dataIndex: "qty",
-          render: () => <Input type="number" min={0} />,
-        },
-        {
-          title: "Weight / unit",
-          key: "qty",
-          dataIndex: "qty",
-          render: () => <Input type="number" suffix="Kg" min={0} />,
+          render: (text, record) => (
+            <Input
+              value={text}
+              type="number"
+              min={0}
+              onChange={(e) =>
+                handleInput(record, "qty", Number(e.target.value))
+              }
+            />
+          ),
         },
         {
           title: "Type",
           key: "type",
           dataIndex: "type",
-          render: () => (
+          render: (text, record) => (
             <Radio.Group
+              value={text}
               options={typeOptions}
               optionType="button"
               buttonStyle="solid"
+              size="small"
+              onChange={({ target: { value } }) =>
+                handleInput(record, "type", value)
+              }
             />
           ),
         },
         {
+          title: "Weight / unit",
+          key: "weight",
+          dataIndex: "weight",
+          render: (text, record) => (
+            <Input
+              disabled={record.type === "babyFormulaPostage" ? true : false}
+              value={text}
+              type="number"
+              suffix="Kg"
+              min={0}
+              onChange={(e) =>
+                handleInput(record, "weight", Number(e.target.value))
+              }
+            />
+          ),
+        },
+
+        {
           title: "Extra postage in AU",
-          key: "price",
-          dataIndex: "price",
-          render: () => (
-            <Input type="number" suffix="AUD" min={0} defaultValue={0} />
+          key: "extraPostageAU",
+          dataIndex: "extraPostageAU",
+          render: (text, record) => (
+            <Input
+              value={text}
+              type="number"
+              suffix="AUD"
+              min={0}
+              defaultValue={0}
+              onChange={(e) =>
+                handleInput(record, "extraPostageAU", Number(e.target.value))
+              }
+            />
           ),
         },
         {
           title: "Domestic postage",
-          key: "price",
-          dataIndex: "price",
-          render: () => (
-            <Input type="number" suffix="RMB" min={0} defaultValue={0} />
+          key: "domesticPostage",
+          dataIndex: "domesticPostage",
+          render: (text, record) => (
+            <Input
+              value={text}
+              type="number"
+              suffix="RMB"
+              min={0}
+              defaultValue={0}
+              onChange={(e) =>
+                handleInput(record, "domesticPostage", Number(e.target.value))
+              }
+            />
           ),
         },
         {
+          title: "Action",
+          key: "action",
+          dataIndex: "action",
+          render: (text, record) => {
+            return (
+              <>
+                <Button
+                  size="small"
+                  type="primary"
+                  onClick={() => calculateCost(record)}
+                >
+                  Calculate
+                </Button>
+                <Button size="small" onClick={() => clearRecord(record)}>
+                  Clear
+                </Button>
+              </>
+            );
+          },
+        },
+        {
           title: "Subtotal",
-          key: "subtotal",
-          dataIndex: "subtotal",
+          key: "cost",
+          dataIndex: "cost",
           render: (text) => (
             <span style={{ fontWeight: "bold", color: "green" }}>
               ￥ {text}
@@ -126,10 +252,6 @@ const ToolPage = (props) => {
         },
       ],
     },
-  ];
-
-  const costData = [
-    { exchangeRate: 4.85, standardPostage: 8.5, babyFormulaPostage: 20 },
   ];
 
   return (
@@ -143,7 +265,14 @@ const ToolPage = (props) => {
           <CostCalculatorContainer>
             <h2>Cost Calculator</h2>
             <TableWrapper>
-              <Badge.Ribbon text="Latest exchange and postage rate" color={"green"}>
+              <Badge.Ribbon
+                text={
+                  settingValueFetched
+                    ? "Latest exchange and postage rate"
+                    : "Failed to fetch exchange and postage rate"
+                }
+                color={settingValueFetched ? "green" : "red"}
+              >
                 <Table
                   styled={{ width: "100px" }}
                   tableLayout="auto"
@@ -155,17 +284,18 @@ const ToolPage = (props) => {
               </Badge.Ribbon>
             </TableWrapper>
           </CostCalculatorContainer>
-          <PriceCalculatorContainer>
-            <h2>Price Calculator</h2>
-          </PriceCalculatorContainer>
         </ContentWrapper>
       </Right>
     </PageContainer>
   );
 };
+
 const mapState = (state) => ({
   showSidebar: state.getIn(["static", "showSidebar"]),
+  settingValueFetched: state.getIn(["tool", "settingValueFetched"]),
+  settings: state.getIn(["setting", "settings"]).toJS(),
 });
+
 const mapDispatch = (dispatch) => ({
   getSettings() {
     dispatch(settingActionCreators.getSettingsAction);

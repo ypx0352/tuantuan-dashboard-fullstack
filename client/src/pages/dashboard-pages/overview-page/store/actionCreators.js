@@ -12,7 +12,6 @@ export const initializeTodosAction = (dispatch) => {
         type: actionTypes.SET_TODOS_DATA,
         value: fromJS(response.data),
       });
-      console.log(response);
       dispatch({ type: actionTypes.TODOS_SPINNING, value: fromJS(false) });
     },
     dispatch,

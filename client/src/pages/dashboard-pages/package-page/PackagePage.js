@@ -176,6 +176,7 @@ const PackagePage = (props) => {
     latestPackages,
     showSidebar,
     updateNote,
+    getPostSlipUrl,
   } = props;
 
   const [params] = useSearchParams();
@@ -250,6 +251,14 @@ const PackagePage = (props) => {
           dataIndex: "postage",
           key: "postage",
           render: (text) => "$ " + text,
+        },
+        {
+          title: "Post slip",
+          dataIndex: "postSlip",
+          key: "postSlip",
+          render: (text, record) => (
+            <Button onClick={() => getPostSlipUrl(record.pk_id)}>Get post slip</Button>
+          ),
         },
       ],
     },
@@ -554,6 +563,9 @@ const mapDispatch = (dispatch) => ({
   updateNote(info) {
     dispatch(updateNoteAction(info));
   },
+  getPostSlipUrl(pk_id){
+    dispatch(actionCreators.getPostSlipUrlAction(pk_id))
+  }
 });
 
 export default connect(mapState, mapDispatch)(PackagePage);

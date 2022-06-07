@@ -50,7 +50,7 @@ const generalHandle = async (action, res) => {
   session.endSession();
 };
 
-const generalHandleWithoutTransaction = async (action, res, errorMeg) => {
+const generalHandleWithoutTransaction = async (action, res, errorMsg) => {
   try {
     await action();
   } catch (error) {
@@ -60,7 +60,7 @@ const generalHandleWithoutTransaction = async (action, res, errorMeg) => {
         .status(401)
         .json({ msg: "Token expires. Please login again." });
     }
-    res.status(500).json({ msg: errorMeg });
+    res.status(500).json({ msg: errorMsg });
   }
 };
 
@@ -68,10 +68,10 @@ const trackParcel = async (pk_id, returnContent) => {
   try {
     var bodyFormData = new FormData();
     bodyFormData.append("source_sn[0]", pk_id);
-    bodyFormData.append("token", "9f842a5d8c6bb6a4922a25ec24cd82b54330");
+    bodyFormData.append("token", process.env.POLAR_TRACK_PARCEL_TOKEN);
     const response = await axios({
       method: "post",
-      url: "https://poldata.cdnchina360.com/open_api/get_order/track",
+      url: process.env.PLOAR_TRACK_PARCEL_URL,
       data: bodyFormData,
       headers: bodyFormData.getHeaders(),
     });
@@ -407,6 +407,26 @@ const removeItemFromCollection = async (
   }
 };
 
+const login = async () => {
+  try {
+    console.log("Login...");
+    var bodyFormData = new FormData();
+    bodyFormData.append("username", process.env.EMAIL);
+    bodyFormData.append("password", process.env.PASSWORD);
+
+    const response = await axios({
+      method: "post",
+      url: process.env.POLAR_LOGIN_URL,
+      data: bodyFormData,
+      headers: bodyFormData.getHeaders(),
+    });
+    mtoken = response.data.data.mtoken;
+    return mtoken;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const test = async () => {
   try {
     console.log(await getSettingValuesOfOnePackage("PE6598587AD"));
@@ -417,10 +437,6 @@ const test = async () => {
 };
 
 //test();
-
-// const firstLetterToUpperCase = (word) => {
-//   return word.charAt(0).toUpperCase() + word.slice(1);
-// };
 
 module.exports = {
   writeLog,
@@ -438,4 +454,5 @@ module.exports = {
   getSettingValuesOfOnePackage,
   addItemToCollection,
   removeItemFromCollection,
+  login,
 };

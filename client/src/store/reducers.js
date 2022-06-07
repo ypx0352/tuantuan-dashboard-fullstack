@@ -10,6 +10,7 @@ import { reducer as packageReducer } from "../pages/dashboard-pages/package-page
 import { reducer as logReducer } from "../pages/dashboard-pages/log-page/store";
 import { reducer as transactionReducer } from "../pages/dashboard-pages/transaction-page/store";
 import { reducer as overviewReducer } from "../pages/dashboard-pages/overview-page/store";
+import { reducer as toolReducer } from "../pages/dashboard-pages/tool-page/store";
 
 const reducers = combineReducers({
   login: loginReducer,
@@ -23,6 +24,7 @@ const reducers = combineReducers({
   log: logReducer,
   transaction: transactionReducer,
   overview: overviewReducer,
+  tool: toolReducer,
 });
 
 export default reducers;

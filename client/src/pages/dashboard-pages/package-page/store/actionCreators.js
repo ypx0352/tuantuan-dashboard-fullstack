@@ -65,3 +65,27 @@ export const getLatestPackagesAction = (limit) => {
     });
   };
 };
+
+export const getPostSlipUrlAction = (pk_id) => {
+  return async (dispatch) => {
+    const response = await authAxios.get(
+      `/api/package/post_slip?pk_id=${pk_id}`,
+      { responseType: "blob" }
+    );
+
+    // var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+    // var fileLink = document.createElement("a");
+
+    // fileLink.href = fileURL;
+    // fileLink.setAttribute("download", "file.pdf");
+    // document.body.appendChild(fileLink);
+
+    // fileLink.click();
+
+    const file = new Blob([response.data], { type: "application/pdf" });
+    const fileURL = window.URL.createObjectURL(file);
+    console.log(response);
+    window.open(fileURL);
+    //window.open("data:application/pdf," + encodeURI(response.data));
+  };
+};

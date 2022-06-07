@@ -17,6 +17,7 @@ const returnNewStateToStore = (state = defaultState, action) => {
       return state.set("todosSpinning", action.value);
     case actionTypes.SET_TODOS_DATA:
       return state.set("todosData", action.value);
+
     default:
       return state;
   }
