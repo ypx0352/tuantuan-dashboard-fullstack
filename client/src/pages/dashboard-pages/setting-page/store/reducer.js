@@ -9,6 +9,8 @@ const defaultState = fromJS({
   },
 
   settingsInput: {},
+
+  updateSpinning:false
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -16,8 +18,11 @@ const returnNewStateToStore = (state = defaultState, action) => {
     case actionTypes.GET_SETTINGS:
       return state.set("settings", action.value);
 
-    case actionTypes.SETTINGS_INPUT:      
+    case actionTypes.SETTINGS_INPUT:
       return state.set("settingsInput", action.value);
+
+    case actionTypes.UPDATE_SPINNING:
+      return state.set("updateSpinning", action.value);
 
     default:
       return state;

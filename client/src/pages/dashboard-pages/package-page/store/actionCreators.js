@@ -76,30 +76,24 @@ export const getLatestPackagesAction = (limit) => {
   };
 };
 
-export const getPostSlipUrlAction = (pk_id) => {
+export const getPostSlipAction = (pk_id) => {
   return async (dispatch) => {
-    const response = await axios.get(
-      `http://localhost:1100/api/package/post_slip?pk_id=${pk_id}`,{responseType:'blob'}
+    generalHandle(
+      async () => {
+        dispatch({ type: actionTypes.PDF_LOADING, value: fromJS(true) });
+        const response = await axios.get(
+          `http://localhost:1100/api/package/post_slip?pk_id=${pk_id}`,
+          { responseType: "arraybuffer" }
+        );
+        const file = new Blob([response.data], { type: "application/pdf" });
+        const fileURL = window.URL.createObjectURL(file);
+        window.open(fileURL);
+        dispatch({ type: actionTypes.PDF_LOADING, value: fromJS(false) });
+      },
+      dispatch,
+      () => {
+        dispatch({ type: actionTypes.PDF_LOADING, value: fromJS(false) });
+      }
     );
-
-    // var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-    // var fileLink = document.createElement("a");
-
-    // fileLink.href = fileURL;
-    // fileLink.setAttribute("download", "file.pdf");
-    // document.body.appendChild(fileLink);
-
-    // fileLink.click();
-
-    const response2 = await axios.get(
-      "http://track.polarexpress.com.au/package/poladmin/package_ivprint?pkg_id=6034594&mtoken=ebd2c2920428f84f5d6c84115123fff9",
-      { responseType: "blob" }
-    );
-
-    const file = new Blob([response.data], { type: "application/pdf" });
-    const fileURL = window.URL.createObjectURL(file);
-    console.log(response);
-    window.open(fileURL);
-    //window.open("data:application/pdf," + encodeURI(response.data));
   };
 };

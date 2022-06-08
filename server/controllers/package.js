@@ -9,7 +9,7 @@ const {
   login,
 } = require("./static");
 const PackageModel = require("../models/packageModel");
-let mtoken = "";
+let mtoken = "1";
 
 const getSearchedPackage = (req, res) => {
   generalHandleWithoutTransaction(
@@ -81,56 +81,86 @@ const getLatestPackages = (req, res) => {
 };
 
 const getPostSlip = async (req, res) => {
-  const { pk_id } = req.query;
-  const slicedPk_id = pk_id.slice(2, -2);
-  console.log(slicedPk_id);
-  const testToken = async () => {
-    const pdf = await axios.get(
-      `${process.env.PLOAR_POST_SLIP_BASE_URL}?pkg_id=${slicedPk_id}&mtoken=${mtoken}`,
-      { responseType: "blob", encoding: null }
-    );
-    console.log(
-      `${process.env.PLOAR_POST_SLIP_BASE_URL}?pkg_id=${slicedPk_id}&mtoken=${mtoken}`
-    );
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline; filename=pdf");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    res.setHeader(
-      "Cache-Control",
-      "private,must-revalidate,post-check=0,pre-check=0,max-age=1"
-    );
-    res.setHeader("Transfer-Encoding", "chunked");
+  generalHandleWithoutTransaction(
+    async () => {
+      const { pk_id } = req.query;
+      const slicedPk_id = pk_id.slice(2, -2);
+      res.setHeader("Content-Type", "application/pdf");
+      const tokenValid = async () => {
+        var pdf = await axios.get(
+          `${process.env.PLOAR_POST_SLIP_BASE_URL}?pkg_id=${slicedPk_id}&mtoken=${mtoken}`,
+          { responseType: "arraybuffer" }
+        );
+        // Check the token is valid
+        if (pdf.data.length < 100) {
+          return "false";
+        } else {
+          return res.status(200).send(pdf.data);
+        }
+      };
 
-    return res.status(200).json({ result: pdf.data });
-  };
-
-  const testToken2 = async () => {
-    console.log(path.resolve(__dirname, "../public/pdf/EAW4-task2.pdf"));
-    var file = fs.createReadStream(
-      "/Users/patrick/Documents/vsCode Projects/tuantuan-dashboard-fullstack/server/public/pdf/EAW4-task2.pdf"
-    );
-    var stat = fs.statSync(
-      "/Users/patrick/Documents/vsCode Projects/tuantuan-dashboard-fullstack/server/public/pdf/EAW4-task2.pdf"
-    );
-    res.setHeader("Content-Length", stat.size);
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline; filename=quote.pdf");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    res.setHeader(
-      "Cache-Control",
-      "private,must-revalidate,post-check=0,pre-check=0,max-age=1"
-    );
-    res.setHeader("Transfer-Encoding", "chunked");
-    file.pipe(res);
-  };
-
-  if (mtoken !== "") {
-    //testToken();
-    testToken2();
-  } else {
-    mtoken = await login();
-    testToken2();
-  }
+      if (mtoken !== "") {
+        // If token is invalid relogin and try again.
+        if ((await tokenValid()) === "false") {
+          mtoken = await login();
+          if ((await tokenValid()) === "false") {
+            throw new Error("Token is invalid.");
+          }
+        }
+      } else {
+        mtoken = await login();
+        await tokenValid();
+      }
+    },
+    res,
+    "Failed to get post slip. Server error."
+  );
 };
+
+// console.log(
+//   `${process.env.PLOAR_POST_SLIP_BASE_URL}?pkg_id=${slicedPk_id}&mtoken=${mtoken}`
+// );
+
+// Save pdf in server.
+// var filename = "Post slip";
+// var file =
+//   "/Users/patrick/Documents/vsCode Projects/tuantuan-dashboard-fullstack/server/public/pdf/postSlip.pdf";
+
+// fs.writeFile(file, pdf.data, "binary", (err) => {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log("success");
+//   }
+// });
+
+// res.setHeader("Content-Type", "application/pdf");
+// res.setHeader("Content-Disposition", "inline; filename=pdf");
+// res.setHeader("Access-Control-Allow-Headers", "*");
+// res.setHeader(
+//   "Cache-Control",
+//   "private,must-revalidate,post-check=0,pre-check=0,max-age=1"
+// );
+// res.setHeader("Transfer-Encoding", "chunked");
+
+// const testToken2 = async () => {
+//   console.log(path.resolve(__dirname, "../public/pdf/EAW4-task2.pdf"));
+//   var file = fs.createReadStream(
+//     "/Users/patrick/Documents/vsCode Projects/tuantuan-dashboard-fullstack/server/public/pdf/EAW4-task2.pdf"
+//   );
+//   var stat = fs.statSync(
+//     "/Users/patrick/Documents/vsCode Projects/tuantuan-dashboard-fullstack/server/public/pdf/EAW4-task2.pdf"
+//   );
+//   res.setHeader("Content-Length", stat.size);
+//   res.setHeader("Content-Type", "application/pdf");
+//   // res.setHeader("Content-Disposition", "inline; filename=quote.pdf");
+//   // res.setHeader("Access-Control-Allow-Headers", "*");
+//   // res.setHeader(
+//   //   "Cache-Control",
+//   //   "private,must-revalidate,post-check=0,pre-check=0,max-age=1"
+//   // );
+//   // res.setHeader("Transfer-Encoding", "chunked");
+//   file.pipe(res);
+// };
 
 module.exports = { getSearchedPackage, getLatestPackages, getPostSlip };

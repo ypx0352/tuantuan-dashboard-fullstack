@@ -176,7 +176,8 @@ const PackagePage = (props) => {
     latestPackages,
     showSidebar,
     updateNote,
-    getPostSlipUrl,
+    getPostSlip,
+    pdfLoading,
   } = props;
 
   const [params] = useSearchParams();
@@ -257,7 +258,13 @@ const PackagePage = (props) => {
           dataIndex: "postSlip",
           key: "postSlip",
           render: (text, record) => (
-            <Button onClick={() => getPostSlipUrl(record.pk_id)}>Get post slip</Button>
+            <Button
+              loading={pdfLoading}
+              type="primary"
+              onClick={() => getPostSlip(record.pk_id)}
+            >
+              View
+            </Button>
           ),
         },
       ],
@@ -547,6 +554,7 @@ const mapState = (state) => ({
   latestPackagesSpinning: state.getIn(["package", "latestPackagesSpinning"]),
   latestPackages: state.getIn(["package", "latestPackages"]).toJS(),
   showSidebar: state.getIn(["static", "showSidebar"]),
+  pdfLoading: state.getIn(["package", "pdfLoading"]),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -556,16 +564,15 @@ const mapDispatch = (dispatch) => ({
     }
     dispatch(actionCreators.searchPackageAction(pk_id.trim()));
   },
-
   getLatestPackages(limit) {
     dispatch(actionCreators.getLatestPackagesAction(limit));
   },
   updateNote(info) {
     dispatch(updateNoteAction(info));
   },
-  getPostSlipUrl(pk_id){
-    dispatch(actionCreators.getPostSlipUrlAction(pk_id))
-  }
+  getPostSlip(pk_id) {
+    dispatch(actionCreators.getPostSlipAction(pk_id));
+  },
 });
 
 export default connect(mapState, mapDispatch)(PackagePage);

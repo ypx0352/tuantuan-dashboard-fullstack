@@ -12,6 +12,7 @@ const defaultState = fromJS({
   tableSpinning: false,
   latestPackagesSpinning: false,
   latestPackages: [],
+  pdfLoading: false,
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -30,6 +31,9 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.LATEST_PACKAGES_SPINNING:
       return state.set("latestPackagesSpinning", action.value);
+
+    case actionTypes.PDF_LOADING:
+      return state.set("pdfLoading", action.value);
     default:
       return state;
   }

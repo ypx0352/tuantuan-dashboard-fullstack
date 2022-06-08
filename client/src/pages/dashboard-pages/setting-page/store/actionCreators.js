@@ -1,5 +1,6 @@
 import { message } from "antd";
 import { fromJS } from "immutable";
+import bigDecimal from "js-big-decimal";
 import { actionTypes } from ".";
 import { generalHandle } from "../../../general-handler/errorHandler";
 import { authAxios } from "../../../general-handler/requestHandler";
@@ -13,8 +14,8 @@ export const getSettingsAction = async (dispatch) => {
       const { result } = response.data;
       result.forEach((item) => {
         settings[`${item.name}`] = {
-          value: item.value,
-          updatedAt: item.updatedAt,
+          value: new bigDecimal((item.value).toFixed(2)).getPrettyValue(),
+          updatedAtLocale: new Date(item.updatedAt).toLocaleString(),
         };
       });
       dispatch({ type: actionTypes.GET_SETTINGS, value: fromJS(settings) });
@@ -35,14 +36,30 @@ export const getSettingsAction = async (dispatch) => {
 
 export const updateSettingAction = (name, value) => {
   return async (dispatch) => {
-    generalHandle(async () => {
-      const response = await authAxios.put("/api/setting", {
-        name,
-        value,
-      });
-      const { msg } = response.data;
-      message.success(msg);
-      dispatch(getSettingsAction);
+    generalHandle(
+      async () => {
+        dispatch({ type: actionTypes.UPDATE_SPINNING, value: fromJS(true) });
+        const response = await authAxios.put("/api/setting", {
+          name,
+          value,
+        });
+        const { msg } = response.data;
+        message.success(msg);
+        dispatch(getSettingsAction);
+        dispatch({ type: actionTypes.UPDATE_SPINNING, value: fromJS(false) });
+      },
+      dispatch,
+      () => {
+        dispatch({ type: actionTypes.UPDATE_SPINNING, value: fromJS(false) });
+      }
+    );
+  };
+};
+
+export const setUpdateSpinning = (value) => {
+  return (dispatch) => {
+    generalHandle(() => {
+      dispatch({ type: actionTypes.UPDATE_SPINNING, value: fromJS(value) });
     });
   };
 };

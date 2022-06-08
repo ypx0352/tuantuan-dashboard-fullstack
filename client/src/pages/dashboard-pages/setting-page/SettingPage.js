@@ -1,11 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { Button, InputNumber, message } from "antd";
+import { InputNumber, message, Card, Tooltip, Popconfirm } from "antd";
+import { EditOutlined, FieldTimeOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
 import { actionCreators, actionTypes } from "./store";
 import { fromJS } from "immutable";
+import currencyImg from "../../../image/currency.webp";
+import babyFormulaImg from "../../../image/babyFormula.avif";
+import normalItemImg from "../../../image/normalItem.png";
+const { Meta } = Card;
 
 const Container = styled.div`
   display: flex;
@@ -30,7 +35,6 @@ const Right = styled.div`
 
 const ContentWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   justify-content: center;
 `;
 
@@ -56,13 +60,101 @@ const SettingPage = (props) => {
     settingsInput,
     handleSettingsInput,
     showSidebar,
+    updateSpinning,
   } = props;
 
+  const [showPopConfirm, setShowPopConfirm] = useState({
+    normalPostage: false,
+    babyFormulaPostage: false,
+    exchangeRate: false,
+  });
   useEffect(() => getSettings(), []);
 
   const handleInput = (name) => (e) => {
     settingsInput[`${name}`] = e;
     handleSettingsInput(settingsInput);
+  };
+
+  const handleShowPopConfirm = (name, value) => {
+    // Reset the state to close opened pop (in case)
+    setShowPopConfirm({
+      normalPostage: false,
+      babyFormulaPostage: false,
+      exchangeRate: false,
+    });
+    setShowPopConfirm((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const imgs = [normalItemImg, babyFormulaImg, currencyImg];
+  const descriptions = [
+    "Normal item postage per Kg",
+    "Baby formula postage per 3 cans",
+    "Exchange rate AUD/RMB",
+  ];
+
+  const generateCard = (settings) => {
+    const settingsInArray = Object.entries(settings);
+    return settingsInArray.map((item, index) => {
+      const propertyName = item[0];
+      const attribute = item[1];
+
+      return (
+        <Card
+          style={{
+            width: "300px",
+            margin: "0 20px",
+          }}
+          cover={
+            <img
+              alt={propertyName}
+              src={imgs[index]}
+              style={{ height: "132px" }}
+            />
+          }
+          actions={[
+            <Popconfirm
+              title={
+                <>
+                  <h5>Update settings</h5>
+                  <InputNumber
+                    style={{ width: "150px" }}
+                    placeholder="New value"
+                    onChange={handleInput(propertyName)}
+                  />
+                </>
+              }
+              placement="bottom"
+              visible={showPopConfirm[propertyName]}
+              onCancel={() => handleShowPopConfirm(propertyName, false)}
+              onConfirm={() =>
+                updateSetting(propertyName, settingsInput[propertyName])
+              }
+              okButtonProps={{ loading: updateSpinning }}
+              okText="Update"
+            >
+              <EditOutlined
+                key="edit"
+                onClick={() => {
+                  handleShowPopConfirm(propertyName, true);
+                }}
+              />
+            </Popconfirm>,
+            <Tooltip placement="top" title={attribute.updatedAtLocale}>
+              <FieldTimeOutlined key="update" />
+            </Tooltip>,
+          ]}
+        >
+          <Meta
+            title={
+              propertyName === "exchangeRateInSetting"
+                ? attribute.value
+                : attribute.value + " AUD"
+            }
+            description={descriptions[index]}
+          />
+        </Card>
+      );
+    });
   };
 
   return (
@@ -72,102 +164,17 @@ const SettingPage = (props) => {
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
         <Header title="Setting" cartCount="hide" />
-        <ContentWrapper>
-          <Title>
-            <span style={{ width: "30%" }}></span>
-            <span style={{ width: "18%" }}>Current value</span>
-            <span style={{ width: "25%" }}>Last updated at </span>
-            <span style={{ width: "21%" }}>New value</span>
-            <span>Action</span>
-          </Title>
-          <Item>
-            <span style={{ width: "22%" }}>
-              Standard item postage (each Kg)
-            </span>
-            <span>{settings.get("normalPostage").get("value")}</span>
-            <span>
-              {new Date(
-                settings.get("normalPostage").get("updatedAt")
-              ).toLocaleString()}
-            </span>
-            <InputNumber
-              size="small"
-              controls={false}
-              defaultValue={null}
-              value={settingsInput.normalPostage}
-              onChange={handleInput("normalPostage")}
-            />
-            <Button
-              size="small"
-              onClick={() =>
-                updateSetting("normalPostage", settingsInput["normalPostage"])
-              }
-            >
-              Update
-            </Button>
-          </Item>
-          <Item>
-            <span style={{ width: "22%" }}>Baby formula postage (3 cans)</span>
-            <span>{settings.get("babyFormulaPostage").get("value")}</span>
-            <span>
-              {new Date(
-                settings.get("babyFormulaPostage").get("updatedAt")
-              ).toLocaleString()}
-            </span>
-            <InputNumber
-              size="small"
-              controls={false}
-              defaultValue={null}
-              onChange={handleInput("babyFormulaPostage")}
-            />
-            <Button
-              size="small"
-              onClick={() =>
-                updateSetting(
-                  "babyFormulaPostage",
-                  settingsInput["babyFormulaPostage"]
-                )
-              }
-            >
-              Update
-            </Button>
-          </Item>
-          <Item>
-            <span style={{ width: "22%" }}>Exchange rate (AUD:RMB)</span>
-            <span>{settings.get("exchangeRateInSetting").get("value")}</span>
-            <span>
-              {new Date(
-                settings.get("exchangeRateInSetting").get("updatedAt")
-              ).toLocaleString()}
-            </span>
-            <InputNumber
-              size="small"
-              controls={false}
-              defaultValue={null}
-              onChange={handleInput("exchangeRateInSetting")}
-            />
-            <Button
-              size="small"
-              onClick={() =>
-                updateSetting(
-                  "exchangeRateInSetting",
-                  settingsInput["exchangeRateInSetting"]
-                )
-              }
-            >
-              Update
-            </Button>
-          </Item>
-        </ContentWrapper>
+        <ContentWrapper>{generateCard(settings)}</ContentWrapper>
       </Right>
     </Container>
   );
 };
 
 const mapState = (state) => ({
-  settings: state.getIn(["setting", "settings"]),
+  settings: state.getIn(["setting", "settings"]).toJS(),
   settingsInput: state.getIn(["setting", "settingsInput"]).toJS(),
   showSidebar: state.getIn(["static", "showSidebar"]),
+  updateSpinning: state.getIn(["setting", "updateSpinning"]),
 });
 
 const mapDispatch = (dispatch) => ({
@@ -186,6 +193,10 @@ const mapDispatch = (dispatch) => ({
     } else {
       dispatch(actionCreators.updateSettingAction(name, value));
     }
+  },
+
+  setUpdateSpinning(value) {
+    dispatch(actionCreators.setUpdateSpinning(value));
   },
 });
 
