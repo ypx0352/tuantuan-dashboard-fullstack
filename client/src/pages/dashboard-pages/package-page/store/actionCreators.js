@@ -1,3 +1,4 @@
+import axios from "axios";
 import { fromJS } from "immutable";
 import { actionTypes } from ".";
 import { generalHandle } from "../../../general-handler/errorHandler";
@@ -46,31 +47,39 @@ export const searchPackageAction = (pk_id) => {
 
 export const getLatestPackagesAction = (limit) => {
   return async (dispatch) => {
-    generalHandle(async () => {
-      dispatch({
-        type: actionTypes.LATEST_PACKAGES_SPINNING,
-        value: fromJS(true),
-      });
-      const response = await authAxios.get(
-        `/api/package/latest_package?limit=${limit}`
-      );
-      dispatch({
-        type: actionTypes.LATEST_PACKAGES,
-        value: fromJS(response.data.result),
-      });
-      dispatch({
-        type: actionTypes.LATEST_PACKAGES_SPINNING,
-        value: fromJS(false),
-      });
-    });
+    generalHandle(
+      async () => {
+        dispatch({
+          type: actionTypes.LATEST_PACKAGES_SPINNING,
+          value: fromJS(true),
+        });
+        const response = await authAxios.get(
+          `/api/package/latest_package?limit=${limit}`
+        );
+        dispatch({
+          type: actionTypes.LATEST_PACKAGES,
+          value: fromJS(response.data.result),
+        });
+        dispatch({
+          type: actionTypes.LATEST_PACKAGES_SPINNING,
+          value: fromJS(false),
+        });
+      },
+      dispatch,
+      () => {
+        dispatch({
+          type: actionTypes.LATEST_PACKAGES_SPINNING,
+          value: fromJS(false),
+        });
+      }
+    );
   };
 };
 
 export const getPostSlipUrlAction = (pk_id) => {
   return async (dispatch) => {
-    const response = await authAxios.get(
-      `/api/package/post_slip?pk_id=${pk_id}`,
-      { responseType: "blob" }
+    const response = await axios.get(
+      `http://localhost:1100/api/package/post_slip?pk_id=${pk_id}`,{responseType:'blob'}
     );
 
     // var fileURL = window.URL.createObjectURL(new Blob([response.data]));
@@ -81,6 +90,11 @@ export const getPostSlipUrlAction = (pk_id) => {
     // document.body.appendChild(fileLink);
 
     // fileLink.click();
+
+    const response2 = await axios.get(
+      "http://track.polarexpress.com.au/package/poladmin/package_ivprint?pkg_id=6034594&mtoken=ebd2c2920428f84f5d6c84115123fff9",
+      { responseType: "blob" }
+    );
 
     const file = new Blob([response.data], { type: "application/pdf" });
     const fileURL = window.URL.createObjectURL(file);
