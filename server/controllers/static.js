@@ -1,5 +1,9 @@
 const axios = require("axios");
+const PdfPrinter = require("pdfmake");
+const fs = require("fs");
+const path = require("path");
 const FormData = require("form-data");
+const bigDecimal = require("js-big-decimal");
 const connection = require("../database");
 const LogModel = require("../models/logModel");
 const AddressModel = require("../models/addressModels");
@@ -427,16 +431,241 @@ const login = async () => {
   }
 };
 
+const record = {
+  _id: "62977d6380399bd5c64fc73f",
+  user_id: "tuantuan",
+  items: [
+    {
+      item: "Aptamil 白金婴儿奶粉3段 900g",
+      cost: 37.18,
+      qty: 1,
+      profits: 73.82,
+      payAmountFromCustomer: 111,
+      payAmountToSender: 111,
+      originalType: "stock",
+      type: "transaction",
+      receiver: "陈乐",
+      pk_id: "PE6584574AD",
+      note: "",
+      returnAllProfits: true,
+      price: 1,
+      weight: 1.2,
+    },
+    {
+      item: "Aptamil 白金婴儿奶粉3段 900g",
+      cost: 37.18,
+      qty: 1,
+      payAmountToSender: 37.18,
+      originalType: "employee",
+      type: "transaction",
+      receiver: "陈乐",
+      pk_id: "PE6584574AD",
+      note: "",
+      returnAllProfits: false,
+      price: 1,
+      weight: 1.2,
+    },
+    {
+      item: "Aptamil 白金婴儿奶粉3段 900g",
+      cost: 37.18,
+      qty: 1,
+      profits: -36.18,
+      payAmountFromCustomer: 1,
+      payAmountToSender: 19.09,
+      originalType: "exception",
+      type: "transaction",
+      receiver: "陈乐",
+      pk_id: "PE6584574AD",
+      note: "",
+      returnAllProfits: false,
+      price: 1,
+      weight: 1.2,
+    },
+  ],
+  approved: false,
+  payAmountToSender: 167.27,
+  qty: 3,
+
+  __v: 0,
+};
+const generatePdf = (record) => {
+  const generateBody = (record) => {
+    // Generate table rows.
+    const bodyList = record.items.map((item) => [
+      item.item,
+      item.qty,
+      item.originalType,
+      "￥" + prettifyMoneyNumber(item.cost),
+      item.profits === undefined
+        ? "————"
+        : "￥" + prettifyMoneyNumber(item.profits),
+      "$" + prettifyMoneyNumber(item.price),
+      item.weight + "Kg",
+      item.pk_id,
+      item.receiver,
+      item.returnAllProfits ? "Yes" : "No",
+      item.payAmountFromCustomer === undefined
+        ? "—————"
+        : "￥" + prettifyMoneyNumber(item.payAmountFromCustomer),
+      "￥" + prettifyMoneyNumber(item.payAmountToSender),
+      item.note + " ",
+    ]);
+
+    // Add table header to the beginning of body list
+    bodyList.unshift([
+      "Item",
+      "Qty",
+      "Type",
+      "Cost",
+      "Profits",
+      "Price each",
+      "Weight each",
+      "Package ID",
+      "Receiver",
+      "All profits",
+      "Customer pay",
+      "Pay sender",
+      "Note",
+    ]);
+    return bodyList;
+  };
+
+  console.log(generateBody(record));
+
+  var fonts = {
+    Pingfang: {
+      normal: path.resolve(__dirname, "../public/font/PingFang SC Regular.ttf"),
+    },
+    Han: {
+      normal: path.resolve(
+        __dirname,
+        "../public/font/Source Han Sans CN Light.otf"
+      ),
+    },
+  };
+
+  const printer = new PdfPrinter(fonts);
+
+  const docDefinition = {
+    content: [
+      {
+        image: path.resolve(__dirname, "../public/image/tuan-logo.jpeg"),
+        width: 50,
+        style: "image",
+      },
+      { text: "Invoice", style: "header" },
+
+      // Transaction overview table.
+      {
+        style: "overviewTable",
+        table: {
+          headerRows: 1,
+          body: [
+            [
+              "Time",
+              "Transaction ID",
+              "User",
+              "Qty",
+              "Subtotal",
+              "Payment method",
+            ],
+            [
+              "06/06/2022, 01:12:59",
+              "629ccf03dffe0894fc6f1ebe",
+              "yanan",
+              "1",
+              "￥111",
+              "Alipay",
+            ],
+          ],
+        },
+        layout: "headerLineOnly",
+      },
+
+      // Transaction detail table
+      {
+        style: "detailTable",
+        table: {
+          headerRows: 1,
+          body: generateBody(record),
+        },
+      },
+
+      {
+        text: "----------This is the end of the invoice.----------",
+        alignment: "center",
+        fontSize: 8,
+      },
+    ],
+
+    footer: (currentPage, pageCount) => {
+      return {
+        text: currentPage.toString() + " of " + pageCount,
+        alignment: "center",
+      };
+    },
+
+    styles: {
+      header: {
+        fontSize: 18,
+        margin: [0, 0, 0, 10],
+        alignment: "center",
+      },
+
+      detailTable: {
+        margin: [0, 0, 0, 15],
+        fontSize: 9,
+      },
+
+      overviewTable: {
+        margin: [0, 0, 0, 15],
+        fontSize: 10,
+      },
+
+      image: {
+        alignment: "center",
+      },
+    },
+
+    defaultStyle: {
+      font: "Pingfang",
+    },
+
+    // PDF page settings.
+    pageOrientation: "landscape",
+    pageSize: "A4",
+
+    //PDF meta data.
+    info: {
+      title: "Tuantuan dashboard invoice",
+      author: "Tuantuan dashboard",
+      subject: "Invoice",
+      producer: "Tuantuan dashboard",
+      creator: "Tuantuan dashboard",
+    },
+  };
+
+  const pdfDoc = printer.createPdfKitDocument(docDefinition);
+  pdfDoc.pipe(
+    fs.createWriteStream(path.resolve(__dirname, "../public/pdf/test.pdf"))
+  );
+  pdfDoc.end();
+};
+
+const prettifyMoneyNumber = (value) => {
+  const roundedPrettyNumber = new bigDecimal(value.toFixed(2)).getPrettyValue();
+  return roundedPrettyNumber;
+};
+
 const test = async () => {
   try {
-    console.log(await getSettingValuesOfOnePackage("PE6598587AD"));
+    generatePdf(record);
   } catch (error) {
     console.log(error);
-    throw error;
   }
 };
 
-//test();
+test();
 
 module.exports = {
   writeLog,

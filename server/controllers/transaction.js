@@ -10,7 +10,7 @@ const {
 
 const addTransaction = (req, res) => {
   generalHandle(async (session) => {
-    const { username } = req.body; //get username from authentication middleware
+    const { username, paymentMethod } = req.body; //get username from authentication middleware
 
     // Get all items from the cart collection.
     const resultInCart = await typeToModel("cart").findOne({
@@ -65,6 +65,7 @@ const addTransaction = (req, res) => {
           items: itemsInCart,
           payAmountToSender,
           qty,
+          paymentMethod,
         },
       ],
       { session: session }
@@ -118,6 +119,12 @@ const approveTransaction = (req, res) => {
       { $set: { approved: true } },
       { session: session }
     );
+
+    // Generate invoice pdf.
+    const transactionRecord = await typeToModel("transaction").findOne({
+      _id: transaction_id,
+    });
+    console.log(transactionRecord);
 
     // Write the log.
     const logResult = await writeLog(

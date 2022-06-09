@@ -153,20 +153,20 @@ const Cart = (props) => {
   } = props;
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalActiveTabKey, setModalActiveTabKey] = useState("alipay");
+  const [modalActiveTabKey, setModalActiveTabKey] = useState("Alipay");
 
   useEffect(() => {
     initializeCart();
   }, []);
 
   const modalContent = {
-    alipay: (
+    Alipay: (
       <img src={alipayQRCode} style={{ maxWidth: "100%", maxHeight: "100%" }} />
     ),
-    wechat: (
+    Wechat: (
       <img src={wechatQRCode} style={{ maxWidth: "100%", maxHeight: "100%" }} />
     ),
-    bank: (
+    Bank: (
       <div>
         <p>
           Account: 6216698100004652476
@@ -198,15 +198,15 @@ const Cart = (props) => {
 
   const modalTabList = [
     {
-      key: "alipay",
+      key: "Alipay",
       tab: <span className="iconfont icon-zhifubaozhifu-copy-copy"></span>,
     },
     {
-      key: "wechat",
+      key: "Wechat",
       tab: <span className="iconfont icon-weixinzhifu1-copy-copy"></span>,
     },
     {
-      key: "bank",
+      key: "Bank",
       tab: <span className="iconfont icon-zhongguoyinhang"> </span>,
     },
   ];
@@ -364,7 +364,7 @@ const Cart = (props) => {
         okText="Paid"
         onCancel={() => setModalVisible(false)}
         onOk={() => {
-          handleFinishPayment();
+          handleFinishPayment(modalActiveTabKey);
           setModalVisible(false);
           setShowCart(false);
         }}
@@ -407,8 +407,8 @@ const mapDispatch = (dispatch) => ({
     );
   },
 
-  handleFinishPayment() {
-    dispatch(actionCreators.finishPaymentAction);
+  handleFinishPayment(paymentMethod) {
+    dispatch(actionCreators.finishPaymentAction(paymentMethod));
   },
 });
 

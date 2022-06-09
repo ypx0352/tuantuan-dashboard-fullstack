@@ -7,19 +7,13 @@ const defaultState = fromJS({
     babyFormulaPostage: { value: "loading...", updatedAt: "loading..." },
     exchangeRateInSetting: { value: "loading", updatedAt: "loading..." },
   },
-
-  settingsInput: {},
-
-  updateSpinning:false
+  updateSpinning: false,
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
   switch (action.type) {
     case actionTypes.GET_SETTINGS:
       return state.set("settings", action.value);
-
-    case actionTypes.SETTINGS_INPUT:
-      return state.set("settingsInput", action.value);
 
     case actionTypes.UPDATE_SPINNING:
       return state.set("updateSpinning", action.value);

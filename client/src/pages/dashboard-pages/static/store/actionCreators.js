@@ -1,15 +1,15 @@
 import { message } from "antd";
-import bigDecimal from "js-big-decimal";
 import { actionTypes } from ".";
 import { fromJS } from "immutable";
 import { actionCreators as checkoutActionCreators } from "../../checkout-page/store";
 import { authAxios } from "../../../general-handler/requestHandler";
+import { prettifyMoneyNumber } from "../../../general-handler/generalFunction";
+import { generalHandle } from "../../../general-handler/errorHandler";
 
 export const initializeCartAction = async (dispatch) => {
-  try {
+  generalHandle(async () => {
     const response = await authAxios.get("/api/cart/items");
     const { result } = response.data;
-
     var cartItemsCount = 0;
     var cartSubtotal = 0;
     result.forEach((element) => {
@@ -23,10 +23,7 @@ export const initializeCartAction = async (dispatch) => {
         element.profits = element.profits.toFixed(2);
       }
     });
-    const roundedPrettyCartSubtotal = new bigDecimal(
-      cartSubtotal.toFixed(2)
-    ).getPrettyValue();
-
+    const roundedPrettyCartSubtotal = prettifyMoneyNumber(cartSubtotal);
     dispatch({ type: actionTypes.GET_CART_ITEMS, value: fromJS(result) });
     dispatch({
       type: actionTypes.CART_ITEMS_COUNT,
@@ -36,17 +33,12 @@ export const initializeCartAction = async (dispatch) => {
       type: actionTypes.CART_SUBTOTAL,
       value: fromJS(roundedPrettyCartSubtotal),
     });
-  } catch (error) {
-    console.log(error);
-    const { msg } = error.response.data;
-    message.error(msg);
-  }
+  });
 };
 
 export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
-  console.log(record_id, solid_id, type, addToCart);
   return async (dispatch) => {
-    try {
+    generalHandle(async () => {
       const response = await authAxios.put("/api/cart/remove_item", {
         record_id,
         solid_id,
@@ -57,11 +49,7 @@ export const removeFromCartAction = (record_id, solid_id, type, addToCart) => {
       message.success(msg);
       dispatch(checkoutActionCreators.getAllItemsAction);
       dispatch(initializeCartAction);
-    } catch (error) {
-      console.log(error);
-      const { msg } = error.response.data;
-      message.error(msg);
-    }
+    });
   };
 };
 
@@ -84,33 +72,31 @@ export const setReturnAllProfitsItemAction = (_id, returnAllProfits) => {
 
 export const updateNoteAction = (info) => {
   return async () => {
-    const { newNote, note, type, _id } = info;
-    if (newNote !== undefined && note !== newNote) {
-      try {
+    generalHandle(async () => {
+      const { newNote, note, type, _id } = info;
+      if (newNote !== undefined && note !== newNote) {
         const response = await authAxios.put("/api/checkout/update_note", {
           newNote,
           type,
           _id,
         });
         message.success(response.data.msg);
-      } catch (error) {
-        console.log(error);
-        message.error(error.response.data.msg);
       }
-    }
+    });
   };
 };
 
-export const finishPaymentAction = async (dispatch) => {
-  try {
-    const response = await authAxios.post("/api/transaction/add");
-    message.success(response.data.msg);
-    dispatch(initializeCartAction);
-    dispatch(checkoutActionCreators.getAllItemsAction);
-  } catch (error) {
-    console.log(error);
-    message.error(error.response.data.msg);
-  }
+export const finishPaymentAction = (paymentMethod) => {
+  return async (dispatch) => {
+    generalHandle(async () => {
+      const response = await authAxios.post("/api/transaction/add", {
+        paymentMethod,
+      });
+      message.success(response.data.msg);
+      dispatch(initializeCartAction);
+      dispatch(checkoutActionCreators.getAllItemsAction);
+    });
+  };
 };
 
 export const logoutAction = () => {

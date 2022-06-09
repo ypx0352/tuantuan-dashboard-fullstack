@@ -32,6 +32,7 @@ const transactionSchema = new mongoose.Schema(
     approved: { type: Boolean, default: false },
     payAmountToSender: { type: Number, required: true },
     qty: { type: Number, required: true },
+    paymentMethod: { type: String, required: true },
   },
   { timestamps: true }
 );

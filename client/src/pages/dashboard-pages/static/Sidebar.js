@@ -138,13 +138,13 @@ const Sidebar = (props) => {
           <ListItemText>Log</ListItemText>
         </ListItemWrapper>
         <ListItemWrapper
-          href="/dashboard/setting"
-          className={selected === "setting" ? "selected" : ""}
+          href="/dashboard/settings"
+          className={selected === "settings" ? "selected" : ""}
         >
           <ListItemIcon className="material-icons-outlined">
             settings
           </ListItemIcon>
-          <ListItemText>Setting</ListItemText>
+          <ListItemText>Settings</ListItemText>
         </ListItemWrapper>
       </List>
     </SidebarWrapper>

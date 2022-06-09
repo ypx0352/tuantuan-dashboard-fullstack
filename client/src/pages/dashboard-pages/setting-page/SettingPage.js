@@ -5,18 +5,17 @@ import { InputNumber, message, Card, Tooltip, Popconfirm } from "antd";
 import { EditOutlined, FieldTimeOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import { actionCreators, actionTypes } from "./store";
-import { fromJS } from "immutable";
-import currencyImg from "../../../image/currency.webp";
+import { actionCreators } from "./store";
+import currencyImg from "../../../image/exchange.png";
 import babyFormulaImg from "../../../image/babyFormula.avif";
 import normalItemImg from "../../../image/normalItem.png";
 const { Meta } = Card;
 
 const Container = styled.div`
   display: flex;
-  min-width: 930px;
+  min-width: 1200px;
   min-height: 100vh;
-  //background-color: #f7f8fc;
+  background-color: #f7f8fc;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
 `;
@@ -26,7 +25,7 @@ const Left = styled.div`
 `;
 
 const Right = styled.div`
-  min-width: 90%;
+  min-width: 88%;
   padding: 20px;
   &.expand {
     width: 100%;
@@ -38,41 +37,33 @@ const ContentWrapper = styled.div`
   justify-content: center;
 `;
 
-const Title = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  border-bottom: 1px solid #363740;
-  font-weight: bold;
-`;
-
-const Item = styled.div`
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px dashed #363740;
-  padding: 10px 0;
-`;
-
 const SettingPage = (props) => {
-  const {
-    getSettings,
-    settings,
-    updateSetting,
-    settingsInput,
-    handleSettingsInput,
-    showSidebar,
-    updateSpinning,
-  } = props;
+  const { getSettings, settings, updateSetting, showSidebar, updateSpinning } =
+    props;
 
   const [showPopConfirm, setShowPopConfirm] = useState({
     normalPostage: false,
     babyFormulaPostage: false,
-    exchangeRate: false,
+    exchangeRateInSetting: false,
   });
+
+  const [settingsInput, setSettingsInput] = useState({});
+
   useEffect(() => getSettings(), []);
 
+  // Close popConfirm when updates successfully
+  useEffect(() => {
+    if (!updateSpinning) {
+      setShowPopConfirm({
+        normalPostage: false,
+        babyFormulaPostage: false,
+        exchangeRateInSetting: false,
+      });
+    }
+  }, [updateSpinning]);
+
   const handleInput = (name) => (e) => {
-    settingsInput[`${name}`] = e;
-    handleSettingsInput(settingsInput);
+    setSettingsInput({ [name]: e });
   };
 
   const handleShowPopConfirm = (name, value) => {
@@ -80,7 +71,7 @@ const SettingPage = (props) => {
     setShowPopConfirm({
       normalPostage: false,
       babyFormulaPostage: false,
-      exchangeRate: false,
+      exchangeRateInSetting: false,
     });
     setShowPopConfirm((prevState) => ({ ...prevState, [name]: value }));
   };
@@ -97,7 +88,6 @@ const SettingPage = (props) => {
     return settingsInArray.map((item, index) => {
       const propertyName = item[0];
       const attribute = item[1];
-
       return (
         <Card
           style={{
@@ -160,10 +150,10 @@ const SettingPage = (props) => {
   return (
     <Container>
       <Left>
-        <Sidebar selected="setting" />
+        <Sidebar selected="settings" />
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
-        <Header title="Setting" cartCount="hide" />
+        <Header title="Settings" cartCount="hide" />
         <ContentWrapper>{generateCard(settings)}</ContentWrapper>
       </Right>
     </Container>
@@ -172,7 +162,6 @@ const SettingPage = (props) => {
 
 const mapState = (state) => ({
   settings: state.getIn(["setting", "settings"]).toJS(),
-  settingsInput: state.getIn(["setting", "settingsInput"]).toJS(),
   showSidebar: state.getIn(["static", "showSidebar"]),
   updateSpinning: state.getIn(["setting", "updateSpinning"]),
 });
@@ -182,21 +171,12 @@ const mapDispatch = (dispatch) => ({
     dispatch(actionCreators.getSettingsAction);
   },
 
-  handleSettingsInput(newSettings) {
-    console.log(newSettings);
-    dispatch({ type: actionTypes.SETTINGS_INPUT, value: fromJS(newSettings) });
-  },
-
   updateSetting(name, value) {
     if (value === undefined) {
       message.warn("Error! Input must not be empty.");
     } else {
       dispatch(actionCreators.updateSettingAction(name, value));
     }
-  },
-
-  setUpdateSpinning(value) {
-    dispatch(actionCreators.setUpdateSpinning(value));
   },
 });
 

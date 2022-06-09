@@ -12,6 +12,6 @@ router.get("/", authentication, userAuthorization, getSearchedPackage);
 
 router.get("/latest_package", authentication, getLatestPackages);
 
-router.get("/post_slip",  getPostSlip);
+router.get("/post_slip", authentication, userAuthorization, getPostSlip);
 
 module.exports = router;

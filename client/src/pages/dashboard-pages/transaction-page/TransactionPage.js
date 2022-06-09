@@ -149,6 +149,11 @@ const TransactionPage = (props) => {
       key: "qty",
     },
     {
+      title: "Payment method",
+      dataIndex: "paymentMethod",
+      key: "paymentMethod",
+    },
+    {
       title: "Subtotal",
       dataIndex: "payAmountToSender",
       key: "payAmountToSender",

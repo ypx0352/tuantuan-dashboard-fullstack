@@ -28,7 +28,7 @@ function App() {
           <Route path="/dashboard/checkout" element={<CheckoutPage />} />
           <Route path="/dashboard/address" element={<AddressPage />} />
           <Route path="/dashboard/package" element={<PackagePage />} />
-          <Route path="/dashboard/setting" element={<SettingPage />} />
+          <Route path="/dashboard/settings" element={<SettingPage />} />
           <Route path="/dashboard/log" element={<LogPage />} />
           <Route path="/dashboard/transaction" element={<TransactionPage />} />
           <Route path="/dashboard/tool" element={<ToolPage />} />

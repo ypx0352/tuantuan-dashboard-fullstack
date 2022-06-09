@@ -1,5 +1,3 @@
 export const GET_SETTINGS = "GET_SETTINGS";
 
-export const SETTINGS_INPUT = "SETTINGS_INPUT";
-
 export const UPDATE_SPINNING = "UPDATE_SPINNING";

@@ -1,8 +1,8 @@
 import { message } from "antd";
 import { fromJS } from "immutable";
-import bigDecimal from "js-big-decimal";
 import { actionTypes } from ".";
 import { generalHandle } from "../../../general-handler/errorHandler";
+import { prettifyMoneyNumber } from "../../../general-handler/generalFunction";
 import { authAxios } from "../../../general-handler/requestHandler";
 import { actionTypes as toolActionTypes } from "../../tool-page/store";
 
@@ -14,7 +14,7 @@ export const getSettingsAction = async (dispatch) => {
       const { result } = response.data;
       result.forEach((item) => {
         settings[`${item.name}`] = {
-          value: new bigDecimal((item.value).toFixed(2)).getPrettyValue(),
+          value: prettifyMoneyNumber(item.value),
           updatedAtLocale: new Date(item.updatedAt).toLocaleString(),
         };
       });
@@ -56,10 +56,10 @@ export const updateSettingAction = (name, value) => {
   };
 };
 
-export const setUpdateSpinning = (value) => {
-  return (dispatch) => {
-    generalHandle(() => {
-      dispatch({ type: actionTypes.UPDATE_SPINNING, value: fromJS(value) });
-    });
-  };
-};
+// export const setUpdateSpinning = (value) => {
+//   return (dispatch) => {
+//     generalHandle(() => {
+//       dispatch({ type: actionTypes.UPDATE_SPINNING, value: fromJS(value) });
+//     });
+//   };
+// };
