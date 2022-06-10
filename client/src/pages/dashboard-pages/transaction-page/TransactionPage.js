@@ -5,6 +5,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Table, Badge, Button, Input } from "antd";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
+
 import { actionCreators } from "./store";
 
 const PageContainer = styled.div`
@@ -87,13 +88,12 @@ const TransactionPage = (props) => {
     initializeAllTransactions,
     tableLoading,
     approveTransaction,
+    approvedButtonLoading,
   } = props;
 
   const userRole = localStorage.getItem("role");
-
   const [params] = useSearchParams();
   const transaction_idFromUrl = params.get("transaction_id");
-
   const [searchInput, setSearchInput] = useState(transaction_idFromUrl || "");
   const [tableData, setTableData] = useState();
 
@@ -183,6 +183,7 @@ const TransactionPage = (props) => {
                   marginLeft: "10px",
                 }}
                 onClick={() => approveTransaction(record._id)}
+                loading={approvedButtonLoading}
               >
                 Approve
               </Button>
@@ -355,6 +356,7 @@ const mapState = (state) => ({
   showSidebar: state.getIn(["static", "showSidebar"]),
   allTransactions: state.getIn(["transaction", "allTransactions"]).toJS(),
   tableLoading: state.getIn(["transaction", "tableLoading"]),
+  approvedButtonLoading: state.getIn(["transaction", "approvedButtonLoading"]),
 });
 
 const mapDispatch = (dispatch) => ({

@@ -1,12 +1,15 @@
-const bigDecimal = require("js-big-decimal");
-
 const {
   generalHandle,
   typeToModel,
   removeItemFromCollection,
   writeLog,
   generalHandleWithoutTransaction,
+  generateInvoicePdf,
+  prettifyMoneyNumber,
+  sendEmail,
 } = require("./static");
+const path = require("path");
+const fs = require("fs");
 
 const addTransaction = (req, res) => {
   generalHandle(async (session) => {
@@ -78,14 +81,12 @@ const addTransaction = (req, res) => {
       { session, session }
     );
 
-    const roundedPrettyCartSubtotal = new bigDecimal(
-      payAmountToSender.toFixed(2)
-    ).getPrettyValue();
-
     // Write the log.
     const logResult = await writeLog(
       username,
-      `Create transaction with ${qty} items and ￥${roundedPrettyCartSubtotal}.`,
+      `Create transaction with ${qty} items and ￥${prettifyMoneyNumber(
+        payAmountToSender
+      )}.`,
       "",
       session
     );
@@ -124,7 +125,35 @@ const approveTransaction = (req, res) => {
     const transactionRecord = await typeToModel("transaction").findOne({
       _id: transaction_id,
     });
-    console.log(transactionRecord);
+    generateInvoicePdf(transactionRecord);
+
+    // Send invoice via email.
+    const userEmailRecord = await typeToModel("user")
+      .findOne({ username: username })
+      .select("email -_id");
+
+    const emailContent = `  
+            <h3>Hi ${username},</h3>
+            <p></p>
+            <p>
+              Your payment for transaction #${transaction_id} has been confirmed.
+              Please see the invoice in the attachment.
+            </p>
+            <p></p>
+            <h4>Kind reagards,</h4>
+            <h4>Tuantuan dashboard</h4>        
+`;
+    await sendEmail(
+      userEmailRecord.email,
+      `Invoice #${transaction_id}`,
+      emailContent,
+      path.resolve(__dirname, `../public/pdf/Invoice-${transaction_id}.pdf`)
+    );
+
+    // Remove the pdf file.
+    fs.unlinkSync(
+      path.resolve(__dirname, `../public/pdf/Invoice-${transaction_id}.pdf`)
+    );
 
     // Write the log.
     const logResult = await writeLog(

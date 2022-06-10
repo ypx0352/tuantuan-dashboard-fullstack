@@ -5,9 +5,11 @@ import styled from "styled-components";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators, actionTypes } from "./store";
 import { useNavigate } from "react-router-dom";
+import { Button, Result } from "antd";
+import { SmileOutlined } from "@ant-design/icons";
 
 const Container = styled.div`
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,7 +18,7 @@ const Container = styled.div`
   margin: 15px 20px;
 `;
 
-const Wrapper = styled.div`
+const FormWrapper = styled.div`
   height: 90%;
   min-height: 700px;
   display: flex;
@@ -25,9 +27,17 @@ const Wrapper = styled.div`
   align-items: center;
   padding: 20px;
   background-color: white;
-  // overflow: auto;
   -webkit-box-shadow: 0px 0px 20px -6px #000000;
   box-shadow: 0px 0px 20px -6px #000000;
+  &.hide {
+    display: none;
+  }
+`;
+
+const ResultWrapper = styled.div`
+  &.hide {
+    display: none;
+  }
 `;
 
 const LogoImage = styled.img`
@@ -87,15 +97,6 @@ const Input = styled.input`
   }
 `;
 
-const ForgotPassword = styled.span`
-  position: absolute;
-  right: 0;
-  top: 0;
-  font-size: 12px;
-  font-weight: bold;
-  color: #9fa2b4;
-`;
-
 const ShowPassword = styled.span`
   position: absolute;
   right: 3%;
@@ -104,15 +105,24 @@ const ShowPassword = styled.span`
   cursor: pointer;
 `;
 
-const Button = styled.button`
+const StyledButton = styled(Button)`
   width: 312px;
+  height: 52px;
   padding: 15px;
   margin-top: 20px;
   border-radius: 8px;
   border: none;
   background-color: #3751ff;
-  cursor: pointer;
   color: white;
+  :hover {
+    background-color: #3751ff;
+    opacity: 0.9;
+    color: white;
+  }
+  :focus {
+    background-color: #3751ff;
+    color: white;
+  }
 `;
 
 const TextWrapper = styled.div`
@@ -137,16 +147,21 @@ const Warning = styled.small`
 `;
 
 const RegisterPage = (props) => {
-  const { handleSubmit, inputErrorObject, modifyInputErrorObject, registered } =
-    props;
+  const {
+    handleSubmit,
+    inputErrorObject,
+    modifyInputErrorObject,
+    registered,
+    registerButtonLoading,
+  } = props;
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  useEffect(() => {
-    if (registered) {
-      navigate("/login");
-    }
-  }, [registered]);
+  // useEffect(() => {
+  //   if (registered) {
+  //     navigate("/login");
+  //   }
+  // }, [registered]);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -165,7 +180,14 @@ const RegisterPage = (props) => {
 
   return (
     <Container>
-      <Wrapper>
+      <ResultWrapper className={registered ? "" : "hide"}>
+        <Result
+          status="success"
+          title="If you are registered as a visitor, that's all done! Please login. Otherwise, you'll need to activate your account via the email we just sent you, then log in."
+          extra={<StyledButton>Login</StyledButton>}
+        />
+      </ResultWrapper>
+      <FormWrapper className={registered ? "hide" : ""}>
         <LogoImage src={Logo}></LogoImage>
         <LogoText>Tuantuan Dashboard</LogoText>
         <Title>Sign Up to Dashboard</Title>
@@ -241,12 +263,17 @@ const RegisterPage = (props) => {
             {inputErrorObject.registerCode}
           </Warning>
         </InputWrapper>
-        <Button onClick={(e) => handleSubmit(registerInfo)}>Sign Up</Button>
+        <StyledButton
+          onClick={(e) => handleSubmit(registerInfo)}
+          loading={registerButtonLoading}
+        >
+          Sign Up
+        </StyledButton>
         <TextWrapper>
           <Text>Already have an account?</Text>
           <Link href="/login">Log In</Link>
         </TextWrapper>
-      </Wrapper>
+      </FormWrapper>
     </Container>
   );
 };
@@ -254,6 +281,7 @@ const RegisterPage = (props) => {
 const mapState = (state) => ({
   inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
   registered: state.getIn(["register", "registered"]),
+  registerButtonLoading: state.getIn(["register", "registerButtonLoading"]),
 });
 
 const mapDispatch = (dispatch) => ({

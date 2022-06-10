@@ -43,12 +43,30 @@ export const initializeAllTransactionsAction = async (dispatch) => {
 
 export const approveTransactionAction = (transaction_id) => {
   return async (dispatch) => {
-    generalHandle(async () => {
-      const response = await authAxios.put("/api/transaction/approve", {
-        transaction_id,
-      });
-      message.success(response.data.msg);
-      dispatch(initializeAllTransactionsAction);
-    });
+    generalHandle(
+      async () => {
+        dispatch({
+          type: actionTypes.APPROVED_BUTTON_LOADING,
+          value: fromJS(true),
+        });
+
+        const response = await authAxios.put("/api/transaction/approve", {
+          transaction_id,
+        });
+        message.success(response.data.msg);
+        dispatch({
+          type: actionTypes.APPROVED_BUTTON_LOADING,
+          value: fromJS(false),
+        });
+        dispatch(initializeAllTransactionsAction);
+      },
+      dispatch,
+      () => {
+        dispatch({
+          type: actionTypes.APPROVED_BUTTON_LOADING,
+          value: fromJS(false),
+        });
+      }
+    );
   };
 };

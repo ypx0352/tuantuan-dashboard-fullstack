@@ -3,7 +3,8 @@ import { actionTypes } from ".";
 
 const defaultState = fromJS({
   inputErrorObject: {},
-  registered: false,
+  registered: true,
+  registerButtonLoading: false,
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -16,6 +17,9 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.REGISTERED_SUCCESS:
       return state.set("registered", fromJS(true));
+
+    case actionTypes.REGISTER_BUTTON_LOADING:
+      return state.set("registerButtonLoading", action.value);
 
     default:
       return state;

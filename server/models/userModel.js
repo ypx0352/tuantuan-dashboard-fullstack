@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user", "visitor"],
       required: [true, "Invalid user role."],
     },
+    active: {
+      type: Boolean,
+      required: true,
+    },
   },
   { timestamps: true }
 );

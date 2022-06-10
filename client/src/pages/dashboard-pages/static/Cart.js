@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { Empty, Modal, Card, message } from "antd";
+import { Empty, Modal, Card, message, Popconfirm } from "antd";
 import { actionCreators, actionTypes } from "./store";
 import wechatQRCode from "../../../image/wechat_qr_code.jpg";
 import alipayQRCode from "../../../image/alipay_qr_code.jpg";
@@ -169,11 +169,13 @@ const Cart = (props) => {
     Bank: (
       <div>
         <p>
-          Account: 6216698100004652476
+          Account: {`${process.env.REACT_APP_BANK_ACCOUNT}`}
           <span
             className="material-symbols-outlined"
             style={{ cursor: "pointer" }}
-            onClick={() => copyTextToClipboard("6216698100004652476")}
+            onClick={() =>
+              copyTextToClipboard(process.env.REACT_APP_BANK_ACCOUNT)
+            }
           >
             content_copy
           </span>
@@ -361,13 +363,30 @@ const Cart = (props) => {
           </>
         }
         visible={modalVisible}
-        okText="Paid"
+        okText={
+          <Popconfirm
+            placement="topRight"
+            title={
+              <>
+                <p>
+                  Please make sure you have paid ￥{cartSubtotal} via{" "}
+                  {modalActiveTabKey}.
+                </p>
+                <p>After clicking "Yes", you cannot make any changes. </p>
+              </>
+            }
+            onConfirm={() => {
+              handleFinishPayment(modalActiveTabKey);
+              setModalVisible(false);
+              setShowCart(false);
+            }}
+            okText={`Yes, I have paid ￥${cartSubtotal}`}
+            cancelText="Cancel"
+          >
+            <span>Finish Payment</span>
+          </Popconfirm>
+        }
         onCancel={() => setModalVisible(false)}
-        onOk={() => {
-          handleFinishPayment(modalActiveTabKey);
-          setModalVisible(false);
-          setShowCart(false);
-        }}
       >
         <Card
           tabList={modalTabList}

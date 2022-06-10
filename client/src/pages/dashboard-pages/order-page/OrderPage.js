@@ -450,7 +450,7 @@ const OrderPage = (props) => {
           width: "1%",
         },
         {
-          title: "Add to stock",
+          title: "Stock",
           dataIndex: "stock",
           key: "stock",
           width: "5%",

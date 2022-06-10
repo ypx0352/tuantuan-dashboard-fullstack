@@ -4,7 +4,7 @@ const { typeToModel, generalHandle, writeLog } = require("./static");
 const register = async (req, res) => {
   generalHandle(async (session) => {
     var { name, email, registerCode, password } = req.body;
-    
+
     // Check duplication of email address in database
     const result = await typeToModel("user").findOne({
       $or: [{ name: name }, { email: email }],

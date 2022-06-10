@@ -4,6 +4,7 @@ import { actionTypes } from ".";
 const defaultState = fromJS({
   allTransactions: [],
   tableLoading: true,
+  approvedButtonLoading:false
 });
 
 const returnNewStateToStore = (state = defaultState, action) => {
@@ -13,6 +14,9 @@ const returnNewStateToStore = (state = defaultState, action) => {
 
     case actionTypes.TABLE_LOADING:
       return state.set("tableLoading", action.value);
+
+      case actionTypes.APPROVED_BUTTON_LOADING:
+        return state.set('approvedButtonLoading',action.value)
 
     default:
       return state;

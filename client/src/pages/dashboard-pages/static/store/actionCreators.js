@@ -15,12 +15,15 @@ export const initializeCartAction = async (dispatch) => {
     result.forEach((element) => {
       cartItemsCount += element.qty;
       cartSubtotal += element.payAmountToSender;
-      element.cost = element.cost.toFixed(2);
-      element.payAmountToSender = element.payAmountToSender.toFixed(2);
+      element.cost = prettifyMoneyNumber(element.cost);
+      element.payAmountToSender = prettifyMoneyNumber(
+        element.payAmountToSender
+      );
       if (element.originalType !== "employee") {
-        element.payAmountFromCustomer =
-          element.payAmountFromCustomer.toFixed(2);
-        element.profits = element.profits.toFixed(2);
+        element.payAmountFromCustomer = prettifyMoneyNumber(
+          element.payAmountFromCustomer
+        );
+        element.profits = prettifyMoneyNumber(element.profits);
       }
     });
     const roundedPrettyCartSubtotal = prettifyMoneyNumber(cartSubtotal);

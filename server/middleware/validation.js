@@ -24,7 +24,9 @@ const validateInput = (schema) => {
       errorList.forEach((error) => {
         errorObject[error.path] = error.message;
       });
-      return res.status(400).json({ errorObject });
+      return res
+        .status(400)
+        .json({ errorObject, msg: "Please check your input." });
     }
     next();
   };

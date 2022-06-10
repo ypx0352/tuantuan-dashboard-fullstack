@@ -1,5 +1,6 @@
 const axios = require("axios");
 const PdfPrinter = require("pdfmake");
+const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
 const FormData = require("form-data");
@@ -431,241 +432,227 @@ const login = async () => {
   }
 };
 
-const record = {
-  _id: "62977d6380399bd5c64fc73f",
-  user_id: "tuantuan",
-  items: [
-    {
-      item: "Aptamil 白金婴儿奶粉3段 900g",
-      cost: 37.18,
-      qty: 1,
-      profits: 73.82,
-      payAmountFromCustomer: 111,
-      payAmountToSender: 111,
-      originalType: "stock",
-      type: "transaction",
-      receiver: "陈乐",
-      pk_id: "PE6584574AD",
-      note: "",
-      returnAllProfits: true,
-      price: 1,
-      weight: 1.2,
-    },
-    {
-      item: "Aptamil 白金婴儿奶粉3段 900g",
-      cost: 37.18,
-      qty: 1,
-      payAmountToSender: 37.18,
-      originalType: "employee",
-      type: "transaction",
-      receiver: "陈乐",
-      pk_id: "PE6584574AD",
-      note: "",
-      returnAllProfits: false,
-      price: 1,
-      weight: 1.2,
-    },
-    {
-      item: "Aptamil 白金婴儿奶粉3段 900g",
-      cost: 37.18,
-      qty: 1,
-      profits: -36.18,
-      payAmountFromCustomer: 1,
-      payAmountToSender: 19.09,
-      originalType: "exception",
-      type: "transaction",
-      receiver: "陈乐",
-      pk_id: "PE6584574AD",
-      note: "",
-      returnAllProfits: false,
-      price: 1,
-      weight: 1.2,
-    },
-  ],
-  approved: false,
-  payAmountToSender: 167.27,
-  qty: 3,
+const generateInvoicePdf = (record) => {
+  try {
+    const generateDetailTableBody = (record) => {
+      // Generate table rows.
+      const bodyList = record.items.map((item) => [
+        item.item,
+        item.qty,
+        item.originalType,
+        "￥" + prettifyMoneyNumber(item.cost),
+        item.profits === undefined
+          ? "————"
+          : "￥" + prettifyMoneyNumber(item.profits),
+        "$" + prettifyMoneyNumber(item.price),
+        item.weight + "Kg",
+        item.pk_id,
+        item.receiver,
+        item.returnAllProfits ? "Yes" : "No",
+        item.payAmountFromCustomer === undefined
+          ? "—————"
+          : "￥" + prettifyMoneyNumber(item.payAmountFromCustomer),
+        "￥" + prettifyMoneyNumber(item.payAmountToSender),
+        item.note + " ",
+      ]);
 
-  __v: 0,
-};
-const generatePdf = (record) => {
-  const generateBody = (record) => {
-    // Generate table rows.
-    const bodyList = record.items.map((item) => [
-      item.item,
-      item.qty,
-      item.originalType,
-      "￥" + prettifyMoneyNumber(item.cost),
-      item.profits === undefined
-        ? "————"
-        : "￥" + prettifyMoneyNumber(item.profits),
-      "$" + prettifyMoneyNumber(item.price),
-      item.weight + "Kg",
-      item.pk_id,
-      item.receiver,
-      item.returnAllProfits ? "Yes" : "No",
-      item.payAmountFromCustomer === undefined
-        ? "—————"
-        : "￥" + prettifyMoneyNumber(item.payAmountFromCustomer),
-      "￥" + prettifyMoneyNumber(item.payAmountToSender),
-      item.note + " ",
-    ]);
+      // Add table header to the beginning of body list
+      bodyList.unshift([
+        "Item",
+        "Qty",
+        "Type",
+        "Cost",
+        "Profits",
+        "Price each",
+        "Weight each",
+        "Package ID",
+        "Receiver",
+        "All profits",
+        "Customer pay",
+        "Pay sender",
+        "Note",
+      ]);
+      return bodyList;
+    };
 
-    // Add table header to the beginning of body list
-    bodyList.unshift([
-      "Item",
-      "Qty",
-      "Type",
-      "Cost",
-      "Profits",
-      "Price each",
-      "Weight each",
-      "Package ID",
-      "Receiver",
-      "All profits",
-      "Customer pay",
-      "Pay sender",
-      "Note",
-    ]);
-    return bodyList;
-  };
+    const generateOverviewTableBody = (record) => [
+      ["Time", "Transaction ID", "User", "Qty", "Subtotal", "Payment method"],
+      [
+        new Date().toLocaleString(),
+        record._id.toString(),
+        record.username,
+        record.qty,
+        "￥" + prettifyMoneyNumber(record.payAmountToSender),
+        record.paymentMethod,
+      ],
+    ];
 
-  console.log(generateBody(record));
+    generateOverviewTableBody(record);
 
-  var fonts = {
-    Pingfang: {
-      normal: path.resolve(__dirname, "../public/font/PingFang SC Regular.ttf"),
-    },
-    Han: {
-      normal: path.resolve(
-        __dirname,
-        "../public/font/Source Han Sans CN Light.otf"
-      ),
-    },
-  };
-
-  const printer = new PdfPrinter(fonts);
-
-  const docDefinition = {
-    content: [
-      {
-        image: path.resolve(__dirname, "../public/image/tuan-logo.jpeg"),
-        width: 50,
-        style: "image",
+    const fonts = {
+      Pingfang: {
+        normal: path.resolve(
+          __dirname,
+          "../public/font/PingFang SC Regular.ttf"
+        ),
       },
-      { text: "Invoice", style: "header" },
+    };
 
-      // Transaction overview table.
-      {
-        style: "overviewTable",
-        table: {
-          headerRows: 1,
-          body: [
-            [
-              "Time",
-              "Transaction ID",
-              "User",
-              "Qty",
-              "Subtotal",
-              "Payment method",
-            ],
-            [
-              "06/06/2022, 01:12:59",
-              "629ccf03dffe0894fc6f1ebe",
-              "yanan",
-              "1",
-              "￥111",
-              "Alipay",
-            ],
-          ],
+    const printer = new PdfPrinter(fonts);
+
+    const docDefinition = {
+      // PDF content.
+      content: [
+        {
+          image: path.resolve(__dirname, "../public/image/tuan-logo.jpeg"),
+          width: 50,
+          style: "image",
         },
-        layout: "headerLineOnly",
+        { text: "Invoice", style: "header" },
+
+        // Transaction overview table.
+        {
+          style: "overviewTable",
+          table: {
+            headerRows: 1,
+            body: generateOverviewTableBody(record),
+          },
+          layout: "headerLineOnly",
+        },
+
+        // Transaction detail table
+        {
+          style: "detailTable",
+          table: {
+            headerRows: 1,
+            body: generateDetailTableBody(record),
+          },
+        },
+
+        {
+          text: "----------This is the end of the invoice.----------",
+          alignment: "center",
+          fontSize: 8,
+        },
+      ],
+
+      footer: (currentPage, pageCount) => {
+        return {
+          text: currentPage.toString() + " of " + pageCount,
+          alignment: "center",
+        };
       },
 
-      // Transaction detail table
-      {
-        style: "detailTable",
-        table: {
-          headerRows: 1,
-          body: generateBody(record),
+      styles: {
+        header: {
+          fontSize: 18,
+          margin: [0, 0, 0, 10],
+          alignment: "center",
+        },
+        detailTable: {
+          margin: [0, 0, 0, 15],
+          fontSize: 9,
+        },
+        overviewTable: {
+          margin: [0, 0, 0, 15],
+          fontSize: 10,
+        },
+        image: {
+          alignment: "center",
         },
       },
 
-      {
-        text: "----------This is the end of the invoice.----------",
-        alignment: "center",
-        fontSize: 8,
-      },
-    ],
-
-    footer: (currentPage, pageCount) => {
-      return {
-        text: currentPage.toString() + " of " + pageCount,
-        alignment: "center",
-      };
-    },
-
-    styles: {
-      header: {
-        fontSize: 18,
-        margin: [0, 0, 0, 10],
-        alignment: "center",
+      defaultStyle: {
+        font: "Pingfang",
       },
 
-      detailTable: {
-        margin: [0, 0, 0, 15],
-        fontSize: 9,
+      // PDF page settings.
+      pageOrientation: "landscape",
+      pageSize: "A4",
+
+      //PDF meta data.
+      info: {
+        title: "Tuantuan dashboard invoice",
+        author: "Tuantuan dashboard",
+        subject: "Invoice",
+        producer: "Tuantuan dashboard",
+        creator: "Tuantuan dashboard",
       },
+    };
 
-      overviewTable: {
-        margin: [0, 0, 0, 15],
-        fontSize: 10,
-      },
-
-      image: {
-        alignment: "center",
-      },
-    },
-
-    defaultStyle: {
-      font: "Pingfang",
-    },
-
-    // PDF page settings.
-    pageOrientation: "landscape",
-    pageSize: "A4",
-
-    //PDF meta data.
-    info: {
-      title: "Tuantuan dashboard invoice",
-      author: "Tuantuan dashboard",
-      subject: "Invoice",
-      producer: "Tuantuan dashboard",
-      creator: "Tuantuan dashboard",
-    },
-  };
-
-  const pdfDoc = printer.createPdfKitDocument(docDefinition);
-  pdfDoc.pipe(
-    fs.createWriteStream(path.resolve(__dirname, "../public/pdf/test.pdf"))
-  );
-  pdfDoc.end();
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    pdfDoc.pipe(
+      fs.createWriteStream(
+        path.resolve(
+          __dirname,
+          `../public/pdf/Invoice-${record._id.toString()}.pdf`
+        )
+      )
+    );
+    pdfDoc.end();
+  } catch (error) {
+    throw error;
+  }
 };
 
 const prettifyMoneyNumber = (value) => {
-  const roundedPrettyNumber = new bigDecimal(value.toFixed(2)).getPrettyValue();
-  return roundedPrettyNumber;
+  try {
+    return new bigDecimal(value.toFixed(2)).getPrettyValue();
+  } catch (error) {
+    throw error;
+  }
+};
+
+const sendEmail = async (emailAddress, subject, content, attachment) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_SENDER_USER,
+        pass: process.env.EMAIL_SENDER_PASS,
+      },
+    });
+
+    const mailOptions =
+      attachment === undefined
+        ? {
+            from: process.env.EMAIL_SENDER_USER,
+            to: emailAddress,
+            subject: subject,
+            html: content,
+          }
+        : {
+            from: process.env.EMAIL_SENDER_USER,
+            to: emailAddress,
+            subject: subject,
+            html: content,
+            attachments: [
+              {
+                filename: path.basename(attachment),
+                path: attachment,
+                contentType: "application/pdf",
+              },
+            ],
+          };
+
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw error;
+  }
 };
 
 const test = async () => {
   try {
-    generatePdf(record);
+    const result = await typeToModel("user")
+      .findOne({ username: "Pengxiang Yue" })
+      .select("email ");
+    console.log(result);
   } catch (error) {
     console.log(error);
   }
 };
 
-test();
+//test();
 
 module.exports = {
   writeLog,
@@ -684,4 +671,7 @@ module.exports = {
   addItemToCollection,
   removeItemFromCollection,
   login,
+  generateInvoicePdf,
+  prettifyMoneyNumber,
+  sendEmail,
 };

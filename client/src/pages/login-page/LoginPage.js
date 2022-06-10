@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { Button } from "antd";
 import { fromJS } from "immutable";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators } from "./store";
 import { actionTypes as registerActionTypes } from "../register-page/store";
 
 const Container = styled.div`
-  height: ${(props) =>
+  min-height: ${(props) =>
     props.containerHeight === undefined ? "100vh" : "100%"};
   display: flex;
   justify-content: center;
@@ -100,15 +101,24 @@ const ShowPassword = styled.span`
   cursor: pointer;
 `;
 
-const Button = styled.button`
+const StyledButton = styled(Button)`
   width: 312px;
+  height: 52px;
   padding: 15px;
   margin-top: 20px;
   border-radius: 8px;
   border: none;
   background-color: #3751ff;
-  cursor: pointer;
   color: white;
+  :hover {
+    background-color: #3751ff;
+    opacity: 0.9;
+    color: white;
+  }
+  :focus {
+    background-color: #3751ff;
+    color: white;
+  }
 `;
 
 const TextWrapper = styled.div`
@@ -199,9 +209,11 @@ const LoginPage = (props) => {
           {inputErrorObject.password}
         </Warning>
 
-        <Button onClick={() => handleSubmit(loginInfo, props.parentCallback)}>
+        <StyledButton
+          onClick={() => handleSubmit(loginInfo, props.parentCallback)}
+        >
           Log In
-        </Button>
+        </StyledButton>
         <TextWrapper>
           <Text>Don't have an account?</Text>
           <Link href="/register">Sign up</Link>
