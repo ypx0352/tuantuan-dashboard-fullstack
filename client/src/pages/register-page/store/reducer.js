@@ -3,7 +3,7 @@ import { actionTypes } from ".";
 
 const defaultState = fromJS({
   inputErrorObject: {},
-  registered: true,
+  registered: false,
   registerButtonLoading: false,
 });
 

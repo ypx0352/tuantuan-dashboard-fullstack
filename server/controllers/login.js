@@ -21,14 +21,26 @@ const login = async (req, res) => {
           .json({ msg: "User does not exist, please register first." });
       }
 
-      const hashedPassword = resultInUser.password;
-      const name = resultInUser.name;
-      const role = resultInUser.role;
+      const { name, role, active, emailVerified } = resultInUser;
 
       // Verify password
-      const result = await bcrypt.compare(password, hashedPassword);
+      const result = await bcrypt.compare(password, resultInUser.password);
       if (!result) {
         return res.status(400).json({ msg: "Wrong password." });
+      }
+
+      // Verify account activation
+      if (!active) {
+        return res.status(400).json({ msg: "Your account is not active." });
+      }
+
+      // Verify that the email is verified except for visitors
+      if (role !== "visitor") {
+        if (!emailVerified) {
+          return res
+            .status(400)
+            .json({ msg: "Your need to verify your email before loginning." });
+        }
       }
 
       // Write the log
@@ -36,7 +48,7 @@ const login = async (req, res) => {
 
       // Return token to front-end
       const token = jwt.sign({ name, role }, process.env.JWT_KEY, {
-        expiresIn: '1h', // 1 hour
+        expiresIn: "1h", // 1 hour
       });
       return res
         .status(200)

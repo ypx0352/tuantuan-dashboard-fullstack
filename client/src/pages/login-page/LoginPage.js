@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Button } from "antd";
+import { Button, Input } from "antd";
 import { fromJS } from "immutable";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators } from "./store";
@@ -68,7 +68,7 @@ const Label = styled.label`
   text-align: left;
 `;
 
-const Input = styled.input`
+const StyledInput = styled(Input)`
   width: 100%;
   line-height: 30px;
   padding: 5px;
@@ -143,7 +143,12 @@ const Warning = styled.small`
 `;
 
 const LoginPage = (props) => {
-  const { handleSubmit, inputErrorObject, modifyInputErrorObject } = props;
+  const {
+    handleSubmit,
+    inputErrorObject,
+    modifyInputErrorObject,
+    loginButtonLoading,
+  } = props;
 
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -175,7 +180,7 @@ const LoginPage = (props) => {
         <Subtitle>Enter your email and password below</Subtitle>
         <InputWrapper>
           <Label>EMAIL</Label>
-          <Input
+          <StyledInput
             placeholder="Email address"
             type="text"
             name="email"
@@ -189,11 +194,12 @@ const LoginPage = (props) => {
         </InputWrapper>
         <InputWrapper>
           <Label>PASSWORD</Label>
-          <Input
+          <StyledInput
             placeholder="Password"
             type={showPassword ? "text" : "password"}
             name="password"
             onChange={handleInput}
+            onPressEnter={() => handleSubmit(loginInfo, props.parentCallback)}
           />
           <ForgotPassword>Forgot password?</ForgotPassword>
           <ShowPassword
@@ -211,6 +217,7 @@ const LoginPage = (props) => {
 
         <StyledButton
           onClick={() => handleSubmit(loginInfo, props.parentCallback)}
+          loading={loginButtonLoading}
         >
           Log In
         </StyledButton>
@@ -225,6 +232,7 @@ const LoginPage = (props) => {
 
 const mapState = (state) => ({
   inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
+  loginButtonLoading: state.getIn(["login", "loginButtonLoading"]),
 });
 
 const mapDispatch = (dispatch) => ({

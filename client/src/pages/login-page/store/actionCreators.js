@@ -9,9 +9,19 @@ export const loginAction = (loginInfo, parentCallback) => {
   return async (dispatch) => {
     generalHandle(
       async () => {
+        dispatch({
+          type: actionTypes.LOGIN_BUTTON_LOADING,
+          value: fromJS(true),
+        });
+
         const response = await normalAxios.post("/api/login", loginInfo);
         const { msg, token, name, role } = response.data;
         message.success(msg);
+        dispatch({
+          type: actionTypes.LOGIN_BUTTON_LOADING,
+          value: fromJS(false),
+        });
+
 
         // Save token,name and admin to local storage
         localStorage.setItem("token", token);
@@ -31,6 +41,11 @@ export const loginAction = (loginInfo, parentCallback) => {
             value: fromJS(errorObject),
           });
         }
+        dispatch({
+          type: actionTypes.LOGIN_BUTTON_LOADING,
+          value: fromJS(false),
+        });
+
       }
     );
   };

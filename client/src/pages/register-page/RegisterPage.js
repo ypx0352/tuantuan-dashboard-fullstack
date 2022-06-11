@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators, actionTypes } from "./store";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button, Result } from "antd";
 import { SmileOutlined } from "@ant-design/icons";
 
@@ -131,7 +131,7 @@ const TextWrapper = styled.div`
 `;
 
 const Text = styled.div``;
-const Link = styled.a`
+const StyledLink = styled.a`
   margin-left: 5px;
   color: #3751ff;
   font-weight: bold;
@@ -184,7 +184,11 @@ const RegisterPage = (props) => {
         <Result
           status="success"
           title="If you are registered as a visitor, that's all done! Please login. Otherwise, you'll need to activate your account via the email we just sent you, then log in."
-          extra={<StyledButton>Login</StyledButton>}
+          extra={
+            <Link to="/login">
+              <StyledButton>Login</StyledButton>
+            </Link>
+          }
         />
       </ResultWrapper>
       <FormWrapper className={registered ? "hide" : ""}>
@@ -263,15 +267,17 @@ const RegisterPage = (props) => {
             {inputErrorObject.registerCode}
           </Warning>
         </InputWrapper>
+
         <StyledButton
-          onClick={(e) => handleSubmit(registerInfo)}
+          onClick={() => handleSubmit(registerInfo)}
           loading={registerButtonLoading}
         >
           Sign Up
         </StyledButton>
+
         <TextWrapper>
           <Text>Already have an account?</Text>
-          <Link href="/login">Log In</Link>
+          <StyledLink href="/login">Log In</StyledLink>
         </TextWrapper>
       </FormWrapper>
     </Container>
