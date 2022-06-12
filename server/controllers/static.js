@@ -676,6 +676,46 @@ const sendEmail = async (emailAddress, subject, content, attachment) => {
   </head> */
 }
 
+const generateEmailHtml = (
+  title,
+  content
+) => `<div style="padding: 20px; width: 100%; margin: 0 auto">
+      <div style="width: 600px; margin: 20px auto">
+        <img
+          src="https://github.com/ypx0352/ypx0352.github.io/blob/main/tuantuanDashboard-emailPic/dashboard-logo-removebg-preview.png?raw=true"
+          style="
+            width: 150px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+          "
+        />
+        <img
+          src="https://github.com/ypx0352/ypx0352.github.io/blob/main/tuantuanDashboard-emailPic/email-banner-removebg-preview.png?raw=true"
+          style="
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+          "
+        />
+        <div
+          style="
+            padding: 10px;
+            margin: auto;
+            border-radius: 10px;
+            width: 400px;
+            background-color: #d7f2fb;
+          "
+        >
+          <h2 style="text-align: center">${title}</h2>
+          <p style="text-align: center">
+            ${content}
+          </p>
+        </div>
+      </div>
+    </div>`;
+
 const test = async () => {
   try {
     const mailContent = `
@@ -690,7 +730,10 @@ const test = async () => {
     const result = await sendEmail(
       "yuepengxiang@gmail.com",
       "test",
-      mailContent
+      generateEmailHtml(
+        "Hi Pengxiang Yue",
+        "Please click the following URL to verify your email.<a >${/api/register/verify_email?username=Pengxiang Yue</a>"
+      )
     );
     console.log(result);
   } catch (error) {
@@ -720,4 +763,5 @@ module.exports = {
   generateInvoicePdf,
   prettifyMoneyNumber,
   sendEmail,
+  generateEmailHtml,
 };

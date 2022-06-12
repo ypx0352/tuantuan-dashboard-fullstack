@@ -22,7 +22,7 @@ const Left = styled.div`
 
 const Right = styled.div`
   min-width: 88%;
-  padding: 5px 10px;
+  padding: 20px;
   &.expand {
     width: 100%;
   }
@@ -96,7 +96,6 @@ const antIcon = (
 
 const OverviewPage = (props) => {
   const { showSidebar, initializeTodos, todosData, todosSpinning } = props;
-  console.log(todosData);
 
   useEffect(() => {
     if (localStorage.getItem("token") !== null) {

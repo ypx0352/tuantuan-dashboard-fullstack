@@ -86,12 +86,10 @@ const Input = styled.input`
   outline: none;
   margin-top: 5px;
   font-weight: bold;
-
   ::placeholder {
     color: #9fa2b4;
     font-weight: normal;
   }
-
   &.error {
     border-color: darkred;
   }
@@ -154,14 +152,6 @@ const RegisterPage = (props) => {
     registered,
     registerButtonLoading,
   } = props;
-
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (registered) {
-  //     navigate("/login");
-  //   }
-  // }, [registered]);
 
   const [showPassword, setShowPassword] = useState(false);
 

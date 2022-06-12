@@ -23,11 +23,11 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
-  width: auto;
+  max-width: 15%;
 `;
 
 const Right = styled.div`
-  min-width: 90%;
+  min-width: 88%;
   padding: 20px;
   &.expand {
     width: 100%;

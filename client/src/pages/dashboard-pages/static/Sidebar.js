@@ -146,6 +146,15 @@ const Sidebar = (props) => {
           </ListItemIcon>
           <ListItemText>Settings</ListItemText>
         </ListItemWrapper>
+        <ListItemWrapper
+          href="/dashboard/user"
+          className={selected === "user" ? "selected" : ""}
+        >
+          <ListItemIcon className="material-icons-outlined">
+            person
+          </ListItemIcon>
+          <ListItemText>User</ListItemText>
+        </ListItemWrapper>
       </List>
     </SidebarWrapper>
   );

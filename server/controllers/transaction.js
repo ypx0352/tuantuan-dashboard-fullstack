@@ -7,6 +7,7 @@ const {
   generateInvoicePdf,
   prettifyMoneyNumber,
   sendEmail,
+  generateEmailHtml,
 } = require("./static");
 const path = require("path");
 const fs = require("fs");
@@ -132,41 +133,14 @@ const approveTransaction = (req, res) => {
       .findOne({ name: transactionRecord.username })
       .select("email name -_id");
 
-    const emailContent = `<div
-        style="
-        width: 100%;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      "
-      >
-        <div
-          style="
-          display: flex;
-          flex-direction: column;
-          
-          justify-content: center;
-          align-items: center;
-          border-radius: 10px;
-          width: 100%;
-          height: 200px;
-          background-color: antiquewhite;
-        "
-        >
-          <h2>Thank you ${userRecord.name},</h2>
-          <p style="padding: 0 50px;">
-            Your payment for transaction #${transaction_id} has been confirmed.
-            Please see the invoice in the attachment.
-          </p>
-        </div>
-      </div>`;
-
     await sendEmail(
       userRecord.email,
       `Invoice #${transaction_id}`,
-      emailContent,
+      generateEmailHtml(
+        `Thank you ${userRecord.name},`,
+        ` Your payment for transaction #${transaction_id} has been confirmed.
+            Please see the invoice in the attachment.`
+      ),
       path.resolve(__dirname, `../public/pdf/Invoice-${transaction_id}.pdf`)
     );
 

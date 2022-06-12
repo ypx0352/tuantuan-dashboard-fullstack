@@ -46,6 +46,9 @@ const UserWrapper = styled.div`
   &.hide {
     display: none;
   }
+  .link {
+    color: #363740;
+  }
 `;
 
 const Name = styled.span`
@@ -95,13 +98,7 @@ const CartItemCount = styled.div`
 `;
 
 const Header = (props) => {
-  const {
-    setShowCart,
-    showSidebar,
-    handleShowSidebar,
-    handleLogout,
-    loginSuccess,
-  } = props;
+  const { setShowCart, showSidebar, handleShowSidebar, handleLogout } = props;
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [logged, setLogged] = useState(false);
@@ -116,10 +113,6 @@ const Header = (props) => {
       setShowLoginModal(false);
     }
   });
-
-  // useEffect(() => {
-  //   setShowLoginModal(!loginSuccess);
-  // }, [loginSuccess]);
 
   const name = localStorage.getItem("name");
 
@@ -145,9 +138,12 @@ const Header = (props) => {
           </CartIconWrapper>
         </Cart>
         <UserWrapper className={logged ? "" : "hide"}>
-          <Name>{name}</Name>
-          <UserImage src={userImage}></UserImage>
-          <Link to={"/"}>
+          <Link to="/dashboard/user" className="link">
+            <Name>{name}</Name>
+            <UserImage src={userImage}></UserImage>
+          </Link>
+
+          <Link to={"/"} className='link'>
             <span
               className="material-symbols-outlined"
               style={{ cursor: "pointer" }}
@@ -182,12 +178,11 @@ const Header = (props) => {
             redirectTo={useLocation().pathname}
             containerHeight="100%"
             parentCallback={(childData) => {
-              if(childData){
+              if (childData) {
                 setShowLoginModal(false);
                 setLogged(true);
-                window.location.reload()
+                window.location.reload();
               }
-              
             }}
           />
         }

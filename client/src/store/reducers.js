@@ -11,6 +11,8 @@ import { reducer as logReducer } from "../pages/dashboard-pages/log-page/store";
 import { reducer as transactionReducer } from "../pages/dashboard-pages/transaction-page/store";
 import { reducer as overviewReducer } from "../pages/dashboard-pages/overview-page/store";
 import { reducer as toolReducer } from "../pages/dashboard-pages/tool-page/store";
+import {reducer as userReducer} from '../pages/dashboard-pages/user-page/store';
+import {reducer as resetPasswordReducer} from '../pages/reset-password-page/store'
 
 const reducers = combineReducers({
   login: loginReducer,
@@ -25,6 +27,8 @@ const reducers = combineReducers({
   transaction: transactionReducer,
   overview: overviewReducer,
   tool: toolReducer,
+  user:userReducer,
+  resetPassword: resetPasswordReducer
 });
 
 export default reducers;

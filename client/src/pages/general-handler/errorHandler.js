@@ -5,7 +5,6 @@ const generalHandle = async (action, dispatch, postErrorAction) => {
     await action();
   } catch (error) {
     postErrorAction && postErrorAction(dispatch, error);
-    console.log(error.response);
     if (error.response) {
       if (
         error.response.headers["content-type"] ===

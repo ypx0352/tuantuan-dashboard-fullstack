@@ -31,7 +31,7 @@ const login = async (req, res) => {
 
       // Verify account activation
       if (!active) {
-        return res.status(400).json({ msg: "Your account is not active." });
+        return res.status(400).json({ msg: "Your account is deactivated." });
       }
 
       // Verify that the email is verified except for visitors

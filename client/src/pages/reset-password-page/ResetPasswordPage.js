@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { Button, Input } from "antd";
+import { Button, Input, Result } from "antd";
 import { fromJS } from "immutable";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators } from "./store";
@@ -17,6 +17,28 @@ const Container = styled.div`
   background-color: #f7f7f7;
   font-family: "Mulish", sans-serif;
   margin: 15px 20px;
+`;
+
+const FormWrapper = styled.div`
+  height: 70%;
+  min-height: 550px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 20px -6px #000000;
+  box-shadow: 0px 0px 20px -6px #000000;
+  &.hide {
+    display: none;
+  }
+`;
+
+const ResultWrapper = styled.div`
+  &.hide {
+    display: none;
+  }
 `;
 
 const Wrapper = styled.div`
@@ -59,6 +81,9 @@ const InputWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   position: relative;
+  &.hide {
+    display: none;
+  }
 `;
 
 const Label = styled.label`
@@ -87,15 +112,6 @@ const StyledInput = styled(Input)`
   }
 `;
 
-const ForgotPassword = styled.span`
-  position: absolute;
-  right: 0;
-  top: 0;
-  font-size: 12px;
-  font-weight: bold;
-  color: #9fa2b4;
-`;
-
 const ShowPassword = styled.span`
   position: absolute;
   right: 3%;
@@ -122,19 +138,9 @@ const StyledButton = styled(Button)`
     background-color: #3751ff;
     color: white;
   }
-`;
-
-const TextWrapper = styled.div`
-  display: flex;
-  margin-top: 20px;
-`;
-
-const Text = styled.div``;
-const StyledA = styled.a`
-  margin-left: 5px;
-  color: #3751ff;
-  font-weight: bold;
-  text-decoration: none;
+  &.hide {
+    display: none;
+  }
 `;
 
 const Warning = styled.small`
@@ -145,42 +151,44 @@ const Warning = styled.small`
   }
 `;
 
-const LoginPage = (props) => {
+const ResetPasswordPage = (props) => {
   const {
     handleSubmit,
     inputErrorObject,
     modifyInputErrorObject,
-    loginButtonLoading,
+    submitButtonLoading,
+    sendCodeSuccess,
+    handleSendCode,
+    sendCodeButtonLoading,
+    resetSuccess,
   } = props;
 
-  const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
+  const [resetInfo, setResetInfo] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (localStorage.getItem("token") !== null) {
-      navigate(
-        props.redirectTo === undefined
-          ? "/dashboard/overview"
-          : props.redirectTo
-      );
-    }
-  });
-
   const handleInput = (e) => {
-    setLoginInfo({ ...loginInfo, [e.target.name]: e.target.value });
+    setResetInfo({ ...resetInfo, [e.target.name]: e.target.value });
     delete inputErrorObject[e.target.name];
     modifyInputErrorObject(inputErrorObject);
   };
 
   return (
     <Container containerHeight={props.containerHeight}>
-      <Wrapper>
+      <ResultWrapper className={resetSuccess ? "" : "hide"}>
+        <Result
+          status="success"
+          title="Your password has been reset."
+          extra={
+            <Link to="/login">
+              <StyledButton>Login</StyledButton>
+            </Link>
+          }
+        />
+      </ResultWrapper>
+      <FormWrapper className={resetSuccess ? "hide" : ""}>
         <LogoImage src={Logo}></LogoImage>
         <LogoText>Tuantuan Dashboard</LogoText>
-        <Title>Log In to Dashboard</Title>
-        <Subtitle>Enter your email and password below</Subtitle>
+        <Title>Reset Password</Title>
         <InputWrapper>
           <Label>EMAIL</Label>
           <StyledInput
@@ -188,6 +196,7 @@ const LoginPage = (props) => {
             type="text"
             name="email"
             onChange={handleInput}
+            disabled={sendCodeSuccess}
             className={inputErrorObject.email === undefined ? "" : "error"}
           />
           <Warning
@@ -197,18 +206,50 @@ const LoginPage = (props) => {
           </Warning>
         </InputWrapper>
         <InputWrapper>
-          <Label>PASSWORD</Label>
+          <Label>USERNAME</Label>
           <StyledInput
-            placeholder="Password"
+            placeholder="Username"
+            type="text"
+            name="name"
+            onChange={handleInput}
+            disabled={sendCodeSuccess}
+            className={inputErrorObject.name === undefined ? "" : "error"}
+          />
+          <Warning
+            className={inputErrorObject.name === undefined ? "hide" : ""}
+          >
+            {inputErrorObject.email}
+          </Warning>
+        </InputWrapper>
+        <StyledButton
+          onClick={() => handleSendCode(resetInfo)}
+          loading={sendCodeButtonLoading}
+          className={sendCodeSuccess ? "hide" : ""}
+        >
+          Send verification code
+        </StyledButton>
+        <InputWrapper className={sendCodeSuccess ? "" : "hide"}>
+          <Label>VERIFICATION CODE</Label>
+          <StyledInput
+            placeholder="Verification code in email"
+            name="code"
+            onChange={handleInput}
+            className={inputErrorObject.code === undefined ? "" : "error"}
+          />
+        </InputWrapper>
+        <Warning className={inputErrorObject.code === undefined ? "hide" : ""}>
+          {inputErrorObject.code}
+        </Warning>
+        <InputWrapper className={sendCodeSuccess ? "" : "hide"}>
+          <Label>NEW PASSWORD</Label>
+          <StyledInput
+            placeholder="New password"
             type={showPassword ? "text" : "password"}
             name="password"
             onChange={handleInput}
+            onPressEnter={() => handleSubmit(resetInfo)}
             className={inputErrorObject.password === undefined ? "" : "error"}
-            onPressEnter={() => handleSubmit(loginInfo, props.parentCallback)}
           />
-          <ForgotPassword>
-            <StyledA href="/reset_password">Forgot password?</StyledA>
-          </ForgotPassword>
           <ShowPassword
             className="material-icons-outlined"
             onClick={() => setShowPassword(!showPassword)}
@@ -223,28 +264,31 @@ const LoginPage = (props) => {
         </Warning>
 
         <StyledButton
-          onClick={() => handleSubmit(loginInfo, props.parentCallback)}
-          loading={loginButtonLoading}
+          onClick={() => handleSubmit(resetInfo)}
+          loading={submitButtonLoading}
+          className={sendCodeSuccess ? "" : "hide"}
         >
-          Log In
+          Submit
         </StyledButton>
-        <TextWrapper>
-          <Text>Don't have an account?</Text>
-          <StyledA href="/register">Sign up</StyledA>
-        </TextWrapper>
-      </Wrapper>
+      </FormWrapper>
     </Container>
   );
 };
 
 const mapState = (state) => ({
   inputErrorObject: state.getIn(["register", "inputErrorObject"]).toJS(),
-  loginButtonLoading: state.getIn(["login", "loginButtonLoading"]),
+  submitButtonLoading: state.getIn(["resetPassword", "submitButtonLoading"]),
+  sendCodeSuccess: state.getIn(["resetPassword", "sendCodeSuccess"]),
+  sendCodeButtonLoading: state.getIn([
+    "resetPassword",
+    "sendCodeButtonLoading",
+  ]),
+  resetSuccess: state.getIn(["resetPassword", "resetSuccess"]),
 });
 
 const mapDispatch = (dispatch) => ({
-  handleSubmit(loginInfo, parentCallback) {
-    dispatch(actionCreators.loginAction(loginInfo, parentCallback));
+  handleSubmit(resetInfo) {
+    dispatch(actionCreators.resetPasswordAction(resetInfo));
   },
 
   modifyInputErrorObject(newObject) {
@@ -253,6 +297,10 @@ const mapDispatch = (dispatch) => ({
       value: fromJS(newObject),
     });
   },
+
+  handleSendCode(resetInfo) {
+    dispatch(actionCreators.sendVerificationCodeAction(resetInfo));
+  },
 });
 
-export default connect(mapState, mapDispatch)(LoginPage);
+export default connect(mapState, mapDispatch)(ResetPasswordPage);
