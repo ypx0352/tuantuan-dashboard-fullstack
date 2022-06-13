@@ -1,4 +1,3 @@
-import axios from "axios";
 import { fromJS } from "immutable";
 import { actionTypes } from ".";
 import { generalHandle } from "../../../general-handler/errorHandler";

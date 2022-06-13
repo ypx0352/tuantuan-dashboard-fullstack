@@ -81,7 +81,7 @@ const LandingPage = () => {
   useEffect(() => {
     const name = localStorage.getItem("name");
     if (name !== null) setUsername(name);
-  });
+  }, []);
 
   return (
     <Container>
@@ -90,14 +90,16 @@ const LandingPage = () => {
         <Subtitle>Easy business, happy life.</Subtitle>
         <ButtonContainer>
           <Button className={username === "" ? "" : "hide"} href="/login">
-            GET STARTED <span class="material-symbols-outlined">login</span>
+            GET STARTED <span className="material-symbols-outlined">login</span>
           </Button>
           <Button
             className={username === "" ? "hide" : ""}
             href="/dashboard/overview"
           >
             Continue as {username}{" "}
-            <span class="material-symbols-outlined">arrow_circle_right</span>
+            <span className="material-symbols-outlined">
+              arrow_circle_right
+            </span>
           </Button>
         </ButtonContainer>
       </Left>

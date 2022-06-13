@@ -76,11 +76,11 @@ const StyledButton = styled(Button).attrs((props) => ({
     "min-width": "65px",
     height: "50px",
     padding: "12px",
-    "margin-left": "10px",
-    "border-radius": "8px",
+    "marginLeft": "10px",
+    "borderRadius": "8px",
     border: "none",
-    "text-align": "center",
-    "background-color": colors[props.type],
+    "textAlign": "center",
+    "backgroundColor": colors[props.type],
     color: "white",
   },
 }))``;
@@ -287,6 +287,7 @@ const AddressPage = (props) => {
           city: addressInput.city,
           district: value,
         });
+        break;
       default:
         const newData = { ...addressInput };
         newData[entry] = value.trim();

@@ -57,7 +57,7 @@ const ToolPage = (props) => {
 
   useEffect(() => {
     getSettings();
-  }, []);
+  });
 
   const typeOptions = [
     { label: "Normal item", value: "normalPostage" },

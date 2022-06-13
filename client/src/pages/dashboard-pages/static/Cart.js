@@ -19,8 +19,9 @@ const CartContainer = styled.div`
   }
 
   display: flex;
-  position: relative;
   flex-direction: column;
+  justify-content: space-between;
+  overflow: auto;
   height: 70vh;
   background-color: #363740;
   padding: 20px;
@@ -29,6 +30,10 @@ const CartContainer = styled.div`
   &.hide {
     display: none;
   }
+`;
+
+const CartContent = styled.div`
+  //min-height: 80%;
 `;
 
 const Header = styled.div`
@@ -41,8 +46,9 @@ const Header = styled.div`
 `;
 
 const Items = styled.div`
-  height: 70%;
+  max-height: 100%;
   overflow: auto;
+  position: relative;
 `;
 
 const Record = styled.div`
@@ -71,6 +77,12 @@ const Remove = styled.span`
   cursor: pointer;
 `;
 
+const CartSummaryWrapper = styled.div`
+max-height: 35%;
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const CartSummary = styled.div`
   @keyframes fadeIn {
     0% {
@@ -81,9 +93,8 @@ const CartSummary = styled.div`
     }
   }
   display: flex;
-  position: absolute;
-  bottom: 10px;
-  right: 15px;
+
+  
   flex-direction: column;
   color: #bcbbb4;
   animation: fadeIn 2s ease-in;
@@ -161,10 +172,10 @@ const Cart = (props) => {
 
   const modalContent = {
     Alipay: (
-      <img src={alipayQRCode} style={{ maxWidth: "100%", maxHeight: "100%" }} />
+      <img alt="Alipay QR code" src={alipayQRCode} style={{ maxWidth: "100%", maxHeight: "100%" }} />
     ),
     Wechat: (
-      <img src={wechatQRCode} style={{ maxWidth: "100%", maxHeight: "100%" }} />
+      <img alt="Wechat QR code" src={wechatQRCode} style={{ maxWidth: "100%", maxHeight: "100%" }} />
     ),
     Bank: (
       <div>
@@ -296,57 +307,61 @@ const Cart = (props) => {
 
   return (
     <CartContainer className={props.className}>
-      <Header>
-        <span style={{ width: "35%" }}>Item</span>
-        <span style={{ width: "10%" }}>Quantity</span>
-        <span style={{ width: "15%" }}>Receiver</span>
-        <span style={{ width: "10%" }}>Customer pay</span>
-        <span style={{ width: "10%" }}>Profits</span>
-        <span style={{ width: "15%" }}>Note</span>
-        <span
-          style={{ width: "5%" }}
-          className="material-icons-outlined"
-          onClick={() => setShowCart(false)}
-          style={{ cursor: "pointer" }}
-        >
-          close
-        </span>
-      </Header>
-      {cartItems.size === 0 ? (
-        <Empty
-          image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
-          imageStyle={{
-            height: "50%",
-            marginTop: "10%",
-          }}
-          style={{ color: "#bcbbb4" }}
-          description={<span>Your cart is empty</span>}
-        />
-      ) : (
-        <Items>{generateCartItem()}</Items>
-      )}
+      <CartContent>
+        <Header>
+          <span style={{ width: "35%" }}>Item</span>
+          <span style={{ width: "10%" }}>Quantity</span>
+          <span style={{ width: "15%" }}>Receiver</span>
+          <span style={{ width: "10%" }}>Customer pay</span>
+          <span style={{ width: "10%" }}>Profits</span>
+          <span style={{ width: "15%" }}>Note</span>
+          <span
+            style={{ width: "5%", cursor: "pointer" }}
+            className="material-icons-outlined"
+            onClick={() => setShowCart(false)}
+          >
+            close
+          </span>
+        </Header>
+
+        {cartItems.size === 0 ? (
+          <Empty
+            image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+            imageStyle={{
+              height: "50%",
+              marginTop: "10%",
+            }}
+            style={{ color: "#bcbbb4" }}
+            description={<span>Your cart is empty</span>}
+          />
+        ) : (
+          <Items>{generateCartItem()}</Items>
+        )}
+      </CartContent>
 
       {cartItems.size === 0 ? (
         ""
       ) : (
-        <CartSummary>
-          <Subtotal>
-            <span style={{ fontSize: "15px" }}>Subtotal</span>
-            <span style={{ fontSize: "25px" }}>￥ {cartSubtotal}</span>
-          </Subtotal>
-          <Button onClick={() => setModalVisible(true)}>Checkout</Button>
-          <CompanyLogo>
-            <span
-              className="iconfont icon-zhifubaozhifu-copy-copy"
-              style={{ marginRight: "10px" }}
-            ></span>
-            <span
-              className="iconfont icon-weixinzhifu1-copy-copy"
-              style={{ marginRight: "10px" }}
-            ></span>
-            <span className="iconfont icon-zhongguoyinhang"> </span>
-          </CompanyLogo>
-        </CartSummary>
+        <CartSummaryWrapper>
+          <CartSummary>
+            <Subtotal>
+              <span style={{ fontSize: "15px" }}>Subtotal</span>
+              <span style={{ fontSize: "25px" }}>￥ {cartSubtotal}</span>
+            </Subtotal>
+            <Button onClick={() => setModalVisible(true)}>Checkout</Button>
+            <CompanyLogo>
+              <span
+                className="iconfont icon-zhifubaozhifu-copy-copy"
+                style={{ marginRight: "10px" }}
+              ></span>
+              <span
+                className="iconfont icon-weixinzhifu1-copy-copy"
+                style={{ marginRight: "10px" }}
+              ></span>
+              <span className="iconfont icon-zhongguoyinhang"> </span>
+            </CompanyLogo>
+          </CartSummary>
+        </CartSummaryWrapper>
       )}
 
       <Modal

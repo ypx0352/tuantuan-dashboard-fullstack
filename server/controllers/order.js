@@ -169,7 +169,7 @@ const getExchangeRate = async (req, res) => {
 const submitOrder = async (req, res) => {
   generalHandle(async (session) => {
     const { pk_id, stock, employee, sold } = req.body.reviewData;
-    const { packageData, receiverData } = req.body;
+    const { packageData, receiverData, username } = req.body;
 
     // To avoid duplicate saves, check duplicates first.
     models = getOrderModels().concat(PackageModel);
@@ -222,7 +222,7 @@ const submitOrder = async (req, res) => {
 
     // Write log.
     const logResult = await writeLog(
-      "Pengxiang Yue",
+      username,
       `Create order ${pk_id}. `,
       pk_id,
       session

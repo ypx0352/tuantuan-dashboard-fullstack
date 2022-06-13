@@ -18,8 +18,7 @@ const getSetting = (req, res) => {
 
 const setSetting = async (req, res) => {
   generalHandle(async (session) => {
-    const { name, value } = req.body;
-    const user_id = "tuantuan";
+    const { name, value, username } = req.body;
 
     await typeToModel("setting").findOneAndUpdate(
       { name: name },
@@ -28,7 +27,7 @@ const setSetting = async (req, res) => {
     );
     // Write the log.
     const logResult = await writeLog(
-      user_id,
+      username,
       `Update setting ${name} to ${value}.`,
       "",
       session

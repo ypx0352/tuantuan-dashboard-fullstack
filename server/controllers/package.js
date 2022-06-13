@@ -1,6 +1,5 @@
 const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
+
 const {
   trackParcel,
   getOrderModels,
@@ -22,7 +21,6 @@ const getSearchedPackage = (req, res) => {
       for (const model of getOrderModels()) {
         const result = await model.find({ pk_id: pk_id });
         result.forEach((item) => itemRecords.push(item));
-        //itemRecords.concat(result); //TODO: delete this row
       }
 
       //Get paid items (items in the Transaction collection)
@@ -116,51 +114,5 @@ const getPostSlip = async (req, res) => {
     "Failed to get post slip. Server error."
   );
 };
-
-// console.log(
-//   `${process.env.PLOAR_POST_SLIP_BASE_URL}?pkg_id=${slicedPk_id}&mtoken=${mtoken}`
-// );
-
-// Save pdf in server.
-// var filename = "Post slip";
-// var file =
-//   "/Users/patrick/Documents/vsCode Projects/tuantuan-dashboard-fullstack/server/public/pdf/postSlip.pdf";
-
-// fs.writeFile(file, pdf.data, "binary", (err) => {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log("success");
-//   }
-// });
-
-// res.setHeader("Content-Type", "application/pdf");
-// res.setHeader("Content-Disposition", "inline; filename=pdf");
-// res.setHeader("Access-Control-Allow-Headers", "*");
-// res.setHeader(
-//   "Cache-Control",
-//   "private,must-revalidate,post-check=0,pre-check=0,max-age=1"
-// );
-// res.setHeader("Transfer-Encoding", "chunked");
-
-// const testToken2 = async () => {
-//   console.log(path.resolve(__dirname, "../public/pdf/EAW4-task2.pdf"));
-//   var file = fs.createReadStream(
-//     "/Users/patrick/Documents/vsCode Projects/tuantuan-dashboard-fullstack/server/public/pdf/EAW4-task2.pdf"
-//   );
-//   var stat = fs.statSync(
-//     "/Users/patrick/Documents/vsCode Projects/tuantuan-dashboard-fullstack/server/public/pdf/EAW4-task2.pdf"
-//   );
-//   res.setHeader("Content-Length", stat.size);
-//   res.setHeader("Content-Type", "application/pdf");
-//   // res.setHeader("Content-Disposition", "inline; filename=quote.pdf");
-//   // res.setHeader("Access-Control-Allow-Headers", "*");
-//   // res.setHeader(
-//   //   "Cache-Control",
-//   //   "private,must-revalidate,post-check=0,pre-check=0,max-age=1"
-//   // );
-//   // res.setHeader("Transfer-Encoding", "chunked");
-//   file.pipe(res);
-// };
 
 module.exports = { getSearchedPackage, getLatestPackages, getPostSlip };

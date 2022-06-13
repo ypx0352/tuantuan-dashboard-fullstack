@@ -1,12 +1,11 @@
 import { fromJS } from "immutable";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Logo from "../../image/tuan-logo.jpeg";
 import { actionCreators, actionTypes } from "./store";
 import { Link } from "react-router-dom";
 import { Button, Result } from "antd";
-import { SmileOutlined } from "@ant-design/icons";
 
 const Container = styled.div`
   min-height: 100vh;

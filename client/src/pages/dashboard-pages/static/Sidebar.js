@@ -1,8 +1,6 @@
-import { fromJS } from "immutable";
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { actionTypes } from "./store";
 
 const SidebarWrapper = styled.div`
   height: 100%;
@@ -10,7 +8,7 @@ const SidebarWrapper = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #363740;
-  transition:  1s ease-in-out;
+  transition: 1s ease-in-out;
   overflow: auto;
   &.hide {
     width: 0px;
@@ -60,7 +58,7 @@ const ListItemText = styled.span`
 const ListItemIcon = styled.span``;
 
 const Sidebar = (props) => {
-  const { selected, showSidebar, setShowSidebar } = props;
+  const { selected, showSidebar } = props;
   return (
     <SidebarWrapper className={showSidebar ? "" : "hide"}>
       <DashboardTitle>Tuantuan Dashbord</DashboardTitle>
@@ -124,7 +122,9 @@ const Sidebar = (props) => {
           className={selected === "tool" ? "selected" : ""}
         >
           <ListItemIcon className="material-icons-outlined">
-            <span class="material-symbols-outlined">home_repair_service</span>
+            <span className="material-symbols-outlined">
+              home_repair_service
+            </span>
           </ListItemIcon>
           <ListItemText>Tool</ListItemText>
         </ListItemWrapper>
@@ -164,10 +164,4 @@ const mapState = (state) => ({
   showSidebar: state.getIn(["static", "showSidebar"]),
 });
 
-const mapDispatch = (dispatch) => ({
-  setShowSidebar(value) {
-    dispatch({ type: actionTypes.SET_SHOW_SIDEBAR, value: fromJS(value) });
-  },
-});
-
-export default connect(mapState, mapDispatch)(Sidebar);
+export default connect(mapState, null)(Sidebar);

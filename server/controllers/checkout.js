@@ -55,7 +55,7 @@ const approveExceptionItem = (req, res) => {
 
     // Logging this action.
     const logResult = await writeLog(
-      "Pengxiang Yue",
+      req.body.username,
       `Approve exception ${sourceRecordResult.sourceRecord.qty} ${sourceRecordResult.sourceRecord.item}.`,
       sourceRecordResult.sourceRecord.pk_id,
       session
@@ -87,8 +87,14 @@ const updateNote = (req, res) => {
 
 const transferItem = (req, res) => {
   generalHandle(async (session) => {
-    const { original_id, sourceType, targetType, transferQty, subtotal } =
-      req.body;
+    const {
+      original_id,
+      sourceType,
+      targetType,
+      transferQty,
+      subtotal,
+      username,
+    } = req.body;
 
     // Validate and get the source record.
     const sourceRecordResult = await validateAndGetSourceRecord(
@@ -128,7 +134,7 @@ const transferItem = (req, res) => {
 
     // Write the log.
     const logResult = await writeLog(
-      "Pengxiang Yue", //TODO change to variable
+      username,
       `Transfer ${transferQty} ${sourceRecordResult.sourceRecord.item} to ${targetType} from ${sourceType}.`,
       sourceRecordResult.sourceRecord.pk_id,
       session

@@ -76,6 +76,27 @@ const Btn = styled.div`
   color: white;
 `;
 
+const StyledButton = styled(Button)`
+  width: 10%;
+  height: 50px;
+  padding: 12px;
+  margin-left: 10px;
+  border-radius: 8px;
+  border: none;
+  text-align: center;
+  background-color: #3751ff;
+  color: white;
+  :hover {
+    opacity: 0.9;
+    background-color: #3751ff;
+    color: white;
+  }
+  :focus {
+    background-color: #3751ff;
+    color: white;
+  }
+`;
+
 const ExchangeRateWrapper = styled.a.attrs({ target: "_blank" })`
   text-align: right;
   color: #3751ff;
@@ -319,7 +340,7 @@ const OrderPage = (props) => {
 
   const addWeight = (data) => {
     var newTotalWeight = 0;
-    data.map((item) => {
+    data.forEach((item) => {
       newTotalWeight += item["subtotalWeight"];
     });
     setTotalWeight(newTotalWeight);
@@ -666,28 +687,17 @@ const OrderPage = (props) => {
               }
               allowClear
             />
-            <Button
-              style={{
-                width: "10%",
-                height: "50px",
-                padding: "12px",
-                "margin-left": "10px",
-                "border-radius": "8px",
-                border: "none",
-                "text-align": "center",
-                "background-color": "#3751ff",
-                color: "white",
-              }}
+            <StyledButton
               onClick={() => handleSearch(searchInputEl.current.state.value)}
               loading={spinning}
             >
               Search
-            </Button>
+            </StyledButton>
           </SearchContainer>
 
           <OrderExistMessage className={showExistMessage ? "" : "hide"}>
             <span
-              class="material-symbols-outlined"
+              className="material-symbols-outlined"
               style={{ verticalAlign: "middle", color: "green" }}
             >
               new_releases
@@ -745,7 +755,7 @@ const OrderPage = (props) => {
             </TableWrapper>
             <BtnWrapper>
               <Btn onClick={handleAdd}>Add</Btn>
-              <Button
+              <StyledButton
                 onClick={() => {
                   handleReview({
                     items: itemTableData,
@@ -754,20 +764,9 @@ const OrderPage = (props) => {
                   });
                   scrollToReview();
                 }}
-                style={{
-                  width: "10%",
-                  height: "50px",
-                  padding: "12px",
-                  "margin-left": "10px",
-                  "border-radius": "8px",
-                  border: "none",
-                  "text-align": "center",
-                  "background-color": "#3751ff",
-                  color: "white",
-                }}
               >
                 Review
-              </Button>
+              </StyledButton>
             </BtnWrapper>
           </Spin>
           <ReviewContainer ref={reviewRef}>
@@ -810,25 +809,14 @@ const OrderPage = (props) => {
               </TableWrapper>
               <BtnWrapper>
                 <Btn onClick={() => setShowReview(false)}>Back</Btn>
-                <Button
-                  style={{
-                    width: "10%",
-                    height: "50px",
-                    padding: "12px",
-                    "margin-left": "10px",
-                    "border-radius": "8px",
-                    border: "none",
-                    "text-align": "center",
-                    "background-color": "#3751ff",
-                    color: "white",
-                  }}
+                <StyledButton
                   loading={submitLoading}
                   onClick={() =>
                     handleSubmit(reviewData, packageData[0], receiverData[0])
                   }
                 >
                   Submit
-                </Button>
+                </StyledButton>
               </BtnWrapper>
             </SubmitWrapper>
           </ReviewContainer>
@@ -839,11 +827,17 @@ const OrderPage = (props) => {
       <Modal
         title={
           submitResult.get("success") ? (
-            <span class="material-icons-outlined" style={{ color: "#18a16d" }}>
+            <span
+              className="material-icons-outlined"
+              style={{ color: "#18a16d" }}
+            >
               thumb_up_off_alt
             </span>
           ) : (
-            <span class="material-icons-outlined" style={{ color: "#DF362D" }}>
+            <span
+              className="material-icons-outlined"
+              style={{ color: "#DF362D" }}
+            >
               error
             </span>
           )
@@ -913,6 +907,7 @@ const mapDispatch = (dispatch) => ({
       type: actionTypes.SHOW_SUBMIT_RESULT_DIALOG,
       value: fromJS(false),
     });
+    dispatch(actionCreators.initializeSettingsAction);
   },
 
   setShowSubmitResultDialog(value) {

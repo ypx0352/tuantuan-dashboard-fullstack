@@ -1,6 +1,5 @@
 import axios from "axios";
 import { fromJS } from "immutable";
-import { connect } from "react-redux";
 import store from "../../store";
 import { actionTypes as loginActionTypes } from "../login-page/store";
 

@@ -16,7 +16,6 @@ import "antd/dist/antd.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import Sidebar from "../static/Sidebar";
 import Header from "../static/Header";
-import userImage from "../../../image/tuan-logo.jpeg";
 import Cart from "../static/Cart";
 import { actionCreators, actionTypes } from "./store";
 import { updateNoteAction } from "../static/store/actionCreators";
@@ -806,12 +805,7 @@ const CheckoutPage = (props) => {
       </Left>
       <Right className={showSidebar ? "" : "expand"}>
         <Cart className={showCart ? "" : "hide"} />
-        <Header
-          title="Checkout"
-          userName="Tuantuan"
-          userImage={userImage}
-          cartCount={cartItemsCount}
-        />
+        <Header title="Checkout" cartCount={cartItemsCount} />
         <ContentWrapper>
           <BlockWrapper>{generateBlock()}</BlockWrapper>
           <SearchWrapper>

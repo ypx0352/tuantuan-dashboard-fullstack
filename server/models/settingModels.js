@@ -3,14 +3,14 @@ const mongoose = require("mongoose");
 
 const settingSchema = new mongoose.Schema(
   {
-  name:{
+    name: {
       type: String,
-      required:true
-  },
-  value:{
+      required: true,
+    },
+    value: {
       type: Number,
-      required:true
-  }
+      required: true,
+    },
   },
   { timestamps: true }
 );

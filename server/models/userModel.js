@@ -41,10 +41,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    nextVerificationCode:{
-      type:String,
-      required:true
-    }
+    nextVerificationCode: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

@@ -99,7 +99,7 @@ const TransactionPage = (props) => {
 
   useEffect(() => {
     initializeAllTransactions();
-  }, []);
+  },[]);
 
   useEffect(() => {
     setTableData(allTransactions);

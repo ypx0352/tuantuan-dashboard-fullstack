@@ -504,7 +504,10 @@ const generateInvoicePdf = (record) => {
       // PDF content.
       content: [
         {
-          image: path.resolve(__dirname, "../public/image/tuan-logo.jpeg"),
+          image: path.resolve(
+            __dirname,
+            "../public/image/dashboard-logo-removebg.png"
+          ),
           width: 50,
           style: "image",
         },
@@ -641,41 +644,6 @@ const sendEmail = async (emailAddress, subject, content, attachment) => {
   }
 };
 
-{
-  /* <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Email verification success</title>
-    <style>
-      body {
-        padding: 20px;
-        width: 80%;
-        margin: 0 auto;
-        
-      }
-
-      div {
-        margin: 0 auto;
-        border-radius: 10px;
-        width: 100%;
-        height: 100px;
-        background-color: antiquewhite;
-      }
-
-      h2 {
-        text-align: center
-      }
-
-      p{
-        text-align: center
-      }
-    </style>
-    
-  </head> */
-}
-
 const generateEmailHtml = (
   title,
   content
@@ -715,33 +683,6 @@ const generateEmailHtml = (
         </div>
       </div>
     </div>`;
-
-const test = async () => {
-  try {
-    const mailContent = `
-  <div style="padding: 20px;width: 80%;margin: auto">
-  <img src="https://github.com/ypx0352/ypx0352.github.io/blob/main/todolist-pic/landing%20page.png?raw=true" style="margin: 0 auto;width:500px;"
-    <div style="padding:10px;margin: auto;border-radius: 10px;width: 100%;height: 100px;background-color: antiquewhite;">
-      <h2 style="text-align: center">Thank you.</h2>
-      <p style="text-align: center">Your email has been verified successfully.</p>
-    </div>
-  </div>
-`;
-    const result = await sendEmail(
-      "yuepengxiang@gmail.com",
-      "test",
-      generateEmailHtml(
-        "Hi Pengxiang Yue",
-        "Please click the following URL to verify your email.<a >${/api/register/verify_email?username=Pengxiang Yue</a>"
-      )
-    );
-    console.log(result);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-//test();
 
 module.exports = {
   writeLog,

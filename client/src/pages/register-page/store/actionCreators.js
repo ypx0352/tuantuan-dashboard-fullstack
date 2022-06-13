@@ -1,5 +1,4 @@
 import { fromJS } from "immutable";
-import { message } from "antd";
 import { actionTypes } from ".";
 import { normalAxios } from "../../general-handler/requestHandler";
 import { generalHandle } from "../../general-handler/errorHandler";

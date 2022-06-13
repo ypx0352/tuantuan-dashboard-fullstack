@@ -11,9 +11,9 @@ const normalItemSchema = new mongoose.Schema(
     weight: { type: Number, required: true }, // weight per unit
     pk_id: { type: String, required: true },
     note: { type: String, required: false },
-    exchangeRate: { type: Number, required: true }, 
+    exchangeRate: { type: Number, required: true },
     type: { type: String, required: true },
-    //origin_type: { type: String }, 
+    //origin_type: { type: String },
     receiver: { type: String, required: true },
     sendTimeISO: { type: Date, required: true },
   },

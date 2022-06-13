@@ -41,19 +41,6 @@ const ResultWrapper = styled.div`
   }
 `;
 
-const Wrapper = styled.div`
-  height: 70%;
-  min-height: 550px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  background-color: white;
-  -webkit-box-shadow: 0px 0px 20px -6px #000000;
-  box-shadow: 0px 0px 20px -6px #000000;
-`;
-
 const LogoImage = styled.img`
   width: 30%;
 `;
@@ -67,11 +54,6 @@ const LogoText = styled.div`
 const Title = styled.h1`
   font-style: 24px;
   font-weight: bold;
-`;
-
-const Subtitle = styled.div`
-  font-style: 14px;
-  color: #9fa2b4;
 `;
 
 const InputWrapper = styled.div`

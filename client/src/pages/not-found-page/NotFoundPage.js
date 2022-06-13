@@ -28,7 +28,7 @@ const StyledButton = styled(Button).attrs({ type: "primary" })`
 const NotFoundPage = () => {
   return (
     <Container>
-      <img src={mainImage} style={{ width: "70%" }} />
+      <img alt="Not found img" src={mainImage} style={{ width: "70%" }} />
       <a href="/dashboard/overview">
         <StyledButton>Home page</StyledButton>
       </a>

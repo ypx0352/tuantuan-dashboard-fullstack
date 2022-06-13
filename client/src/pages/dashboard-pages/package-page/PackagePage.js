@@ -483,14 +483,14 @@ const PackagePage = (props) => {
                   packages:
                   <LegendWrapper>
                     <span
-                      class="material-symbols-outlined"
+                      className="material-symbols-outlined"
                       style={{ color: "#E8B4B8" }}
                     >
                       blur_on
                     </span>
                     <span>Formulas</span>
                     <span
-                      class="material-symbols-outlined"
+                      className="material-symbols-outlined"
                       style={{ color: "#189AB4" }}
                     >
                       blur_on
